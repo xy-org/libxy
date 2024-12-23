@@ -15,6 +15,10 @@ def dtor(arr: inout Array) {
 
 def len(a: Array) = a.len
 
+def max(a: Size, b: Size) -> Size {
+    return if (a >= b) a else b;
+}
+
 def ensureCapacity(
     arr: inout Array,
     requiredCap: Size,
