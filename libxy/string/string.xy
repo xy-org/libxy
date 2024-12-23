@@ -1,0 +1,10 @@
+struct Str {
+    addr: Ptr;
+    len: Size;
+}
+
+def str~[StrCtor{prefix="", interpolation=False}] (
+    addr: Ptr, size: Size
+) -> Str {
+    return Str{addr, size};
+}
