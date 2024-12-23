@@ -7,14 +7,25 @@ def cstr~[StrCtor{prefix="c", interpolation=false}] (
     return addr;
 }
 
-struct Str {
+struct Str~[memory: struct = MemManaged, xy_dtor=true] {
     addr: Ptr;
     len: Size;
 }
 
+def dtor(str :Str, deleted: bool = dtor(str, str..memory)) {}
+
+def dtor(str: Str, :MemManaged) -> bool {
+    c.free(str.addr);
+}
+
+def dtor(str: Str, :MemExt) -> bool {}
+
+def dtor(str: Str, :MemStatic) -> bool {}
+
+
 def str~[StrCtor{prefix="", interpolation=false}] (
     addr: Ptr, size: Size
-) -> Str {
+) -> Str~MemStatic {
     return Str{addr, size};
 }
 

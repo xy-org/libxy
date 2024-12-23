@@ -1,6 +1,15 @@
 import libc~[CLib{headers=["stdlib.h", "string.h"]}] in c
 import libxy.slices
 
+;; Tag for memory that is managed by a struct and should be deallocated
+struct MemManaged {}
+
+;; Tag for memory that is externally manged and shouldn't be deallocated
+struct MemExt {}
+
+;; Tag for memory that is static and doesn't need any deallocation
+struct MemStatic {}
+
 struct Memory {
     addr: Ptr;
     size: Size;
