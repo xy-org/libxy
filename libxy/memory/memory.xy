@@ -1,4 +1,4 @@
-import libc~[CLib{headers=["stdlib.h", "string.h"]}] in c;
+import libc~[CLib{headers=@["stdlib.h", "string.h"]}] in c;
 import libxy.slices;
 
 ;; Tag for memory that is managed by a struct and should be deallocated
@@ -15,25 +15,25 @@ struct Memory {
     size: Size;
 }
 
-def realloc(mem: inout Memory, size: Size) {
+def *realloc(mem: mut Memory, size: Size) {
     # TODO check output
     mem.addr = c.realloc(mem.addr, size);
     mem.size = size;
 }
 
-def free(mem: inout Memory) {
+def *free(mem: mut Memory) {
     c.free(mem.addr);
     mem.addr = 0;
     mem.size = 0;
 }
 
-def at(mem: Memory, idx: Size) -> Ptr
+def *at(mem: Memory, idx: Size) -> Ptr
 >> idx < mem.size
 {
     return mem.addr + idx;
 }
 
-def set(mem: Memory, interval: SizeInterval, ptr: Ptr)
+def *set(mem: Memory, interval: SizeInterval, ptr: Ptr)
 # >> (
 #     (ptr + interval'len) <= (mem + interval.start) |
 #     (mem + interval.end) <= ptr

@@ -2,7 +2,7 @@
 struct AllSlice {
 }
 
-def slice() = AllSlice{}
+def slice() = AllSlice{};
 
 ;; A simplified interval with start and end of ints
 struct IntInterval {
@@ -17,11 +17,11 @@ struct IntSlice {
     step: int;
 }
 
-def slice(start: int) = IntInterval{start, int'max}
-def slice(end: int, start := 0) = IntInterval{start, end}
-def slice(step: int, end := int'max, start := 0) = IntSlice{start, end, step}
+def *slice(start: int) = IntInterval{start, int'max};
+def *slice(end: int, start := 0) = IntInterval{start, end};
+def *slice(step: int, end := int'max, start := 0) = IntSlice{start, end, step};
 
-def len(interval: IntInterval) = interval.end - interval.start
+def *len(interval: IntInterval) = interval.end - interval.start;
 
 ;; A simplified interval with start and end of sizes
 struct SizeInterval {
@@ -36,8 +36,8 @@ struct SizeSlice {
     step: Size;
 }
 
-def slice(start : Size) = SizeInterval{start, Size'max}
-def slice(end : Size, start: Size := 0) = SizeInterval{start, end}
-def slice(step : Size, end := Size'max, start := 0) = SizeSlice{start, end, step}
+def *slice(start : Size) = SizeInterval{start, Size'max};
+def *slice(end : Size, start: Size := 0) = SizeInterval{start, end};
+def *slice(step : Size, end := Size'max, start := 0) = SizeSlice{start, end, step};
 
-def len(interval: SizeInterval) = interval.end - interval.start
+def *len(interval: SizeInterval) = interval.end - interval.start;

@@ -20,7 +20,7 @@ def printHelp(programComment: Str, descPtr: Ptr~Descriptor, descLen: Size) {
 }
 
 def parse(
-    argObj: pseudo ?,
+    argObj: pseudo any,
     description : pseudo Descriptor[] = [
         for (f in argObj'fieldsof) Descriptor{
             name=f'nameof,
@@ -41,14 +41,14 @@ def parse(
             continue;
         }
         # XXX
-        destStr : var Ptr~Str = dest + descPtr[descLen-1].offset;
+        destStr : mut Ptr~Str = dest + descPtr[descLen-1].offset;
         argLen : Size = c.strlen(argv[i]);
         destStr[0] = str(argv[i], argLen); # XXX should be destStr[]
     }
 }
 
 # def doParse(args: Array~Str, descs: Array~Descriptor, dest: Ptr) {
-    # programName : var Str = "";
+    # programName : mut Str = "";
     # for (i in 0:argc) {
     #     arg := str(argv[i]);
     #     if (i == 0) {
