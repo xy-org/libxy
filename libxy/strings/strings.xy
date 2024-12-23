@@ -18,9 +18,13 @@ def str~[StrCtor{prefix="", interpolation=false}] (
     return Str{addr, size};
 }
 
-struct StrBuilder {
+struct StrBuilder~[xy_dtor=true] {
     mem: Memory;
     len: Size;
+}
+
+def dtor(builder: inout StrBuilder) {
+    builder.mem'free();
 }
 
 def strBuilder~[StrCtor{prefix="f", interpolation=true, to=Str}] (

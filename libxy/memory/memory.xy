@@ -12,6 +12,18 @@ def realloc(mem: inout Memory, size: Size) {
     mem.size = size;
 }
 
+def free(mem: inout Memory) {
+    c.free(mem.addr);
+    mem.addr = 0;
+    mem.size = 0;
+}
+
+def at(mem: Memory, idx: Size) -> Ptr
+>> idx < mem.size
+{
+    return mem.addr + idx;
+}
+
 def set(mem: Memory, interval: SizeInterval, ptr: Ptr)
 # >> (
 #     (ptr + interval'len) <= (mem + interval.start) |

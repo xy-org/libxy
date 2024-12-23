@@ -1,0 +1,74 @@
+import xy.ctti
+import libxy.units
+import libxy.memory
+import libxy.slices
+
+;; A dynamic array. Can grow and shrink as you push and pop elements.
+struct Array~[elemType: struct, xy_dtor=true] {
+    mem: Memory;
+    len: Size~Count;
+}
+
+def dtor(arr: inout Array) {
+    arr.mem'free();
+}
+
+def len(a: Array) = a.len
+
+def ensureCapacity(
+    arr: inout Array,
+    requiredCap: Size,
+    elemSize : Size = sizeof(arr..elemType)
+) {
+    minRequiredSize := requiredCap * elemSize;
+    if (arr.mem.size < minRequiredSize) {
+        arr.mem'realloc(max(minRequiredSize, 2 * arr.mem.size));
+    }
+}
+
+def push(
+    arr: inout Array,
+    elem: pseudo ?,
+    elemMem: Ptr = elem'addrof,
+    elemSize := sizeof(elem)
+)
+# >> compatible(arr..elemType, %elem, arr, elem)
+{
+    arr'ensureCapacity(arr.len + 1, elemSize=elemSize);
+    arr.mem[arr.len * elemSize +: elemSize] = elemMem;
+    arr.len++;
+}
+
+
+def get(
+    arr: Array, i: Size,
+    elemSize : Size = sizeof(arr..elemType)
+) -> ref(arr) Ptr~[<< arr..elemType] {
+    return arr.mem.addr + i * elemSize;
+}
+
+def get(
+    arr: Array, i: int,
+    elemSize : Size = sizeof(arr..elemType)
+) -> ref(arr) Ptr~[<< arr..elemType] {
+    return arr.mem.addr + i * elemSize;
+}
+
+struct ArrayIter {
+    idx: Size;
+}
+
+def iter(arr: Array) -> ref(arr) ArrayIter {
+    return ArrayIter{};
+}
+
+def valid(arr: Array, iter: ArrayIter) = iter.idx < arr'len
+
+def next(arr: pseudo Array, iter: inout ArrayIter) {
+   iter.idx++;
+}
+
+def get(arr: Array, iter: ArrayIter, elemSize : Size = sizeof(arr..elemType)) -> ref(arr) Ptr~[<< arr..elemType] {
+    return arr.mem'at(iter.idx * elemSize);
+}
+
