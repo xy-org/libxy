@@ -1,0 +1,47 @@
+;; Hail the AllSlice
+struct AllSlice {
+}
+
+def slice() = AllSlice{}
+
+;; A simplified interval with start and end of ints
+struct IntInterval {
+    start: int;
+    end: int;
+}
+
+;; A full slice of ints
+struct IntSlice {
+    start: int;
+    end: int;
+    step: int;
+}
+
+def slice(start: int, end := int'max) = IntInterval{start, end}
+def slice(end : int) = IntInterval{0, end}
+
+def slice(step : int, start := 0, end := int'max) = IntSlice{start, end, step}
+# def slice(step : int) = IntSlice{0, int'max, step}
+
+def len(interval: IntInterval) = interval.end - interval.start
+
+;; A simplified interval with start and end of sizes
+struct SizeInterval {
+    start: Size;
+    end: Size;
+}
+
+;; A full slice of ints
+struct SizeSlice {
+    start: Size;
+    end: Size;
+    step: Size;
+}
+
+def slice(start: Size, end := Size'max) = SizeInterval{start, end}
+def slice(end : Size) = SizeInterval{0, end}
+
+def slice(step : Size, start := 0, end := Size'max) = SizeSlice{start, end, step}
+# def slice(step : Size) = SizeSlice{0, Size'max, step}
+
+def len(interval: SizeInterval) = interval.end - interval.start

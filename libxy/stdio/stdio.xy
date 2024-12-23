@@ -1,8 +1,8 @@
 import posix~[CLib{headers=["unistd.h", "errno.h"]}] in c
-import libxy.string
+import libxy.strings
 
 ;; Struct representing a file handle.
-struct File~[copy=False] {
+struct File~[copy=false] {
     fd: int = -1;
 }
 

@@ -1,4 +1,5 @@
-import libc~[CLib{headers=["stdlib.h"]}] in c
+import libc~[CLib{headers=["stdlib.h", "string.h"]}] in c
+import libxy.slices
 
 struct Memory {
     addr: Ptr;
@@ -9,4 +10,13 @@ def realloc(mem: inout Memory, size: Size) {
     # TODO check output
     mem.addr = c.realloc(mem.addr, size);
     mem.size = size;
+}
+
+def set(mem: Memory, interval: SizeInterval, ptr: Ptr)
+# >> (
+#     (ptr + interval'len) <= (mem + interval.start) |
+#     (mem + interval.end) <= ptr
+# ) ;; assume no overlap
+{
+    c.memcpy(mem.addr + interval.start, ptr, interval'len);
 }
