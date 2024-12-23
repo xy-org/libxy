@@ -1,5 +1,5 @@
-import libc~[CLib{headers=["string.h", "stdio.h"]}] in c
-import libxy.memory
+import libc~[CLib{headers=["string.h", "stdio.h"]}] in c;
+import libxy.memory;
 
 def cstr~[StrCtor{prefix="c", interpolation=false}] (
     addr: Ptr, size: Size
@@ -62,6 +62,13 @@ def toCStr(str: Str) -> Ptr {
     c.memset(mem.addr, 0, mem.size);
     c.strncpy(mem.addr, str.addr, str.len);
     return mem.addr;
+}
+
+def copy(str: Str) -> Str {
+    newmem : Memory;
+    newmem'realloc(str.len);
+    c.memcpy(newmem.addr, str.addr, str.len);
+    return Str{addr=newmem.addr, len=str.len};
 }
 
 struct StrBuilder~[xy_dtor=true] {
