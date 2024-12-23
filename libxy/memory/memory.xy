@@ -1,0 +1,12 @@
+import libc~[CLib{headers=["stdlib.h"]}] in c
+
+struct Memory {
+    addr: Ptr;
+    size: Size;
+}
+
+def realloc(mem: inout Memory, size: Size) {
+    # TODO check output
+    mem.addr = c.realloc(mem.addr, size);
+    mem.size = size;
+}

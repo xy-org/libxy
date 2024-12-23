@@ -1,0 +1,94 @@
+# SI Basic Units
+
+;; Units of kilograms. Measure of mass.
+struct kg~[TagCtor{label="units"}] {}
+
+;; Units of seconds. Measure of time.
+struct s~[TagCtor{label="units"}] {}
+
+;; Units of meters. Measure of length.
+struct m~[TagCtor{label="units"}] {}
+
+;; Units of amperes. Measure of electric current.
+struct A~[TagCtor{label="units"}] {}
+
+;; Units of Kelvin. Measure of temperature.
+struct K~[TagCtor{label="units"}] {}
+
+;; Units of mol. Measure of the amount of substance.
+struct mol~[TagCtor{label="units"}] {}
+
+;; Units of candelas. Measure of luminous intensity.
+struct cd~[TagCtor{label="units"}] {}
+
+# Derived Units
+
+;; Units of hours. Measure of time.
+struct hr~[TagCtor{label="units"}] {}
+
+;; Units of grams. Measure of mass.
+struct g~[TagCtor{label="units"}] {}
+
+;; Units of degree Celsius
+struct DegC~[TagCtor{label="units"}] {}
+
+;; Convert Degree Celsius to Kelvin
+# def to(temp: float~DegC, :K) = (temp + 273.15)~K
+
+;; Convert Kelvin to Degree Celsius
+# def to(temp: float~K, :DegC) = (temp - 273.15)~DegC
+
+;; Units of radians. Measure of plane angle.
+struct rad~[TagCtor{label="units"}] {}
+
+struct Hz~[TagCtor{label="units"}] {}
+
+struct N~[TagCtor{label="units"}] {}
+
+struct Pa~[TagCtor{label="units"}] {}
+
+struct J~[TagCtor{label="units"}] {}
+
+struct W~[TagCtor{label="units"}] {}
+
+struct C~[TagCtor{label="units"}] {}
+
+struct V~[TagCtor{label="units"}] {}
+
+struct F~[TagCtor{label="units"}] {}
+
+struct Ohm~[TagCtor{label="units"}] {}
+
+struct S~[TagCtor{label="units"}] {}
+
+struct Wb~[TagCtor{label="units"}] {}
+
+struct T~[TagCtor{label="units"}] {}
+
+struct H~[TagCtor{label="units"}] {}
+
+struct Lm~[TagCtor{label="units"}] {}
+
+struct Lx~[TagCtor{label="units"}] {}
+
+struct Bq~[TagCtor{label="units"}] {}
+
+struct Gy~[TagCtor{label="units"}] {}
+
+struct Sv~[TagCtor{label="units"}] {}
+
+struct kat~[TagCtor{label="units"}] {}
+
+# Other common units
+
+struct m2~[TagCtor{label="units"}] {}
+
+struct m3~[TagCtor{label="units"}] {}
+
+struct mps~[TagCtor{label="units"}] {}
+
+struct kph~[TagCtor{label="units"}] {}
+
+# def to(v: float~mps, :kph) = (3.6 * v)~kph
+
+# def to(v: float~kph, :mps) = (v / 3.6)~mps

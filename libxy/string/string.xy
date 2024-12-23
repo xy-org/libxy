@@ -1,10 +1,65 @@
+import libc~[CLib{headers=["string.h", "stdio.h"]}] in c
+import libxy.memory
+
+def cstr~[StrCtor{prefix="c", interpolation=false}] (
+    addr: Ptr, size: Size
+) -> Ptr {
+    return addr;
+}
+
 struct Str {
     addr: Ptr;
     len: Size;
 }
 
-def str~[StrCtor{prefix="", interpolation=False}] (
+def str~[StrCtor{prefix="", interpolation=false}] (
     addr: Ptr, size: Size
 ) -> Str {
     return Str{addr, size};
+}
+
+struct StrBuilder {
+    mem: Memory;
+    len: Size;
+}
+
+def strBuilder~[StrCtor{prefix="f", interpolation=true, to=Str}] (
+    addr: pseudo Ptr, size: Size
+) -> StrBuilder {
+    return StrBuilder{};
+}
+
+def ensureCap(builder: inout StrBuilder, requiredCap: Size) {
+    minSize := builder.len + requiredCap;
+    if (builder.mem.size < minSize) {
+        newSize : var = 2 * builder.mem.size;
+        if (newSize < minSize) {
+            newSize = minSize;
+        }
+        builder.mem'realloc(newSize);
+    }
+}
+
+def append(builder: inout StrBuilder, addr: Ptr, size: Size) {
+    builder'ensureCap(size);
+    c.memcpy(builder.mem.addr + builder.len, addr, size); 
+    builder.len += size;
+}
+
+def append(builder: inout StrBuilder, num: int) {
+    builder'ensureCap(Size{10});
+    added : int = c.sprintf(builder.mem.addr + builder.len, c"%d", num);
+    builder.len += added;
+}
+
+def append(builder: inout StrBuilder, num: float) {
+}
+
+def append(builder: inout StrBuilder, num: double) {
+}
+
+def to(builder: inout StrBuilder, :Str) -> Str {
+    res := Str{builder.mem.addr, builder.len};
+    builder.mem.size = 0;
+    return res;
 }
