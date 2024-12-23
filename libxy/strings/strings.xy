@@ -7,20 +7,20 @@ def cstr~[StrCtor{prefix="c", interpolation=false}] (
     return addr;
 }
 
-struct Str~[memory: struct = MemManaged, xy_dtor=true] {
+struct Str~[memory :struct = MemManaged, xy_dtor=true] {
     addr: Ptr;
     len: Size;
 }
 
-def dtor(str :Str, deleted: bool = dtor(str, str..memory)) {}
+def dtor(str: Str, _ : pseudo void = dtor(str, str..memory)) {}
 
-def dtor(str: Str, :MemManaged) -> bool {
+def dtor(str: Str, :MemManaged) {
     c.free(str.addr);
 }
 
-def dtor(str: Str, :MemExt) -> bool {}
+def dtor(str: Str, :MemExt) {}
 
-def dtor(str: Str, :MemStatic) -> bool {}
+def dtor(str: Str, :MemStatic) {}
 
 
 def str~[StrCtor{prefix="", interpolation=false}] (
