@@ -53,9 +53,15 @@ def append(builder: inout StrBuilder, num: int) {
 }
 
 def append(builder: inout StrBuilder, num: float) {
+    builder'ensureCap(Size{20});
+    added : int = c.sprintf(builder.mem.addr + builder.len, c"%f", num);
+    builder.len += added;
 }
 
 def append(builder: inout StrBuilder, num: double) {
+    builder'ensureCap(Size{20});
+    added : int = c.sprintf(builder.mem.addr + builder.len, c"%f", num);
+    builder.len += added;
 }
 
 def to(builder: inout StrBuilder, :Str) -> Str {
