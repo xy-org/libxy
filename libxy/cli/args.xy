@@ -1,0 +1,99 @@
+import libc~[CLib{headers=["string.h", "stdio.h"]}] in c
+import xy.sys in sys
+import xy.ctti
+import libxy.strings
+import libxy.stdio
+import libxy.arrays
+
+struct Descriptor {
+    name: Str;
+    comment: Str;
+    offset: Size;
+}
+
+def printHelp(programComment: Str, descPtr: Ptr~Descriptor, descLen: Size) {
+    print(programComment);
+    print("\n");
+    for (i in :descLen) {
+        print(f"{descPtr[i].name}    {descPtr[i].comment}\n");
+    }
+}
+
+def parse(
+    argObj: pseudo ?,
+    description : pseudo Descriptor[] = [
+        for (f in argObj'fieldsof) Descriptor{
+            name=f'nameof,
+            offset=f'offsetof,
+            comment=f'commentof,
+        }
+    ],
+
+    argc := sys.argc(),
+    argv := sys.argv(),
+    programComment := commentof(%argObj),
+    descPtr := description'addrof,
+    descLen : Size = description'len,
+    dest : Ptr = argObj'addrof,
+) {
+    for (i in :argc) {
+        if (i == 0) {
+            continue;
+        }
+        # XXX
+        destStr : var Ptr~Str = dest + descPtr[descLen-1].offset;
+        argLen : Size = c.strlen(argv[i]);
+        destStr[0] = str(argv[i], argLen); # XXX should be destStr[]
+    }
+}
+
+# def doParse(args: Array~Str, descs: Array~Descriptor, dest: Ptr) {
+    # programName : var Str = "";
+    # for (i in 0:argc) {
+    #     arg := str(argv[i]);
+    #     if (i == 0) {
+    #         programName = arg;
+    #     }
+    #     elif (arg == "--help") {
+    #         printHelp(programName, programComment, descs);
+    #     }
+    #     elif (arg.startswith("--")) {
+    #         argDesc = descs'find(arg[2:]'normalize);
+    #         i += argDesc'parse(i, argv)
+    #     } elif (arg.startswith("-")) {
+    #         for (i in 1:, flag in arg[1:]) {
+    #             argDesc = descs'find(flag);
+    #             if (!argDesc'isBool & i < arg'len - 1) {
+    #                 error "-{arg[i]} is requires arguments";
+    #             }
+    #             i += argDesc'parse(i,  argv);
+    #         }
+    #     } else {
+    #         argDesc := desc'nextPositional();
+    #         i += argDesc'parse(i, argv);
+    #     }
+    # } 
+# }
+
+# def parse(desc: Descriptor) {
+#     if (argDesc'isBool) {
+#         argDesc'set(true);
+#         continue;
+#     }
+#     # not a flag => parse arguments
+#     i++;
+#     while((i < argc & !argv[i]'startswith("-"))) {
+#         arg := str(argv[i]);
+#         i++;
+#         if (argDesc'isArray) {
+#             argDesc'add(arg);
+#         } else {
+#             argDesc'set(arg);
+#             break;
+#         }
+#     } else {
+#         error "Missing argument for {arg}";
+#     }
+# }
+
+
