@@ -18,6 +18,41 @@ def str~[StrCtor{prefix="", interpolation=false}] (
     return Str{addr, size};
 }
 
+def cmp(str1: Str, str2: Str) -> Size {
+    if (str1.len != str2.len) {
+        return str1.len - str2.len;
+    }
+    return c.strncmp(str1.addr, str2.addr, str1.len);
+}
+
+def startswith(str: Str, prefix: Str) -> bool {
+    if (prefix.len > str.len) {
+        return false;
+    }
+    strncmpRes: int = c.strncmp(str.addr, prefix.addr, prefix.len);
+    return strncmpRes == 0;
+}
+
+def endswith(str: Str, suffix: Str) -> bool {
+    if (suffix.len > str.len) {
+        return false;
+    }
+    strncmpRes: int = c.strncmp(str.addr + (str.len - suffix.len), suffix.addr, suffix.len);
+    return strncmpRes == 0;
+}
+
+# XXX I really dislike that function
+def toCStr(str: Str) -> Ptr {
+    if (str.len <= 0) {
+        return Ptr{};
+    }
+    mem: Memory;
+    mem'realloc(str.len+1);
+    c.memset(mem.addr, 0, mem.size);
+    c.strncpy(mem.addr, str.addr, str.len);
+    return mem.addr;
+}
+
 struct StrBuilder~[xy_dtor=true] {
     mem: Memory;
     len: Size;
@@ -50,6 +85,10 @@ def append(builder: inout StrBuilder, addr: Ptr, size: Size) {
     builder.len += size;
 }
 
+def append(builder: inout StrBuilder, str: Str) {
+    builder'append(str.addr, str.len);
+}
+
 def append(builder: inout StrBuilder, num: int) {
     builder'ensureCap(Size{10});
     added : int = c.sprintf(builder.mem.addr + builder.len, c"%d", num);
@@ -76,6 +115,7 @@ def append(builder: inout StrBuilder, num: double, precision:=6) {
 
 def to(builder: inout StrBuilder, :Str) -> Str {
     res := Str{builder.mem.addr, builder.len};
+    builder.mem.addr = Ptr{};
     builder.mem.size = 0;
     return res;
 }
