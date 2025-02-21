@@ -1,4 +1,4 @@
-import libc~[CLib{headers=@["stdlib.h", "string.h"]}] in c;
+import libc~[CLib{headers=@{"stdlib.h", "string.h"}}] in c;
 import libxy.slice;
 
 ;; Tag for memory that is managed by a struct and should be deallocated
