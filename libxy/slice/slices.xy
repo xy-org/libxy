@@ -6,20 +6,20 @@ def slice() = AllSlice{};
 
 ;; A simplified interval with start and end of ints
 struct IntInterval {
-    start: int;
-    end: int;
+    start: Int;
+    end: Int;
 }
 
 ;; A full slice of ints
 struct IntSlice {
-    start: int;
-    end: int;
-    step: int;
+    start: Int;
+    end: Int;
+    step: Int;
 }
 
-def *slice(start: int) = IntInterval{start, int'max};
-def *slice(end: int, start := 0) = IntInterval{start, end};
-def *slice(step: int, end := int'max, start := 0) = IntSlice{start, end, step};
+def *slice(start: Int) = IntInterval{start, Int'max};
+def *slice(end: Int, start := 0) = IntInterval{start, end};
+def *slice(step: Int, end := Int'max, start := 0) = IntSlice{start, end, step};
 
 def *len(interval: IntInterval) = interval.end - interval.start;
 

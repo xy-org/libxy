@@ -3,15 +3,15 @@ import libxy.string;
 
 ;; Struct representing a file handle.
 struct File~[copy=false] {
-    fd: int = -1;
+    fd: Int = -1;
 }
 
 struct SystemError {
-    code: int;
+    code: Int;
 }
 
 ;; struct OpenFlags~[flags=True] {
-;;     append : int = c.O_APPEND;
+;;     append : Int = c.O_APPEND;
 ;;     create := c.O_CREAT;
 ;;     directory := c.O_DIRECTORY;
 ;;     read := c.O_READ;
@@ -23,7 +23,7 @@ struct NoClose {}
 
 ;; Opens a file
 ;;def open(name: Str, flags: OpenFlags) -> File || SystemError {
-;;    fd : int = c.open(name, flags);
+;;    fd : Int = c.open(name, flags);
 ;;    if (fd < 0) {
 ;;        error SystemError{c.errno};
 ;;    }

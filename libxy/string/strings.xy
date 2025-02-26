@@ -36,19 +36,19 @@ def *cmp(str1: Str, str2: Str) -> Size {
     return c.strncmp(str1.addr, str2.addr, str1.len);
 }
 
-def *startswith(str: Str, prefix: Str) -> bool {
+def *startswith(str: Str, prefix: Str) -> Bool {
     if (prefix.len > str.len) {
         return false;
     }
-    strncmpRes: int = c.strncmp(str.addr, prefix.addr, prefix.len);
+    strncmpRes: Int = c.strncmp(str.addr, prefix.addr, prefix.len);
     return strncmpRes == 0;
 }
 
-def *endswith(str: Str, suffix: Str) -> bool {
+def *endswith(str: Str, suffix: Str) -> Bool {
     if (suffix.len > str.len) {
         return false;
     }
-    strncmpRes: int = c.strncmp(str.addr + (str.len - suffix.len), suffix.addr, suffix.len);
+    strncmpRes: Int = c.strncmp(str.addr + (str.len - suffix.len), suffix.addr, suffix.len);
     return strncmpRes == 0;
 }
 
@@ -107,27 +107,27 @@ def *append(builder: mut StrBuilder, str: Str) {
     builder'append(str.addr, str.len);
 }
 
-def *append(builder: mut StrBuilder, num: int) {
+def *append(builder: mut StrBuilder, num: Int) {
     builder'ensureCap(Size{10});
-    added : int = c.sprintf(builder.mem.addr + builder.len, c"%d", num);
+    added : Int = c.sprintf(builder.mem.addr + builder.len, c"%d", num);
     builder.len += added;
 }
 
 def *append(builder: mut StrBuilder, num: Size) {
     builder'ensureCap(Size{10});
-    added : int = c.sprintf(builder.mem.addr + builder.len, c"%ld", num);
+    added : Int = c.sprintf(builder.mem.addr + builder.len, c"%ld", num);
     builder.len += added;
 }
 
-def *append(builder: mut StrBuilder, num: float, precision:=6) {
+def *append(builder: mut StrBuilder, num: Float, precision:=6) {
     builder'ensureCap(Size{20});
-    added : int = c.sprintf(builder.mem.addr + builder.len, c"%.*f", precision, num);
+    added : Int = c.sprintf(builder.mem.addr + builder.len, c"%.*f", precision, num);
     builder.len += added;
 }
 
-def *append(builder: mut StrBuilder, num: double, precision:=6) {
+def *append(builder: mut StrBuilder, num: Double, precision:=6) {
     builder'ensureCap(Size{20});
-    added : int = c.sprintf(builder.mem.addr + builder.len, c"%.*f", precision, num);
+    added : Int = c.sprintf(builder.mem.addr + builder.len, c"%.*f", precision, num);
     builder.len += added;
 }
 
