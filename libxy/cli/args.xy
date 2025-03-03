@@ -1,9 +1,9 @@
-import libc~[CLib{headers=["string.h", "stdio.h"]}] in c
-import xy.sys in sys
-import xy.ctti
-import libxy.string
-import libxy.stdio
-import libxy.arrays
+import libc~[CLib{headers=@{"string.h", "stdio.h"}}] in c;
+import xy.sys in sys;
+import xy.ctti;
+import libxy.string;
+import libxy.stdio;
+import libxy.array;
 
 struct Descriptor {
     name: Str;
@@ -19,15 +19,13 @@ def printHelp(programComment: Str, descPtr: Ptr~Descriptor, descLen: Size) {
     }
 }
 
-def parse(
+def *parse(
     argObj: pseudo any,
-    description : pseudo Descriptor[] = [
-        for (f in argObj'fieldsof) Descriptor{
-            name=f'nameof,
-            offset=f'offsetof,
-            comment=f'commentof,
-        }
-    ],
+    description : pseudo Descriptor[] = @for (f in argObj'fieldsof) Descriptor {
+        name=f'nameof,
+        offset=f'offsetof,
+        comment=f'commentof,
+    },
 
     argc := sys.argc(),
     argv := sys.argv(),
@@ -44,6 +42,10 @@ def parse(
         destStr : mut Ptr~Str = dest + descPtr[descLen-1].offset;
         argLen : Size = c.strlen(argv[i]);
         destStr[0] = str(argv[i], argLen); # XXX should be destStr[]
+        if (destStr[0] == "--help") {
+            printHelp(...);
+            c.exit(0);
+        }
     }
 }
 
