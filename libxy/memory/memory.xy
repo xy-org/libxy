@@ -8,7 +8,7 @@ struct MemManaged {}
 ;; Tag for memory that is externally manged and shouldn't be deallocated
 struct MemExt {}
 
-;; Tag for memory that is static and doesn't need any deallocation
+;; Tag for memory that is static and doesn't need Any deallocation
 struct MemStatic {}
 
 struct Memory {

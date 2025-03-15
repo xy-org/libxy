@@ -32,7 +32,7 @@ def ensureCapacity(
 
 *def push(
     arr: mut Array,
-    elem: pseudo any,
+    elem: pseudo Any,
     elemMem: Ptr = elem'addrof,
     elemSize := sizeof(elem)
 )
