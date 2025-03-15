@@ -7,12 +7,12 @@ def cstr~[StrCtor{prefix="c", interpolation=false}] (
     return addr;
 }
 
-struct *Str~[memory :struct = MemManaged, xy_dtor=true] {
+*struct Str~[memory :struct = MemManaged, xy_dtor=true] {
     addr: Ptr;
     len: Size;
 }
 
-def *dtor(str: Str) dtor(str, str..memory);
+*def dtor(str: Str) dtor(str, str..memory);
 
 def dtor(str: Str, :MemManaged) {
     c.free(str.addr);
@@ -29,14 +29,14 @@ def str~[StrCtor{prefix="", interpolation=false}] (
     return Str{addr, size};
 }
 
-def *cmp(str1: Str, str2: Str) -> Size {
+*def cmp(str1: Str, str2: Str) -> Size {
     if (str1.len != str2.len) {
         return str1.len - str2.len;
     }
     return c.strncmp(str1.addr, str2.addr, str1.len);
 }
 
-def *startswith(str: Str, prefix: Str) -> Bool {
+*def startswith(str: Str, prefix: Str) -> Bool {
     if (prefix.len > str.len) {
         return false;
     }
@@ -44,7 +44,7 @@ def *startswith(str: Str, prefix: Str) -> Bool {
     return strncmpRes == 0;
 }
 
-def *endswith(str: Str, suffix: Str) -> Bool {
+*def endswith(str: Str, suffix: Str) -> Bool {
     if (suffix.len > str.len) {
         return false;
     }
@@ -53,7 +53,7 @@ def *endswith(str: Str, suffix: Str) -> Bool {
 }
 
 # XXX I really dislike that function
-def *toCStr(str: Str) -> Ptr {
+*def toCStr(str: Str) -> Ptr {
     if (str.len <= 0) {
         return Ptr{};
     }
@@ -64,29 +64,29 @@ def *toCStr(str: Str) -> Ptr {
     return mem.addr;
 }
 
-def *copy(str: Str) -> Str {
+*def copy(str: Str) -> Str {
     newmem : Memory;
     newmem'realloc(str.len);
     c.memcpy(newmem.addr, str.addr, str.len);
     return Str{addr=newmem.addr, len=str.len};
 }
 
-struct *StrBuilder~[xy_dtor=true] {
+*struct StrBuilder~[xy_dtor=true] {
     mem: Memory;
     len: Size;
 }
 
-def *dtor(builder: mut StrBuilder) {
+*def dtor(builder: mut StrBuilder) {
     builder.mem'free();
 }
 
-def *strBuilder~[StrCtor{prefix="f", interpolation=true, to=Str}] (
+*def strBuilder~[StrCtor{prefix="f", interpolation=true, to=Str}] (
     addr: pseudo Ptr, size: Size
 ) -> StrBuilder {
     return StrBuilder{};
 }
 
-def *ensureCap(builder: mut StrBuilder, requiredCap: Size) {
+*def ensureCap(builder: mut StrBuilder, requiredCap: Size) {
     minSize := builder.len + requiredCap;
     if (builder.mem.size < minSize) {
         newSize : mut = 2 * builder.mem.size;
@@ -97,41 +97,41 @@ def *ensureCap(builder: mut StrBuilder, requiredCap: Size) {
     }
 }
 
-def *append(builder: mut StrBuilder, addr: Ptr, size: Size) {
+*def append(builder: mut StrBuilder, addr: Ptr, size: Size) {
     builder'ensureCap(size);
     c.memcpy(builder.mem.addr + builder.len, addr, size); 
     builder.len += size;
 }
 
-def *append(builder: mut StrBuilder, str: Str) {
+*def append(builder: mut StrBuilder, str: Str) {
     builder'append(str.addr, str.len);
 }
 
-def *append(builder: mut StrBuilder, num: Int) {
+*def append(builder: mut StrBuilder, num: Int) {
     builder'ensureCap(Size{10});
     added : Int = c.sprintf(builder.mem.addr + builder.len, c"%d", num);
     builder.len += added;
 }
 
-def *append(builder: mut StrBuilder, num: Size) {
+*def append(builder: mut StrBuilder, num: Size) {
     builder'ensureCap(Size{10});
     added : Int = c.sprintf(builder.mem.addr + builder.len, c"%ld", num);
     builder.len += added;
 }
 
-def *append(builder: mut StrBuilder, num: Float, precision:=6) {
+*def append(builder: mut StrBuilder, num: Float, precision:=6) {
     builder'ensureCap(Size{20});
     added : Int = c.sprintf(builder.mem.addr + builder.len, c"%.*f", precision, num);
     builder.len += added;
 }
 
-def *append(builder: mut StrBuilder, num: Double, precision:=6) {
+*def append(builder: mut StrBuilder, num: Double, precision:=6) {
     builder'ensureCap(Size{20});
     added : Int = c.sprintf(builder.mem.addr + builder.len, c"%.*f", precision, num);
     builder.len += added;
 }
 
-def *to(builder: mut StrBuilder, :Str) -> Str {
+*def to(builder: mut StrBuilder, :Str) -> Str {
     res := Str{builder.mem.addr, builder.len};
     builder.mem.addr = Ptr{};
     builder.mem.size = 0;

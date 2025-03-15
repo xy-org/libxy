@@ -32,7 +32,7 @@ struct NoClose {}
 
 ;; Writes `msg` to `f`
 ;; def write(f: File, msg: Str) -> void || SystemError {
-def *write(f: File, msg: Str) -> void {
+*def write(f: File, msg: Str) -> void {
     total : mut = 0;
     while (total < msg.len) {
         written : Size = c.write(
@@ -46,7 +46,7 @@ def *write(f: File, msg: Str) -> void {
 }
 
 ;; Prints `msg` to standard output
-def *print(msg: Str) -> void {
+*def print(msg: Str) -> void {
     ;; stdout := File~[delete=NoClose]{0};
     stdout := File{1};
     stdout'write(msg);
