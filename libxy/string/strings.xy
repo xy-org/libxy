@@ -3,9 +3,8 @@ import libxy.memory;
 
 def cstr~[StrCtor{prefix="c", interpolation=false}] (
     addr: Ptr, size: Size
-) -> Ptr {
-    return addr;
-}
+)
+    addr;
 
 *struct Str~[memory :struct = MemManaged, xy_dtor=true] {
     addr: Ptr;
@@ -25,9 +24,7 @@ def dtor(str: Str, :MemStatic) {}
 
 def str~[StrCtor{prefix="", interpolation=false}] (
     addr: Ptr, size: Size
-) -> Str~MemStatic {
-    return Str{addr, size};
-}
+) Str~MemStatic{addr, size};
 
 *def cmp(str1: Str, str2: Str) -> Size {
     if (str1.len != str2.len) {

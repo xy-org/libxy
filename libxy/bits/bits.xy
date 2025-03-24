@@ -13,23 +13,23 @@ def get(b: Bits32, i: Int) -> Bool {
     return (b & (1u'to(Bits32) \shiftl i))'any;
 }
 
-def set(b: mut Bits64, i: Int, val: Bool) -> in(b) Int {
+def set(b: mut Bits64, i: Int, val: Bool) -> b[ Int ] {
     b = b | (val'to(Ulong)'to(Bits64) \shiftl i);
     return i;
 }
 
-def set(b: mut Bits32, i: Int, val: Bool) -> in(b) Int {
+def set(b: mut Bits32, i: Int, val: Bool) -> b[ Int ] {
     b = b | (val'to(Uint)'to(Bits32) \shiftl i);
     return i;
 }
 
 struct Bits {}
 
-def bits(a: Long) -> in(a) Bits {
+def bits(a: Long) -> a[ Bits ] {
     return Bits{};
 }
 
-def bits(a: Int) -> in(a) Bits {
+def bits(a: Int) -> a[ Bits ] {
     return Bits{};
 }
 

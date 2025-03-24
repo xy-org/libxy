@@ -1,0 +1,7 @@
+import libxy.stdio;
+import libxy.string;
+import xytest;
+
+*def testFs~Test() {
+    print("testFs!!!!!!!!!!!!\n");
+}

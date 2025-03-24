@@ -21,7 +21,7 @@ def printHelp(programComment: Str, descPtr: Ptr~Descriptor, descLen: Size) {
 
 *def parse(
     argObj: pseudo Any,
-    description : pseudo Descriptor[] = @for (f in argObj'fieldsof) Descriptor {
+    description : pseudo @Descriptor[] = @for (f in argObj'fieldsof) Descriptor {
         name=f'nameof,
         offset=f'offsetof,
         comment=f'commentof,
