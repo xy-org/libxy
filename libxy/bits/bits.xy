@@ -1,0 +1,58 @@
+def oneBit(:Bits64) 1l'to(Bits64);
+
+def any(b: Bits8)  b'to(Ubyte) != 0;
+def any(b: Bits16) b'to(Ushort) != 0;
+def any(b: Bits32) b'to(Uint) != 0;
+def any(b: Bits64) b'to(Ulong) != 0;
+
+def get(b: Bits64, i: Int) -> Bool {
+    return (b & (1ul'to(Bits64) \shiftl i))'any;
+}
+
+def get(b: Bits32, i: Int) -> Bool {
+    return (b & (1u'to(Bits32) \shiftl i))'any;
+}
+
+def set(b: mut Bits64, i: Int, val: Bool) -> in(b) Int {
+    b = b | (val'to(Ulong)'to(Bits64) \shiftl i);
+    return i;
+}
+
+def set(b: mut Bits32, i: Int, val: Bool) -> in(b) Int {
+    b = b | (val'to(Uint)'to(Bits32) \shiftl i);
+    return i;
+}
+
+struct Bits {}
+
+def bits(a: Long) -> in(a) Bits {
+    return Bits{};
+}
+
+def bits(a: Int) -> in(a) Bits {
+    return Bits{};
+}
+
+def get(a: Long, b: pseudo Bits) -> Bits64 {
+    return a'to(Bits64);
+}
+
+def get(a: Int, b: pseudo Bits) -> Bits32 {
+    return a'to(Bits32);
+}
+
+def set(num: mut Long, :Bits, i: Int, val: Bool) {
+    bits : mut = num'bits;
+    bits[i] = val;
+    num = bits'to(Long);
+}
+
+def set(num: mut Int, :Bits, i: Int, val: Bool) {
+    bits : mut = num'bits;
+    bits[i] = val;
+    num = bits'to(Int);
+}
+
+def set(num: mut Long, :Bits, bits: Bits64) num = bits'to(Long);
+
+def set(num: mut Int, :Bits, bits: Bits32) num = bits'to(Int);

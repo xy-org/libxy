@@ -1,0 +1,85 @@
+;; FileSystem and Blocking File IO functionality
+
+import posix~[CLib{headers=@{"unistd.h", "errno.h"}}] in c;
+import libxy.string;
+import libxy.flags;
+import libxy.stdio;
+
+;; Flags governing how a file is to be opened
+*struct OpenFlags {
+    value: Int;
+
+    append : pseudo = OpenFlags{c.O_APPEND};
+
+    create : pseudo = OpenFlags{c.O_CREAT};
+
+    directory : pseudo = OpenFlags{c.O_DIRECTORY};
+
+    readOnly : pseudo = OpenFlags{c.O_RDONLY};
+    #r : pseudo = readOnly;
+
+    writeOnly : pseudo = OpenFlags{c.O_WRONLY};
+    #w : pseudo = writeOnly;
+
+    readWrite : pseudo = OpenFlags{c.O_RDWR};
+    #rw : pseudo = readWrite;
+
+    truncate : pseudo = OpenFlags{c.O_TRUNC};
+    #trunc : pseudo = truncate;; Shorthand for truncate
+
+    exclusive : pseudo = OpenFlags{c.O_EXCL};
+    #excl : pseudo = exclusive;; Shorthand for exclusive
+}
+
+*def get(l: OpenFlags, r: OpenFlags)
+    getFlag(l.value, r.value);
+
+*def set(l: mut OpenFlags, r: OpenFlags, on: Bool)
+    setFlag(l.value, r.value, on);
+
+*def and(l: OpenFlags, r: OpenFlags)
+    OpenFlags{andFlag(l.value, r.value)};
+
+*def or(l: OpenFlags, r: OpenFlags)
+    OpenFlags{orFlag(l.value, r.value)};
+
+;; Struct representing a file handle.
+*struct File~[copy=false] {
+    fd: Int = -1;
+}
+
+;; Open a file
+*def open(
+    path: Str, flags := OpenFlags{.readOnly}, mode := 0644
+) -> File || SystemError {
+    pathCStr := path'toCStr;
+    #fd : c.Int = c.open(pathCStr, flags.value, mode);
+    fd : Int = c.open(pathCStr, flags.value, mode);
+    if (fd < 0) {
+        error SystemError{c.errno};
+    }
+    return File{fd};
+}
+
+*def to(se: SystemError, :Bool) false;
+
+*def write(file: File, str: Str) -> void || SystemError {
+    total : mut Size;
+    do {
+        # TODO use c.ssize_t
+        written : Size = c.write(
+            file.fd, str.addr + total, str.len - total
+        );
+        if (written < 0) {
+            error SystemError{c.errno};
+        }
+        total += written;
+    } while (total < str.len);
+}
+
+*def close(file: File) -> void || SystemError {
+    res: Int = c.close(file.fd);
+    if (res != 0) {
+        error SystemError{c.errno};
+    }
+}
