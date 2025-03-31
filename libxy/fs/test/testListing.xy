@@ -1,0 +1,11 @@
+import xy.ctti;
+import libxy.stdio;
+import libxy.string;
+import libxy.fs;
+import xytest;
+
+*def ls~Test() {
+    for (node in ls("/")) {
+        print(f"{node.name}\n");
+    }
+}

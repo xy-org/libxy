@@ -1,9 +1,12 @@
-def oneBit(:Bits64) 1l'to(Bits64);
-
 def any(b: Bits8)  b'to(Ubyte) != 0;
 def any(b: Bits16) b'to(Ushort) != 0;
 def any(b: Bits32) b'to(Uint) != 0;
 def any(b: Bits64) b'to(Ulong) != 0;
+
+def len(b: Bits8) 8;
+def len(b: Bits16) 16;
+def len(b: Bits32) 32;
+def len(b: Bits64) 64;
 
 def get(b: Bits64, i: Int) -> Bool {
     return (b & (1ul'to(Bits64) \shiftl i))'any;

@@ -6,7 +6,19 @@ def cstr~[StrCtor{prefix="c", interpolation=false}] (
 )
     addr;
 
-*struct Str~[memory :struct = MemManaged, xy_dtor=true] {
+;; Tag for strings that are managed by the Str struct itself.
+;; Have trailing zero byte.
+struct MemManaged {}
+
+;; Tag for strings that are not managed by the Str struct itself.
+;; No assumptions about the existence of a trailing zero byte.
+struct MemExt {}
+
+;; Tag for strings that are are allocated in static memory and need no free.
+;; Have trailing zero byte.
+struct MemStatic {}
+
+*struct Str~[memory :struct = MemManaged] {
     addr: Ptr;
     len: Size;
 }
@@ -107,6 +119,12 @@ def str~[StrCtor{prefix="", interpolation=false}] (
 *def append(builder: mut StrBuilder, num: Int) {
     builder'ensureCap(Size{10});
     added : Int = c.sprintf(builder.mem.addr + builder.len, c"%d", num);
+    builder.len += added;
+}
+
+*def append(builder: mut StrBuilder, num: Uint) {
+    builder'ensureCap(Size{10});
+    added : Int = c.sprintf(builder.mem.addr + builder.len, c"%u", num);
     builder.len += added;
 }
 

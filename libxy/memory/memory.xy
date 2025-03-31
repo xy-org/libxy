@@ -1,16 +1,6 @@
 import libc~[CLib{headers=@{"stdlib.h", "string.h"}}] in c;
 import libxy.slice;
 
-;; Tag for memory that is managed by a struct i.e.
-;; allocated and deallocated by that struct
-struct MemManaged {}
-
-;; Tag for memory that is externally manged and shouldn't be deallocated
-struct MemExt {}
-
-;; Tag for memory that is static and doesn't need Any deallocation
-struct MemStatic {}
-
 struct Memory {
     addr: Ptr;
     size: Size;
@@ -24,7 +14,7 @@ struct Memory {
 
 *def free(mem: mut Memory) {
     c.free(mem.addr);
-    mem.addr = 0;
+    mem.addr = Ptr{};
     mem.size = 0;
 }
 

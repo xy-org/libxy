@@ -1,0 +1,44 @@
+import xytest;
+import libxy.bits;
+
+*def get~Test() {
+    num := 011001010100101(2);
+    (assert) num'bits[0];
+    (assert)  num'bits[0];
+    (assert) !num'bits[1];
+    (assert)  num'bits[5];
+    (assert)  num'bits[13];
+}
+
+*def flip~Test() {
+    num : mut = 011001010100101(2);
+    num'bits = !num'bits;
+    (assert) !num'bits[0];
+    (assert)  num'bits[1];
+    (assert) !num'bits[5];
+    (assert) !num'bits[13];
+}
+
+*def set~Test() {
+    num : Int;
+    num'bits[10] = true;
+    num'bits[20] = true;
+    (assert) num == 0x100400;
+}
+
+*def copy~Test() {
+    # probably the most inefficient way to copy a number
+    num := 0random(36);
+    copy: Int;
+    for (i in :num'bits'len) {
+        copy'bits[i] = num'bits[i];
+    }
+    (assert) num == copy;
+}
+
+*def xor~Test() {
+    n1 := 0x1fub;
+    n2 := 0x22ub;
+    #xor := n1'bits - n2'bits;
+    #(assert) xor == 0x3dub;
+}

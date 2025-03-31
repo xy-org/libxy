@@ -1,0 +1,6 @@
+# import libxy.slice;
+# 
+# *def dirname(path: Str) -> path[ IntInterval ] {
+#     i : mut = path'len;
+#     while (i > 0 & path[i])
+# }

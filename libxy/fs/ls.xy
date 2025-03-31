@@ -1,0 +1,90 @@
+import libxy.clocks;
+import libxy.memory;
+import libxy.stdio;
+
+;; List directory content
+*def ls~IterCtor(
+    path: Str,
+    type := true, ;; want the type of each directory entry
+    size := false, ;; want the size of each directory entry
+    atime := false, ;; want the access time
+    mtime := false, ;; want the modification time
+    ctime := false, ;; want the last status change time
+) -> [ Listing ] {
+    return &ls(path, LsFlags{=type, =size, =atime, =mtime, =ctime});
+}
+
+*struct LsFlags {
+    mask: Uint;
+    type: Bool;
+    size: Bool;
+    atime: Bool;
+    mtime: Bool;
+    ctime: Bool;
+}
+
+;; Info about a node on a filesystem
+*struct Node {
+    name: Str;
+    mask: LsFlags;
+    type: NodeType;
+    size: Size;
+    atime: PosixTime;
+    mtime: PosixTime;
+    ctime: PosixTime;
+}
+
+*struct NodeType {
+    dir: Bool;
+    file: Bool;
+    unknown: Bool;
+}
+
+;; Book keeping info for a directory that's being listed
+struct Listing {
+    pDir : Ptr~[c.DIR];
+    currNode: Node;
+    eol: Bool;; end of listing
+}
+
+def dtor(ls: Listing) {
+    if (ls.pDir != Ptr{}) {
+        c.closedir(ls.pDir);
+    }
+}
+
+def ls~IterCtor(path: Str, mask: LsFlags) -> [ Listing ] || SystemError {
+    pDir :  mut Ptr~[c.DIR] = c.opendir(path'toCStr);
+    if (pDir == Ptr{}) {
+        errno : Int = c.errno;
+        error SystemError{errno};
+    }
+    res : mut = Listing{pDir};
+    next(res);
+    return res;
+}
+
+def valid(d: Listing) !d.eol;
+
+def next(d: mut Listing) {
+    if (d.pDir == Ptr{} | d.eol) {
+        d.eol = true;
+        return;
+    }
+    pDirent: mut Ptr~[inlinec"struct dirent"] = c.readdir(d.pDir);
+    if (pDirent != Ptr{}) {
+        d.currNode'loadNodeInfo(pDirent);
+    } else {
+        d.eol = true;
+    }
+}
+
+*def loadNodeInfo(node: mut Node, dirent: Ptr~[inlinec"struct dirent"]) {
+    # XXX horidness
+    name : mut = Str~MemExt{inlinec"{dirent}->d_name", c.strlen(inlinec"{dirent}->d_name")};
+    cpy : mut = name'copy;
+    node.name =< cpy;
+    cpy.addr = Ptr{};
+}
+
+def get(d: Listing) d.currNode;
