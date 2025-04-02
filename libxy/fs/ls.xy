@@ -1,18 +1,16 @@
+import posix~[CLib{headers=@{"sys/types.h", "dirent.h"}}] in c;
 import libxy.clocks;
 import libxy.memory;
-import libxy.stdio;
 
 ;; List directory content
-*def ls~IterCtor(
+*def ls(
     path: Str,
-    type := true, ;; want the type of each directory entry
-    size := false, ;; want the size of each directory entry
+    type  := true,  ;; want the type of each directory entry
+    size  := false, ;; want the size of each directory entry
     atime := false, ;; want the access time
     mtime := false, ;; want the modification time
     ctime := false, ;; want the last status change time
-) -> [ Listing ] {
-    return &ls(path, LsFlags{=type, =size, =atime, =mtime, =ctime});
-}
+) ls(path, LsFlags{=type, =size, =atime, =mtime, =ctime});
 
 *struct LsFlags {
     mask: Uint;
@@ -47,14 +45,18 @@ struct Listing {
     eol: Bool;; end of listing
 }
 
-def dtor(ls: Listing) {
+*def dtor(ls: Listing) {
     if (ls.pDir != Ptr{}) {
         c.closedir(ls.pDir);
     }
 }
 
-def ls~IterCtor(path: Str, mask: LsFlags) -> [ Listing ] || SystemError {
-    pDir :  mut Ptr~[c.DIR] = c.opendir(path'toCStr);
+*def ls~IterCtor(
+    path: Str, mask: LsFlags,
+) -> [ Listing ] || SystemError
+>> nullTerminated(path)
+{
+    pDir :  mut Ptr~[c.DIR] = c.opendir(path.addr);
     if (pDir == Ptr{}) {
         errno : Int = c.errno;
         error SystemError{errno};
@@ -64,9 +66,9 @@ def ls~IterCtor(path: Str, mask: LsFlags) -> [ Listing ] || SystemError {
     return res;
 }
 
-def valid(d: Listing) !d.eol;
+*def valid(d: Listing) !d.eol;
 
-def next(d: mut Listing) {
+*def next(d: mut Listing) {
     if (d.pDir == Ptr{} | d.eol) {
         d.eol = true;
         return;
@@ -79,12 +81,11 @@ def next(d: mut Listing) {
     }
 }
 
-*def loadNodeInfo(node: mut Node, dirent: Ptr~[inlinec"struct dirent"]) {
-    # XXX horidness
-    name : mut = Str~MemExt{inlinec"{dirent}->d_name", c.strlen(inlinec"{dirent}->d_name")};
-    cpy : mut = name'copy;
-    node.name =< cpy;
-    cpy.addr = Ptr{};
+def loadNodeInfo(node: mut Node, dirent: Ptr~[inlinec"struct dirent"]) {
+    name := Str~MemExt{
+        inlinec"{dirent}->d_name", c.strlen(inlinec"{dirent}->d_name")
+    };
+    node.name =< name'copy;
 }
 
-def get(d: Listing) d.currNode;
+*def get(d: Listing) d.currNode;

@@ -1,14 +1,19 @@
 import libc~[CLib{headers=@{"stdlib.h", "string.h"}}] in c;
 import libxy.slice;
+import libxy.error;
 
 struct Memory {
     addr: Ptr;
     size: Size;
 }
 
-*def realloc(mem: mut Memory, size: Size) {
-    # TODO check output
-    mem.addr = c.realloc(mem.addr, size);
+*def realloc(mem: mut Memory, size: Size) -> void || SystemError {
+    newMem : Ptr = c.realloc(mem.addr, size);
+    if (newMem == Ptr{}) {
+        error SystemError{c.ENOMEM};
+    }
+    c.memset(newMem + mem.size, 0, size - mem.size);
+    mem.addr = newMem;
     mem.size = size;
 }
 

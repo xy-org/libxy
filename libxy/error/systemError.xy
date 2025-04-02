@@ -1,0 +1,8 @@
+import posix~[CLib{headers=@{"errno.h"}}] in c;
+
+;; Error occurring during system operations like syscalls or memory allocation 
+*struct SystemError {
+    code: Int;; Usually holds the value of errno
+}
+
+*def to(s: SystemError, :Bool) s.code != 0;

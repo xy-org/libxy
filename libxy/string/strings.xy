@@ -1,5 +1,6 @@
 import libc~[CLib{headers=@{"string.h", "stdio.h"}}] in c;
 import libxy.memory;
+import libxy.error;
 
 def cstr~[StrCtor{prefix="c", interpolation=false}] (
     addr: Ptr, size: Size
@@ -61,21 +62,19 @@ def str~[StrCtor{prefix="", interpolation=false}] (
     return strncmpRes == 0;
 }
 
-# XXX I really dislike that function
-*def toCStr(str: Str) -> Ptr {
-    if (str.len <= 0) {
-        return Ptr{};
-    }
-    mem: Memory;
-    mem'realloc(str.len+1);
-    c.memset(mem.addr, 0, mem.size);
-    c.strncpy(mem.addr, str.addr, str.len);
-    return mem.addr;
-}
+*def ensureNullTerminated(str: Str) ensureNullTerminated(str, str..memory);
+def ensureNullTerminated(str: Str, :MemManaged) str;
+def ensureNullTerminated(str: Str, :MemStatic) str;
+def ensureNullTerminated(str: Str, :MemExt) str'copy();
+
+*def nullTerminated(str: Str) nullTerminated(str, str..memory);
+def nullTerminated(str: Str, :MemManaged) true;
+def nullTerminated(str: Str, :MemStatic) true;
+def nullTerminated(str: Str, :MemExt) false;
 
 *def copy(str: Str) -> Str {
     newmem : Memory;
-    newmem'realloc(str.len);
+    newmem'realloc(str.len + 1);
     c.memcpy(newmem.addr, str.addr, str.len);
     return Str{addr=newmem.addr, len=str.len};
 }
@@ -102,7 +101,7 @@ def str~[StrCtor{prefix="", interpolation=false}] (
         if (newSize < minSize) {
             newSize = minSize;
         }
-        builder.mem'realloc(newSize);
+        builder.mem'realloc(newSize + 1);
     }
 }
 
@@ -117,31 +116,31 @@ def str~[StrCtor{prefix="", interpolation=false}] (
 }
 
 *def append(builder: mut StrBuilder, num: Int) {
-    builder'ensureCap(Size{10});
+    builder'ensureCap(10z);
     added : Int = c.sprintf(builder.mem.addr + builder.len, c"%d", num);
     builder.len += added;
 }
 
 *def append(builder: mut StrBuilder, num: Uint) {
-    builder'ensureCap(Size{10});
+    builder'ensureCap(10z);
     added : Int = c.sprintf(builder.mem.addr + builder.len, c"%u", num);
     builder.len += added;
 }
 
 *def append(builder: mut StrBuilder, num: Size) {
-    builder'ensureCap(Size{10});
+    builder'ensureCap(10z);
     added : Int = c.sprintf(builder.mem.addr + builder.len, c"%ld", num);
     builder.len += added;
 }
 
 *def append(builder: mut StrBuilder, num: Float, precision:=6) {
-    builder'ensureCap(Size{20});
+    builder'ensureCap(20z);
     added : Int = c.sprintf(builder.mem.addr + builder.len, c"%.*f", precision, num);
     builder.len += added;
 }
 
 *def append(builder: mut StrBuilder, num: Double, precision:=6) {
-    builder'ensureCap(Size{20});
+    builder'ensureCap(20z);
     added : Int = c.sprintf(builder.mem.addr + builder.len, c"%.*f", precision, num);
     builder.len += added;
 }

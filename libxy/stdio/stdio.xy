@@ -1,62 +1,12 @@
-import posix~[CLib{headers=@{"unistd.h", "errno.h"}}] in c;
+import posix~[CLib{headers=@{"unistd.h"}}] in c;
 import libxy.string;
+import libxy.error;
+import libxy.fs;
 
-;; Struct representing a file handle.
-struct File~[copy=false] {
-    fd: Int = -1;
-}
-
-struct SystemError {
-    code: Int;
-}
-
-;; struct OpenFlags~[flags=True] {
-;;     append : Int = c.O_APPEND;
-;;     create := c.O_CREAT;
-;;     directory := c.O_DIRECTORY;
-;;     read := c.O_READ;
-;;     write := c.O_WRITE;
-;; }
-
-;; Tag file which are externally managed and should not be closed.
-struct NoClose {}
-
-;; Opens a file
-;;def open(name: Str, flags: OpenFlags) -> File || SystemError {
-;;    fd : Int = c.open(name, flags);
-;;    if (fd < 0) {
-;;        error SystemError{c.errno};
-;;    }
-;;    return File{fd};
-;;}
-
-;; Writes `msg` to `f`
-;; def write(f: File, msg: Str) -> void || SystemError {
-*def write(f: File, msg: Str) -> void {
-    total : mut Size;
-    while (total < msg.len) {
-        written : Size = c.write(
-            f.fd, msg.addr + total, msg.len - total
-        );
-        ;; if (written < 0) {
-        ;;     error SystemError{c.errno};
-        ;; }
-        total += written;
-    }
-}
+stdout := File{fd=1};
+stderr := File{fd=2};
 
 ;; Prints `msg` to standard output
 *def print(msg: Str) -> void {
-    ;; stdout := File~[delete=NoClose]{0};
-    stdout := File{1};
     stdout'write(msg);
 }
-
-;; def del(f: File) -> void {
-;;     if (f.fd >= 0) {
-;;         c.close(f.fd);
-;;     }
-;; }
-;; 
-;; def del(f: File~[delete=NoClose]) -> void {
-;; }

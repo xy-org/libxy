@@ -1,9 +1,9 @@
 ;; FileSystem and Blocking File IO functionality
 
-import posix~[CLib{headers=@{"unistd.h", "errno.h"}}] in c;
+import posix~[CLib{headers=@{"unistd.h", "fcntl.h"}}] in c;
 import libxy.string;
 import libxy.flags;
-import libxy.stdio;
+import libxy.error;
 
 ;; Flags governing how a file is to be opened
 *struct OpenFlags {
@@ -44,15 +44,17 @@ import libxy.stdio;
     OpenFlags{orFlag(l.value, r.value)};
 
 ;; Struct representing a file handle.
-*struct File~[copy=false] {
+*struct File {
     fd: Int = -1;
 }
 
 ;; Open a file
 *def open(
     path: Str, flags := OpenFlags{.readOnly}, mode := 0644
-) -> File || SystemError {
-    pathCStr := path'toCStr;
+) -> File || SystemError
+>> nullTerminated(path)
+{
+    pathCStr := path.addr;
     #fd : c.Int = c.open(pathCStr, flags.value, mode);
     fd : Int = c.open(pathCStr, flags.value, mode);
     if (fd < 0) {
@@ -60,8 +62,6 @@ import libxy.stdio;
     }
     return File{fd};
 }
-
-*def to(se: SystemError, :Bool) false;
 
 *def write(file: File, str: Str) -> void || SystemError {
     total : mut Size;
@@ -82,4 +82,8 @@ import libxy.stdio;
     if (res != 0) {
         error SystemError{c.errno};
     }
+}
+
+*def dtor(f: File) {
+    f'close;
 }
