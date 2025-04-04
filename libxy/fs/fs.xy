@@ -54,9 +54,7 @@ import libxy.error;
 ) -> File || SystemError
 >> nullTerminated(path)
 {
-    pathCStr := path.addr;
-    #fd : c.Int = c.open(pathCStr, flags.value, mode);
-    fd : Int = c.open(pathCStr, flags.value, mode);
+    fd : Int = c.open(path.addr, flags.value, mode);
     if (fd < 0) {
         error SystemError{c.errno};
     }
@@ -78,9 +76,11 @@ import libxy.error;
 }
 
 *def close(file: File) -> void || SystemError {
-    res: Int = c.close(file.fd);
-    if (res != 0) {
-        error SystemError{c.errno};
+    if (file.fd >= 0) {
+        res: Int = c.close(file.fd);
+        if (res != 0) {
+            error SystemError{c.errno};
+        }
     }
 }
 
