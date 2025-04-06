@@ -19,6 +19,8 @@ struct MemExt {}
 ;; Have trailing zero byte.
 struct MemStatic {}
 
+
+;; A UTF-8 encoded string
 *struct Str~[memory :struct = MemManaged] {
     addr: Ptr;
     len: Size;
@@ -38,6 +40,15 @@ def dtor(str: Str, :MemStatic) {}
 def str~[StrCtor{prefix="", interpolation=false}] (
     addr: Ptr, size: Size
 ) Str~MemStatic{addr, size};
+
+;; The byte-length of the string as encoding in UTF-8
+*def len(s: Str) s.len;
+
+# *def get(s: Str, i: Int) -> Byte
+# >> i'to(Uint) < s'len
+# {
+#     return [s.addr~[to=Byte] + i];
+# }
 
 *def cmp(str1: Str, str2: Str) -> Size {
     if (str1.len != str2.len) {
