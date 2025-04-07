@@ -1,6 +1,7 @@
 import libc~[CLib{headers=@{"string.h", "stdio.h"}}] in c;
 import libxy.memory;
 import libxy.error;
+import libxy.slice;
 
 def cstr~[StrCtor{prefix="c", interpolation=false}] (
     addr: Ptr, size: Size
@@ -22,7 +23,7 @@ struct MemStatic {}
 
 ;; A UTF-8 encoded string
 *struct Str~[memory :struct = MemManaged] {
-    addr: Ptr;
+    addr: Ptr~Byte;
     len: Size;
 }
 
@@ -44,11 +45,18 @@ def str~[StrCtor{prefix="", interpolation=false}] (
 ;; The byte-length of the string as encoding in UTF-8
 *def len(s: Str) s.len;
 
-# *def get(s: Str, i: Int) -> Byte
-# >> i'to(Uint) < s'len
-# {
-#     return [s.addr~[to=Byte] + i];
-# }
+*def get(s: Str, i: Size) -> Byte
+>> i < s'len
+{
+    return [s.addr~[to=Byte] + i];
+}
+
+*def get(s: Str, int: SizeInterval) -> Str~MemExt
+>> int.start < s.len
+>> (int.end - int.start) <= s.len
+{
+    return Str{s.addr + int.start, s.len - (int.end - int.start)};
+}
 
 *def cmp(str1: Str, str2: Str) -> Size {
     if (str1.len != str2.len) {

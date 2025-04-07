@@ -1,6 +1,20 @@
-# import libxy.slice;
-# 
-# *def dirname(path: Str) -> path[ IntInterval ] {
-#     i : mut = path'len;
-#     while (i > 0 & path[i])
-# }
+import libxy.slice;
+
+*def dirname(path: Str) -> path[ SizeInterval ] {
+    dirLen : mut = path'len;
+
+    # strip trailing /
+    while (dirLen >= 2 & path[dirLen-1] == `/`) dirLen--;
+
+    # find next /
+    while (dirLen >= 2 & path[dirLen-1] != `/`) dirLen--;
+
+    # skip multiple / separating the dirname from basename
+    while(dirLen >= 2 & path[dirLen-1] == `/`) dirLen--;
+
+    # finally strip the sperating /
+    if (dirLen > 0 & path[dirLen-1] != `/`) dirLen--;
+
+    x := 0z:dirLen;
+    return x;
+}

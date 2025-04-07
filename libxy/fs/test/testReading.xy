@@ -1,0 +1,35 @@
+import libxy.fs;
+import xy.ctti;
+import libxy.memory;
+
+*def readFile~Test() {
+    #file := open('fileof, .read);
+    #content := file'read(.text);
+    #checkContent(content);
+}
+
+def checkContent(content: Str) {
+    #(assert) content'len > 100;
+    #(assert) content'startswith("import");
+}
+
+#def mmapFile~Test() {
+#    file := open('fileof, .read);
+#    mem := file'mmap;
+#    content := Str~External{mem, mem.size};
+#    # ...
+#}
+#
+#def readByChunks~Test() {
+#    file := open('fileof, .read);
+#    
+#    buffer: Memory;
+#    buffer'realloc(64);; intentionally allocate a small buffer
+#
+#    while (file'read(buffer) > 0) {
+#        # ...
+#    }
+#}
+
+
+

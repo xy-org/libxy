@@ -3,12 +3,12 @@ import libxy.slice;
 import libxy.error;
 
 struct Memory {
-    addr: Ptr;
+    addr: Ptr~Byte;
     size: Size;
 }
 
 *def realloc(mem: mut Memory, size: Size) -> void || SystemError {
-    newMem : Ptr = c.realloc(mem.addr, size);
+    newMem : Ptr~Byte = c.realloc(mem.addr, size);
     if (newMem == Ptr{}) {
         error SystemError{c.ENOMEM};
     }
@@ -23,7 +23,7 @@ struct Memory {
     mem.size = 0;
 }
 
-*def at(mem: Memory, idx: Size) -> Ptr
+*def at(mem: Memory, idx: Size) -> Ptr~Byte
 >> idx < mem.size
 {
     return mem.addr + idx;

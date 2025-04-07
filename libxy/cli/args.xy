@@ -39,7 +39,7 @@ def printHelp(programComment: Str, descPtr: Ptr~Descriptor, descLen: Size) {
             continue;
         }
         # XXX
-        destStr : mut Ptr~Str = dest + descPtr[descLen-1].offset;
+        destStr : mut Ptr~Str = dest~[to=Byte] + descPtr[descLen-1].offset;
         argLen : Size = c.strlen(argv[i]);
         destStr[0] = str(argv[i], argLen); # XXX should be destStr[]
         if (destStr[0] == "--help") {
