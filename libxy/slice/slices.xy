@@ -1,17 +1,17 @@
 ;; Hail the AllSlice
-struct AllSlice {
+*struct AllSlice {
 }
 
-def slice() = AllSlice{};
+*def slice() = AllSlice{};
 
 ;; A simplified interval with start and end of ints
-struct IntInterval {
+*struct IntInterval {
     start: Int;
     end: Int;
 }
 
 ;; A full slice of ints
-struct IntSlice {
+*struct IntSlice {
     start: Int;
     end: Int;
     step: Int;
@@ -24,13 +24,13 @@ struct IntSlice {
 *def len(interval: IntInterval) = interval.end - interval.start;
 
 ;; A simplified interval with start and end of sizes
-struct SizeInterval {
+*struct SizeInterval {
     start: Size;
     end: Size;
 }
 
 ;; A full slice of ints
-struct SizeSlice {
+*struct SizeSlice {
     start: Size;
     end: Size;
     step: Size;

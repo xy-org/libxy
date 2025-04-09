@@ -52,10 +52,10 @@ def str~[StrCtor{prefix="", interpolation=false}] (
 }
 
 *def get(s: Str, int: SizeInterval) -> Str~MemExt
->> int.start < s.len
+>> int.start <= s.len
 >> (int.end - int.start) <= s.len
 {
-    return Str{s.addr + int.start, s.len - (int.end - int.start)};
+    return Str{s.addr + int.start, int.end - int.start};
 }
 
 *def cmp(str1: Str, str2: Str) -> Size {

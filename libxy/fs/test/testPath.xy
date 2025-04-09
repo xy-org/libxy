@@ -1,20 +1,25 @@
 *def testDirname~Test() {
     (assert) dirname("/basket/apples") == "/basket";
-    #(assert) dirname("/basket/apples/") == "/basket";
-    #(assert) dirname("/basket/apples//////") == "/basket";
-    #(assert) dirname("/basket///apples///") == "/basket";
-    #(assert) dirname("///basket/apples") == "///basket";
+    (assert) dirname("/basket/apples/") == "/basket";
+    (assert) dirname("/basket/apples//////") == "/basket";
+    (assert) dirname("/basket///apples///") == "/basket";
+    (assert) dirname("///basket/apples") == "///basket";
 
-    #(assert) dirname("/i/made/this/up") == "/i/made/this";
-#
-    #(assert) "/etc/config/." == "/etc/config";
-    #(assert) "/etc/config/.." == "/etc/config";
-#
-    #(assert) "" == "";
-    #(assert) "a" == "";
-    #(assert) "file.txt" == "";
-    #(assert) "subdir/file.txt" == "subdir";
-    #(assert) "../file.txt" == "..";
-#
-    #(assert) "/" == "/";
+    (assert) dirname("/i/made/this/up") == "/i/made/this";
+
+    (assert) dirname("/etc/config/.") == "/etc/config";
+    (assert) dirname("/etc/config/..") == "/etc/config";
+
+    (assert) dirname("") == "";
+    (assert) dirname("a") == "";
+    (assert) dirname("ab") == "";
+    (assert) dirname("file.txt") == "";
+    (assert) dirname("subdir/file.txt") == "subdir";
+    (assert) dirname("../file.txt") == "..";
+
+    (assert) dirname("/") == "/";
+    (assert) dirname("/a") == "/";
+
+    (assert) dirname("..") == "";
+    (assert) dirname(".") == "";
 }
