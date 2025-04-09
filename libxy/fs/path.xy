@@ -1,21 +1,32 @@
 import libxy.slice;
 
-stdout := File{fd=1};
+;; Separator character used to separate components in a path
+;; typically / on unix and \ on windows
+# TODO change to \ on windows
+pathSeparator := `/`;
 
-*def dirname(path: Str) -> path[ SizeInterval ] {
+;; Strip last component from a filesystem path
+;; If input contains no /'s, return empty interval (i.e. empty string)
+*def dirname(
+    ;; What to strip
+    path: Str,
+    ;; Separator symbol to tokenize {path} by.
+    ;; ascii code-point is required for performance reasons.
+    separator: Byte = pathSeparator'to(Byte)
+) -> path[ SizeInterval ] {
     dirLen : mut = path'len;
 
     # strip trailing /
-    while (dirLen >= 2 & path[dirLen-1] == `/`) dirLen--;
+    while (dirLen >= 2 & path[dirLen-1] == separator) dirLen--;
 
     # find next /
-    while (dirLen >= 1 & path[dirLen-1] != `/`) dirLen--;
+    while (dirLen >= 1 & path[dirLen-1] != separator) dirLen--;
 
     # skip multiple / separating the dirname from basename
-    while(dirLen >= 2 & path[dirLen-1] == `/`) dirLen--;
+    while(dirLen >= 2 & path[dirLen-1] == separator) dirLen--;
 
     # finally strip the separating /
-    if (dirLen >= 2 & path[dirLen-1] == `/`) dirLen--;
+    if (dirLen >= 2 & path[dirLen-1] == separator) dirLen--;
 
     x := 0z:dirLen;
     return x;
