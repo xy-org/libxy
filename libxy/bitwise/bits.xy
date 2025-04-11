@@ -8,12 +8,20 @@ def len(b: Bits16) 16;
 def len(b: Bits32) 32;
 def len(b: Bits64) 64;
 
-def get(b: Bits64, i: Int) -> Bool {
-    return (b & (1ul'to(Bits64) \shiftl i))'any;
+def get(b: Bits8, i: (Byte, Ubyte, Short, Ushort, Int, Uint)) -> Bool {
+    return (b & (1ub'to(%b) \shiftl i))'any;
 }
 
-def get(b: Bits32, i: Int) -> Bool {
-    return (b & (1u'to(Bits32) \shiftl i))'any;
+def get(b: Bits16, i: (Byte, Ubyte, Short, Ushort, Int, Uint)) -> Bool {
+    return (b & (1us'to(%b) \shiftl i))'any;
+}
+
+def get(b: Bits32, i: (Byte, Ubyte, Short, Ushort, Int, Uint)) -> Bool {
+    return (b & (1u'to(%b) \shiftl i))'any;
+}
+
+def get(b: Bits64, i: (Byte, Ubyte, Short, Ushort, Int, Uint)) -> Bool {
+    return (b & (1ul'to(%b) \shiftl i))'any;
 }
 
 def set(b: mut Bits64, i: Int, val: Bool) -> b[ Int ] {
@@ -28,20 +36,24 @@ def set(b: mut Bits32, i: Int, val: Bool) -> b[ Int ] {
 
 struct Bits {}
 
-def bits(a: Long) -> a[ Bits ] {
+def bits(a: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong)) -> a[ Bits ] {
     return Bits{};
 }
 
-def bits(a: Int) -> a[ Bits ] {
-    return Bits{};
+def get(a: (Byte, Ubyte), b: pseudo Bits) -> Bits8 {
+    return a'to(Bits8);
 }
 
-def get(a: Long, b: pseudo Bits) -> Bits64 {
-    return a'to(Bits64);
+def get(a: (Short, Ushort), b: pseudo Bits) -> Bits16 {
+    return a'to(Bits16);
 }
 
-def get(a: Int, b: pseudo Bits) -> Bits32 {
+def get(a: (Int, Uint), b: pseudo Bits) -> Bits32 {
     return a'to(Bits32);
+}
+
+def get(a: (Long, Ulong), b: pseudo Bits) -> Bits64 {
+    return a'to(Bits64);
 }
 
 def set(num: mut Long, :Bits, i: Int, val: Bool) {

@@ -40,6 +40,6 @@ import libxy.bitwise;
 *def xor~Test() {
     n1 := 0x1fub;
     n2 := 0x22ub;
-    #xor := n1'bits - n2'bits;
-    #(assert) xor == 0x3dub;
+    xor := n1'bits - n2'bits;
+    (assert) xor'to(Ubyte) == 0x3dub;
 }
