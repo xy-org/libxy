@@ -1,6 +1,6 @@
 ;; support for flags stored as bitfields
 
-import libxy.bits;
+import libxy.bitwise;
 
 *def setFlag(flags: mut Int, mask: Int, on: Bool)
     flags'bits = flags'bits | (mask * on'to(%mask))'bits;

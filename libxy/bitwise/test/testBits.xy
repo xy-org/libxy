@@ -1,11 +1,11 @@
 import xytest;
-import libxy.bits;
+import libxy.bitwise;
 
 *def get~Test() {
     num := 011001010100101(2);
-    (assert) num'bits[0];
     (assert)  num'bits[0];
     (assert) !num'bits[1];
+    (assert)  num'bits[2];
     (assert)  num'bits[5];
     (assert)  num'bits[13];
 }
@@ -15,6 +15,7 @@ import libxy.bits;
     num'bits = !num'bits;
     (assert) !num'bits[0];
     (assert)  num'bits[1];
+    (assert) !num'bits[2];
     (assert) !num'bits[5];
     (assert) !num'bits[13];
 }
