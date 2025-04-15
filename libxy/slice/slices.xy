@@ -37,7 +37,7 @@
 }
 
 *def slice(start : Size) = SizeInterval{start, Size'max};
-*def slice(end : Size, start: Size := 0) = SizeInterval{start, end};
+*def slice(end : Size, start: Size = 0) = SizeInterval{start, end};
 *def slice(step : Size, end := Size'max, start := 0) = SizeSlice{start, end, step};
 
 *def len(interval: SizeInterval) = interval.end - interval.start;

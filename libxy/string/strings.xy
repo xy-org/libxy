@@ -48,7 +48,7 @@ def str~[StrCtor{prefix="", interpolation=false}] (
 *def get(s: Str, i: Size) -> Byte
 >> i < s'len
 {
-    return [s.addr~[to=Byte] + i];
+    return [(s.addr)~[to=Byte] + i];
 }
 
 *def get(s: Str, int: SizeInterval) -> Str~MemExt
