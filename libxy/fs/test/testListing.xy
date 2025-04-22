@@ -5,7 +5,10 @@ import libxy.fs;
 import xytest;
 
 *def ls~Test() {
-    for (node in ls("/")) {
-        print(f"{node.name}\n");
+    len : Size;
+    for (node in ls(dirname('fileof)'ensureNullTerminated)) {
+        (assert) (node.name'startswith(".")) | (node.name'startswith("test"));
+        len++;
     }
+    (assert) len > 0;
 }
