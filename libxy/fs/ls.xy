@@ -1,5 +1,5 @@
 import posix~[CLib{headers=@{"sys/types.h", "dirent.h"}}] in c;
-import libxy.clock;
+import libxy.time;
 import libxy.memory;
 
 ;; List directory content
