@@ -1,3 +1,34 @@
-struct PosixTime {
-    secondsSinceEpoch: Ulong;
+import libxy.unit;
+import libxy.error;
+import libc~[CLib{headers=@{"errno.h", "time.h"}}] in c;
+
+;; Represent a point in time by the number of nanoseconds since
+;; 00:00:00 UTC 1 January 1970 (Unix Epoch). Values before the Epoch are not
+;; allowed. The maximum representable timestamp is at some point in 2550 CE.
+;; This is a very efficient and accurate way of representing time as long as
+;; you work in that timeframe (which is a very reasonable assumption for at
+;; least a couple more centuries). I suggest someone in the 25-th century
+;; change the `Ulong` to a larger type.
+struct Timestamp {
+    nsec: Ulong~ns;
+}
+
+# NOTE! no sub/cmp as a timestamp is intended to be used as is. Doing math with
+# it doesn't make much sense as there is no reliable way of determining the
+# current moment
+
+;; Timestamp the current moment as measured by the system internal clock.
+;; The system clock is very temperamental. It is settable and can jump all
+;; over the place experiencing large discontinuities. Timestamps returned by
+;; sequential calls may vary quite a lot and a latter call can result in a
+;; timestamp that is earlier in time. Use the returned value as a rough
+;; estimation of the current time. Let the nanosecond stuff not fool you.
+def timestamp() -> Timestamp {
+    ts: inlinec"struct timespec";
+    err : Int = inlinec"clock_gettime(CLOCK_REALTIME, &{ts})";
+    if (err != 0) {
+        error SystemError{c.errno}; 
+    }
+    nsec: Ulong~ns = inlinec"(intmax_t){ts}.tv_sec * 1000000000 + {ts}.tv_nsec";
+    return Timestamp{nsec};
 }

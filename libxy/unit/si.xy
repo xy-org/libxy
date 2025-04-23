@@ -79,6 +79,9 @@ struct Sv~[TagCtor{label="units"}] {}
 
 struct kat~[TagCtor{label="units"}] {}
 
+;; Nano seconds
+struct ns~[TagCtor{label="units"}] {}
+
 # Other common units
 
 struct m2~[TagCtor{label="units"}] {}

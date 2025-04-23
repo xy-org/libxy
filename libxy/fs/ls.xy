@@ -27,9 +27,9 @@ import libxy.memory;
     mask: LsFlags;
     type: NodeType;
     size: Size;
-    atime: PosixTime;
-    mtime: PosixTime;
-    ctime: PosixTime;
+    atime: Timestamp;
+    mtime: Timestamp;
+    ctime: Timestamp;
 }
 
 *struct NodeType {
