@@ -146,6 +146,12 @@ def nullTerminated(str: Str, :MemExt) false;
     builder.len += added;
 }
 
+*def append(builder: mut StrBuilder, num: Long) {
+    builder'ensureCap(20z);
+    added : Int = c.sprintf(builder.mem.addr + builder.len, c"%lld", num);
+    builder.len += added;
+}
+
 *def append(builder: mut StrBuilder, num: Size) {
     builder'ensureCap(10z);
     added : Int = c.sprintf(builder.mem.addr + builder.len, c"%ld", num);

@@ -1,0 +1,17 @@
+import libxy.unit;
+import libxy.error;
+import libc~[CLib{headers=@{"errno.h", "time.h"}}] in c;
+
+;; Return the number of nanoseconds since some arbitrary moment in time
+;; that does not change as the program runs but may change from run to run.
+;; The clock used to measure the time is monotonic and doesn't tick if the
+;; system is suspended. The returned value makes sense only when compared to
+;; another value returned by this function.
+*def time() -> Long~ns {
+    ts: inlinec"struct timespec";
+    err : Int = inlinec"clock_gettime(CLOCK_MONOTONIC, &{ts})";
+    if (err != 0) {
+        error SystemError{c.errno}; 
+    }
+    return inlinec"(intmax_t){ts}.tv_sec * 1000000000 + {ts}.tv_nsec";
+}
