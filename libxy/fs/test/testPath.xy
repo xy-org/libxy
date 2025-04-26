@@ -26,10 +26,10 @@
     (assert) dirname("~") == "";
 }
 
-#*def testDirnameNonLatin~Test() {
-#    (assert) dirname("/кошница/ябълки") == "/кошница";
-#    (assert) dirname("卷宗.txt") == "";
-#    (assert) dirname("雪") == "";
-#    (assert) dirname("~/home/.скрытый файл") == "~/home";
-#    (assert) dirname("😀/💯/🐊") == "😀/💯";
-#}
+*def testDirnameNonLatin~Test() {
+    (assert) dirname("/кошница/ябълки") == "/кошница";
+    (assert) dirname("卷宗.txt") == "";
+    (assert) dirname("雪") == "";
+    (assert) dirname("~/home/.скрытый файл") == "~/home";
+    (assert) dirname("😀/💯/🐊") == "😀/💯";
+}
