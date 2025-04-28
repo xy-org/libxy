@@ -68,6 +68,14 @@ def set(num: mut Int, :Bits, i: Int, val: Bool) {
     num = bits'to(Int);
 }
 
+def set(num: mut Uint, :Bits, i: Int, val: Bool) {
+    bits : mut = num'bits;
+    bits[i] = val;
+    num = bits'to(Uint);
+}
+
 def set(num: mut Long, :Bits, bits: Bits64) num = bits'to(Long);
 
 def set(num: mut Int, :Bits, bits: Bits32) num = bits'to(Int);
+
+def set(num: mut Uint, :Bits, bits: Bits32) num = bits'to(Uint);

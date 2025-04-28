@@ -58,12 +58,21 @@ def str~[StrCtor{prefix="", interpolation=false}] (
     return Str{s.addr + int.start, int.end - int.start};
 }
 
-*def cmp(str1: Str, str2: Str) -> Size {
-    if (str1.len != str2.len) {
-        return str1.len - str2.len;
+*def cmp(str1: Str, str2: Str) -> Int {
+    if (str1.len > str2.len) {
+        return 1;
+    } elif (str2.len < str2.len) {
+        return -1;
     }
     return c.strncmp(str1.addr, str2.addr, str1.len);
 }
+
+*def cmpEq(str1: Str, str2: Str) cmp(str1, str2) == 0;
+*def cmpNe(str1: Str, str2: Str) cmp(str1, str2) != 0;
+*def cmpGt(str1: Str, str2: Str) cmp(str1, str2) > 0;
+*def cmpGe(str1: Str, str2: Str) cmp(str1, str2) >= 0;
+*def cmpLt(str1: Str, str2: Str) cmp(str1, str2) < 0;
+*def cmpLe(str1: Str, str2: Str) cmp(str1, str2) <= 0;
 
 *def startswith(str: Str, prefix: Str) -> Bool {
     if (prefix.len > str.len) {
@@ -168,6 +177,10 @@ def nullTerminated(str: Str, :MemExt) false;
     builder'ensureCap(20z);
     added : Int = c.sprintf(builder.mem.addr + builder.len, c"%.*f", precision, num);
     builder.len += added;
+}
+
+*def backtrack(builder: mut StrBuilder, num: Int) {
+    builder.len -= num;
 }
 
 *def to(builder: mut StrBuilder, :Str) -> Str {

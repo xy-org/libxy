@@ -5,7 +5,6 @@ import libxy.bitwise;
 *def setFlag(flags: mut Int, mask: Int, on: Bool)
     flags'bits = flags'bits | (mask * on'to(%mask))'bits;
 
-
 *def getFlag(flags: Int, mask: Int)
     (flags'bits & mask'bits) == mask'bits;
 
@@ -14,3 +13,29 @@ import libxy.bitwise;
 
 *def orFlag(flags: mut Int, mask: Int)
     (flags'bits | mask'bits)'to(%flags);
+
+
+*struct Enum {
+    value: Int;
+}
+
+*def set(value: mut Int, enum: Enum, on: Bool) {
+    # TODO make this a macro
+    if (on) value = enum.value;
+}
+
+*def set(value: mut Uint, enum: Enum, on: Bool) {
+    # TODO make this a macro
+    if (on) value = enum.value'to(Uint);
+}
+
+*struct Flag {
+    value: Int;
+}
+
+*def get(value: Uint, flag: Flag)
+    (value'bits & flag.value'bits) == flag.value'bits;
+
+*def set(value: mut Uint, flag: Flag, on: Bool) {
+    value'bits = flag.value'bits | (flag.value * on'to(%flag.value))'bits;
+}
