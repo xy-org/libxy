@@ -35,9 +35,10 @@ import libxy.bitwise;
     value: Int;
 }
 
-*def get(value: Uint, flag: Flag)
-    (value'bits & flag.value'bits) == flag.value'bits;
+*def get(value: (Byte, Ubyte, Short, Ushort, Int, Uint), flag: Flag)
+    (value'bits & flag.value'to(%value)'bits) == flag.value'to(%value)'bits;
 
-*def set(value: mut Uint, flag: Flag, on: Bool) {
-    value'bits = value'bits | (flag.value * on'to(%flag.value))'bits;
+*def set(value: mut (Ubyte, Int, Uint), flag: Flag, on: Bool) {
+    if (on) {value'bits = value'bits | flag.value'to(%value)'bits;}
+    else {value'bits = value'bits & !flag.value'to(%value)'bits;}
 }

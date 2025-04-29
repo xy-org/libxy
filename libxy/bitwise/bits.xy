@@ -8,38 +8,45 @@ def len(b: Bits16) 16;
 def len(b: Bits32) 32;
 def len(b: Bits64) 64;
 
-def get(b: Bits8, i: (Byte, Ubyte, Short, Ushort, Int, Uint)) -> Bool {
-    return (b & (1ub'to(%b) \shiftl i))'any;
-}
+;; Handle expressions like bits[i]
+def get(b: Bits8, i: (Byte, Ubyte, Short, Ushort, Int, Uint)) =
+    (b & (1ub'to(%b) \shiftl i))'any;
 
-def get(b: Bits16, i: (Byte, Ubyte, Short, Ushort, Int, Uint)) -> Bool {
-    return (b & (1us'to(%b) \shiftl i))'any;
-}
+def get(b: Bits16, i: (Byte, Ubyte, Short, Ushort, Int, Uint)) =
+    (b & (1us'to(%b) \shiftl i))'any;
 
-def get(b: Bits32, i: (Byte, Ubyte, Short, Ushort, Int, Uint)) -> Bool {
-    return (b & (1u'to(%b) \shiftl i))'any;
-}
+def get(b: Bits32, i: (Byte, Ubyte, Short, Ushort, Int, Uint)) =
+    (b & (1u'to(%b) \shiftl i))'any;
 
-def get(b: Bits64, i: (Byte, Ubyte, Short, Ushort, Int, Uint)) -> Bool {
-    return (b & (1ul'to(%b) \shiftl i))'any;
-}
+def get(b: Bits64, i: (Byte, Ubyte, Short, Ushort, Int, Uint)) =
+    (b & (1ul'to(%b) \shiftl i))'any;
 
-def set(b: mut Bits64, i: Int, val: Bool) -> b[ Int ] {
+;; Handle expressions like bits[i] = bit
+def set(b: mut Bits64, i: Int, val: Bool) {
     b = b | (val'to(Ulong)'to(Bits64) \shiftl i);
-    return i;
 }
 
-def set(b: mut Bits32, i: Int, val: Bool) -> b[ Int ] {
+def set(b: mut Bits32, i: Int, val: Bool) {
     b = b | (val'to(Uint)'to(Bits32) \shiftl i);
-    return i;
 }
 
+def set(b: mut Bits16, i: Int, val: Bool) {
+    b = b | (val'to(Ushort)'to(Bits16) \shiftl i);
+}
+
+def set(b: mut Bits8, i: Int, val: Bool) {
+    b = b | (val'to(Ubyte)'to(Bits8) \shiftl i);
+}
+
+;; An empty struct used to provide syntax like num'bits or num'bits[i] = bit 
 struct Bits {}
 
+;; Return an index to the bits in {a}
 def bits(a: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong)) -> a[ Bits ] {
     return Bits{};
 }
 
+;; Handle expressions like num'bits
 def get(a: (Byte, Ubyte), b: pseudo Bits) -> Bits8 {
     return a'to(Bits8);
 }
@@ -56,26 +63,18 @@ def get(a: (Long, Ulong), b: pseudo Bits) -> Bits64 {
     return a'to(Bits64);
 }
 
-def set(num: mut Long, :Bits, i: Int, val: Bool) {
+;; Handle expression like num'bits[i] = bit
+def set(num: mut (Int, Uint, Ushort, Long, Byte), :Bits, i: Int, on: Bool) {
     bits : mut = num'bits;
-    bits[i] = val;
-    num = bits'to(Long);
+    bits[i] = on;
+    num = bits'to(%num);
 }
 
-def set(num: mut Int, :Bits, i: Int, val: Bool) {
-    bits : mut = num'bits;
-    bits[i] = val;
-    num = bits'to(Int);
-}
+;; Handle expression like num'bits = bits
+def set(num: mut (Byte, Ubyte), :Bits, bits: Bits8) num = bits'to(%num);
 
-def set(num: mut Uint, :Bits, i: Int, val: Bool) {
-    bits : mut = num'bits;
-    bits[i] = val;
-    num = bits'to(Uint);
-}
+def set(num: mut (Short, Ushort), :Bits, bits: Bits16) num = bits'to(%num);
 
-def set(num: mut Long, :Bits, bits: Bits64) num = bits'to(Long);
+def set(num: mut (Int, Uint), :Bits, bits: Bits32) num = bits'to(%num);
 
-def set(num: mut Int, :Bits, bits: Bits32) num = bits'to(Int);
-
-def set(num: mut Uint, :Bits, bits: Bits32) num = bits'to(Uint);
+def set(num: mut (Long, Ulong), :Bits, bits: Bits64) num = bits'to(%num);

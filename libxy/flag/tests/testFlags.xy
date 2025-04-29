@@ -1,0 +1,52 @@
+import libxy.flag;
+import xytest;
+
+*def flag~Test() {
+    num : mut = 0;
+
+    flag1: pseudo = Flag{0x1};
+    assert(!num[flag1]);
+
+    num[flag1] = true;
+    assert(num[flag1]);
+    assert(num == 0x1);
+
+    flag2: pseudo = Flag{0x2};
+    num[flag2] = true;
+    assert(num[flag2]);
+    assert (num == 0x3);
+
+    flagAll: pseudo = Flag{0xF};
+    assert(!num[flagAll]);
+    num[flagAll] = true;
+    assert(num[flagAll]);
+
+    num[flagAll] = false;
+    assert(num == 0);
+}
+
+struct FuncFlags {
+    flags: Ubyte;
+
+    flag1: pseudo = Flag{0x1};
+    flag2: pseudo = Flag{0x20};
+    flag3: pseudo = Flag{0x10};
+}
+
+def get(s: FuncFlags, f: Flag) = s.flags[f];
+
+def set(s: mut FuncFlags, f: Flag, on: Bool) s.flags[f] = on;
+
+*def flagInStruct~Test() {
+    s : mut FuncFlags;
+
+    assert(!s.flag1);
+    s.flag1 = true;
+    assert(s.flag1);
+
+    assert(!s.flag3);
+    s.flag3 = true;
+    assert(s.flag3);
+    assert(!s.flag2);
+    assert(s.flag1);
+}

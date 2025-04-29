@@ -10,6 +10,15 @@ import libxy.bitwise;
     (assert)  num'bits[13];
 }
 
+*def getBitOfBits~Test() {
+    bits := 011001010100101(2)'bits;
+    (assert)  bits[0];
+    (assert) !bits[1];
+    (assert)  bits[2];
+    (assert)  bits[5];
+    (assert)  bits[13];
+}
+
 *def flip~Test() {
     num : mut = 011001010100101(2);
     num'bits = !num'bits;
@@ -30,11 +39,24 @@ import libxy.bitwise;
 *def copy~Test() {
     # probably the most inefficient way to copy a number
     num := 0random(36);
-    copy: Int;
+
+    (assert) copyBits(num) == num;
+    (assert) copyBits(num'to(Byte)) == num'to(Byte);
+    #(assert) copyBits(num'to(Ubyte)) == num'to(Ubyte);
+    (assert) copyBits(num'to(Ushort)) == num'to(Ushort);
+    #(assert) copyBits(num'to(Short)) == num'to(Short);
+    #(assert) copyBits(num'to(Uint)) == num'to(Uint);
+    #(assert) copyBits(num'to(Long)) == num'to(Long);
+    #(assert) copyBits(num'to(Ulong)) == num'to(Ulong);
+}
+
+-def copyBits(num: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong)) -> %num {
+    # probably the most inefficient way to copy a number
+    copy: %num;
     for (i in :num'bits'len) {
         copy'bits[i] = num'bits[i];
     }
-    (assert) num == copy;
+    return copy;
 }
 
 *def xor~Test() {
