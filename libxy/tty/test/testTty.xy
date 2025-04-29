@@ -1,0 +1,12 @@
+import xytest;
+import libxy.string;
+import libxy.tty;
+import libxy.stdio;
+import libxy.flag;
+
+*def tty~Test() {
+    (assert) f"{esc()}" == "";
+    (assert) f"{esc(.reset)}" == "\033[0m";
+    (assert) f"{esc(.bold)}" == "\033[1m";
+    (assert) f"{esc(.bold, .green)}" == "\033[1;32m";
+}

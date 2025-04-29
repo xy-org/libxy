@@ -29,6 +29,8 @@ import libxy.bitwise;
     if (on) value = enum.value'to(Uint);
 }
 
+*def get(value: Uint, enum: Enum) value == enum.value'to(Uint);
+
 *struct Flag {
     value: Int;
 }
@@ -37,5 +39,5 @@ import libxy.bitwise;
     (value'bits & flag.value'bits) == flag.value'bits;
 
 *def set(value: mut Uint, flag: Flag, on: Bool) {
-    value'bits = flag.value'bits | (flag.value * on'to(%flag.value))'bits;
+    value'bits = value'bits | (flag.value * on'to(%flag.value))'bits;
 }

@@ -1,0 +1,116 @@
+;; Functionality related to terminals or tty
+;; Mostly basic stuff. You can do pretty colors and query a tty about common
+;; properties.
+
+import libxy.string;
+import libxy.flag;
+
+;; Reset any previous color/graphics modes
+*def esc(reset: Bool) Esc{=reset};
+
+;; Create an escape sequence for a specific color/graphics mode
+*def esc(
+    bold := false, faint := false, italic := false, underline := false,
+    blinking := false, inverse := false, hidden := false,
+    strikethrough := false,
+    black := false, red := false, green := false, yellow := false,
+    blue := false, magenta := false, cyan := false, white := false,
+    default := false,
+    bgBlack := false, bgRed := false, bgGreen := false, bgYellow := false,
+    bgBlue := false, bgMagenta := false, bgCyan := false, bgWhite := false,
+    bgDefault := false
+) = Esc {
+    =bold, =faint, =italic, =underline, =blinking, =inverse, =hidden,
+    =strikethrough,
+    fg=Color{
+        =black, =red, =green, =yellow, =blue, =magenta, =cyan, =white,
+        =default
+    },
+    bg=Color{
+        black=bgBlack, red=bgRed, green=bgGreen, yellow=bgYellow, blue=bgBlue,
+        magenta=bgMagenta, cyan=bgCyan, white=bgWhite, default=bgDefault
+    },
+};
+
+;; Holds info about a particular set of escapes.
+;; Don't use directly. Use {esc} func
+struct Esc {
+    flags: Uint;
+
+    bold: pseudo          = Flag{1};
+    faint: pseudo         = Flag{2};
+    italic: pseudo        = Flag{4};
+    underline: pseudo     = Flag{8};
+    blinking: pseudo      = Flag{16};
+    inverse: pseudo       = Flag{32};
+    hidden: pseudo        = Flag{64};
+    strikethrough: pseudo = Flag{128};
+    reset: pseudo         = Flag{256};
+
+    bg: Color;
+    fg: Color;
+}
+
+def get(esc: Esc, flag: Flag) esc.flags[flag];
+
+def set(esc: mut Esc, flag: Flag, on: Bool) esc.flags[flag] = on;
+
+;; Info about a color on the terminals
+;; Don't use directly
+struct Color {
+    mode : Uint;
+
+    black: pseudo = Enum{1};
+    red:   pseudo = Enum{2};
+    green:   pseudo = Enum{4};
+    yellow: pseudo = Enum{8};
+    blue: pseudo = Enum{16};
+    magenta: pseudo = Enum{32};
+    cyan: pseudo = Enum{64};
+    white: pseudo = Enum{128};
+    default: pseudo = Enum{256};
+}
+
+
+def get(esc: Color, enum: Enum) esc.mode[enum];
+def set(esc: mut Color, enum: Enum, on: Bool) esc.mode[enum] = on;
+
+*def append(fstr: mut StrBuilder, esc: Esc, enabled: Bool = true) {
+    if (!enabled) return;
+    if (esc.flags == 0 & esc.bg.mode == 0 & esc.fg.mode == 0) return;
+
+    fstr'append("\033[");
+
+    if (esc.reset) fstr'append("0;");
+    if (esc.bold) fstr'append("1;");
+    if (esc.faint) fstr'append("2;");
+    if (esc.italic) fstr'append("3;");
+    if (esc.underline) fstr'append("4;");
+    if (esc.blinking) fstr'append("5;");
+    if (esc.inverse) fstr'append("7;");
+    if (esc.hidden) fstr'append("8;");
+    if (esc.strikethrough) fstr'append("9;");
+
+    if (esc.fg.black) fstr'append("30;");
+    if (esc.fg.red) fstr'append("31;");
+    if (esc.fg.green) fstr'append("32;");
+    if (esc.fg.yellow) fstr'append("33;");
+    if (esc.fg.blue) fstr'append("34;");
+    if (esc.fg.magenta) fstr'append("35;");
+    if (esc.fg.cyan) fstr'append("36;");
+    if (esc.fg.white) fstr'append("37;");
+    if (esc.fg.default) fstr'append("39;");
+
+    if (esc.bg.black) fstr'append("40;");
+    if (esc.bg.red) fstr'append("41;");
+    if (esc.bg.green) fstr'append("42;");
+    if (esc.bg.yellow) fstr'append("43;");
+    if (esc.bg.blue) fstr'append("44;");
+    if (esc.bg.magenta) fstr'append("45;");
+    if (esc.bg.cyan) fstr'append("46;");
+    if (esc.bg.white) fstr'append("47;");
+    if (esc.bg.default) fstr'append("49;");
+
+    fstr'backtrack(1);
+    fstr'append("m");
+}
