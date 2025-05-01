@@ -1,4 +1,4 @@
-import libc~[CLib{headers=@{"string.h", "stdio.h"}}] in c;
+import libc~[CLib{headers=@{"string.h", "stdio.h", "inttypes.h"}}] in c;
 import libxy.memory;
 import libxy.error;
 import libxy.slice;
@@ -6,7 +6,7 @@ import libxy.slice;
 def cstr~[StrCtor{prefix="c", interpolation=false}] (
     addr: Ptr, size: Size
 )
-    addr;
+    addr~[c.char];
 
 ;; Tag for strings that are managed by the Str struct itself.
 ;; Have trailing zero byte.
@@ -64,7 +64,7 @@ def str~[StrCtor{prefix="", interpolation=false}] (
     } elif (str1.len < str2.len) {
         return -1;
     }
-    return c.strncmp(str1.addr, str2.addr, str1.len);
+    return c.strncmp(str1.addr~[c.char], str2.addr~[c.char], str1.len);
 }
 
 *def cmpEq(str1: Str, str2: Str) cmp(str1, str2) == 0;
@@ -78,7 +78,7 @@ def str~[StrCtor{prefix="", interpolation=false}] (
     if (prefix.len > str.len) {
         return false;
     }
-    strncmpRes: Int = c.strncmp(str.addr, prefix.addr, prefix.len);
+    strncmpRes: Int = c.strncmp(str.addr~[c.char], prefix.addr~[c.char], prefix.len);
     return strncmpRes == 0;
 }
 
@@ -86,7 +86,7 @@ def str~[StrCtor{prefix="", interpolation=false}] (
     if (suffix.len > str.len) {
         return false;
     }
-    strncmpRes: Int = c.strncmp(str.addr + (str.len - suffix.len), suffix.addr, suffix.len);
+    strncmpRes: Int = c.strncmp(str.addr~[c.char] + (str.len - suffix.len), suffix.addr~[c.char], suffix.len);
     return strncmpRes == 0;
 }
 
@@ -145,37 +145,37 @@ def nullTerminated(str: Str, :MemExt) false;
 
 *def append(builder: mut StrBuilder, num: Int) {
     builder'ensureCap(10z);
-    added : Int = c.sprintf(builder.mem.addr + builder.len, c"%d", num);
+    added : Int = c.sprintf(builder.mem.addr~[c.char] + builder.len, c"%d", num);
     builder.len += added;
 }
 
 *def append(builder: mut StrBuilder, num: Uint) {
     builder'ensureCap(10z);
-    added : Int = c.sprintf(builder.mem.addr + builder.len, c"%u", num);
+    added : Int = c.sprintf(builder.mem.addr~[c.char] + builder.len, c"%u", num);
     builder.len += added;
 }
 
 *def append(builder: mut StrBuilder, num: Long) {
     builder'ensureCap(20z);
-    added : Int = c.sprintf(builder.mem.addr + builder.len, c"%lld", num);
+    added : Int = c.sprintf(builder.mem.addr~[c.char] + builder.len, c"%lld", num);
     builder.len += added;
 }
 
 *def append(builder: mut StrBuilder, num: Size) {
     builder'ensureCap(10z);
-    added : Int = c.sprintf(builder.mem.addr + builder.len, c"%ld", num);
+    added : Int = c.sprintf(builder.mem.addr~[c.char] + builder.len, c"%ld", num);
     builder.len += added;
 }
 
 *def append(builder: mut StrBuilder, num: Float, precision:=6) {
     builder'ensureCap(20z);
-    added : Int = c.sprintf(builder.mem.addr + builder.len, c"%.*f", precision, num);
+    added : Int = c.sprintf(builder.mem.addr~[c.char] + builder.len, c"%.*f", precision, num);
     builder.len += added;
 }
 
 *def append(builder: mut StrBuilder, num: Double, precision:=6) {
     builder'ensureCap(20z);
-    added : Int = c.sprintf(builder.mem.addr + builder.len, c"%.*f", precision, num);
+    added : Int = c.sprintf(builder.mem.addr~[c.char] + builder.len, c"%.*f", precision, num);
     builder.len += added;
 }
 
