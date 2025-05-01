@@ -9,39 +9,31 @@ import libxy.error;
 *struct OpenFlags {
     value: Int;
 
-    append : pseudo = OpenFlags{c.O_APPEND};
+    append : pseudo = Flag{c.O_APPEND};
 
-    create : pseudo = OpenFlags{c.O_CREAT};
+    create : pseudo = Flag{c.O_CREAT};
 
-    directory : pseudo = OpenFlags{c.O_DIRECTORY};
+    directory : pseudo = Flag{c.O_DIRECTORY};
 
-    readOnly : pseudo = OpenFlags{c.O_RDONLY};
+    readOnly : pseudo = Flag{c.O_RDONLY};
     #r : pseudo = readOnly;
 
-    writeOnly : pseudo = OpenFlags{c.O_WRONLY};
+    writeOnly : pseudo = Flag{c.O_WRONLY};
     #w : pseudo = writeOnly;
 
-    readWrite : pseudo = OpenFlags{c.O_RDWR};
+    readWrite : pseudo = Flag{c.O_RDWR};
     #rw : pseudo = readWrite;
 
-    truncate : pseudo = OpenFlags{c.O_TRUNC};
+    truncate : pseudo = Flag{c.O_TRUNC};
     #trunc : pseudo = truncate;; Shorthand for truncate
 
-    exclusive : pseudo = OpenFlags{c.O_EXCL};
+    exclusive : pseudo = Flag{c.O_EXCL};
     #excl : pseudo = exclusive;; Shorthand for exclusive
 }
 
-*def get(l: OpenFlags, r: OpenFlags)
-    getFlag(l.value, r.value);
+*def get(oflags: OpenFlags, flag: Flag) = oflags.value[flag];
 
-*def set(l: mut OpenFlags, r: OpenFlags, on: Bool)
-    setFlag(l.value, r.value, on);
-
-*def and(l: OpenFlags, r: OpenFlags)
-    OpenFlags{andFlag(l.value, r.value)};
-
-*def or(l: OpenFlags, r: OpenFlags)
-    OpenFlags{orFlag(l.value, r.value)};
+*def set(oflags: mut OpenFlags, flag: Flag, on: Bool) oflags.value[flag] = on;
 
 ;; Struct representing a file handle.
 *struct File {
@@ -49,8 +41,21 @@ import libxy.error;
 }
 
 ;; Open a file
+;; See {OpenFlags} for explanation of what all the toggles mean
+* def open(
+    path: Str,
+    append := false, create := false, directory := false, readOnly := false,
+    writeOnly := false, readWrite := false, truncate := false,
+    exclusive := false,
+    mode := 0644
+) = open(path, OpenFlags{
+        =append, =create, =directory, =readOnly, =writeOnly, =readWrite,
+        =truncate, =exclusive
+    }, mode);
+
+;; Open a file
 *def open(
-    path: Str, flags := OpenFlags{.readOnly}, mode := 0644
+    path: Str, flags: OpenFlags, mode := 0644
 ) -> File || SystemError
 >> nullTerminated(path)
 {

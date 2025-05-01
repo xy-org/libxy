@@ -2,42 +2,17 @@
 
 import libxy.bitwise;
 
-*def setFlag(flags: mut Int, mask: Int, on: Bool)
-    flags'bits = flags'bits | (mask * on'to(%mask))'bits;
-
-*def getFlag(flags: Int, mask: Int)
-    (flags'bits & mask'bits) == mask'bits;
-
-*def andFlag(flags: Int, mask: Int)
-    (flags'bits & mask'bits)'to(%flags);
-
-*def orFlag(flags: mut Int, mask: Int)
-    (flags'bits | mask'bits)'to(%flags);
-
-
-*struct Enum {
-    value: Int;
-}
-
-*def set(value: mut Int, enum: Enum, on: Bool) {
-    # TODO make this a macro
-    if (on) value = enum.value;
-}
-
-*def set(value: mut Uint, enum: Enum, on: Bool) {
-    # TODO make this a macro
-    if (on) value = enum.value'to(Uint);
-}
-
-*def get(value: Uint, enum: Enum) value == enum.value'to(Uint);
-
+;; Flag is a bitmask that is applied to an integer variable
+;; Multiple flags can be set on the same value
 *struct Flag {
     value: Int;
 }
 
+;; Check if the bitmask stored in {flag} is applied to {value}
 *def get(value: (Byte, Ubyte, Short, Ushort, Int, Uint), flag: Flag)
     (value'bits & flag.value'to(%value)'bits) == flag.value'to(%value)'bits;
 
+;; Apply the bitmask stored in {flag} to {value}
 *def set(value: mut (Ubyte, Int, Uint), flag: Flag, on: Bool) {
     if (on) {value'bits = value'bits | flag.value'to(%value)'bits;}
     else {value'bits = value'bits & !flag.value'to(%value)'bits;}

@@ -3,7 +3,7 @@ import xy.ctti;
 import libxy.memory;
 
 *def readFile~Test() {
-    #file := open('fileof, .read);
+    file := open('fileof, .readOnly);
     #content := file'read(.text);
     #checkContent(content);
 }

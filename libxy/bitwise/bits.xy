@@ -51,6 +51,8 @@ def get(a: (Byte, Ubyte), b: pseudo Bits) -> Bits8 {
     return a'to(Bits8);
 }
 
+#TODO def get(a: (Byte, Ubyte), b: pseudo Bits) = a'to(Bits8);
+
 def get(a: (Short, Ushort), b: pseudo Bits) -> Bits16 {
     return a'to(Bits16);
 }
@@ -63,14 +65,16 @@ def get(a: (Long, Ulong), b: pseudo Bits) -> Bits64 {
     return a'to(Bits64);
 }
 
-;; Handle expression like num'bits[i] = bit
+;; Set the {i}th bit of {num} to {on}
+;; Called for expressions like num'bits[i] = on;
 def set(num: mut (Int, Uint, Ushort, Long, Byte), :Bits, i: Int, on: Bool) {
     bits : mut = num'bits;
     bits[i] = on;
     num = bits'to(%num);
 }
 
-;; Handle expression like num'bits = bits
+;; Set {num} to the value of {bits} interpreted as an integer
+;; Called for expressions like num'bits = bits;
 def set(num: mut (Byte, Ubyte), :Bits, bits: Bits8) num = bits'to(%num);
 
 def set(num: mut (Short, Ushort), :Bits, bits: Bits16) num = bits'to(%num);

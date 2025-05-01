@@ -1,0 +1,42 @@
+import libxy.flag;
+import xytest;
+
+*def enum~Test() {
+    num : mut = 0;
+
+    enum1: pseudo = Enum{0x1};
+    assert(!num[enum1]);
+
+    num[enum1] = true;
+    assert(num[enum1]);
+    assert(num == 0x1);
+
+    enum2: pseudo = Enum{0x2};
+    num[enum2] = true;
+    assert(num[enum2]);
+    assert (num == 0x2);
+}
+
+struct StructEnum {
+    value: Ubyte;
+
+    enum1: pseudo = Enum{0x1};
+    enum2: pseudo = Enum{0x20};
+}
+
+def get(s: StructEnum, f: Enum) = s.value[f];
+
+def set(s: mut StructEnum, f: Enum, on: Bool) s.value[f] = on;
+
+*def enumInStruct~Test() {
+    s : mut StructEnum;
+
+    assert(!s.enum1);
+    s.enum1 = true;
+    assert(s.enum1);
+
+    assert(!s.enum2);
+    s.enum2 = true;
+    assert(s.enum2);
+    assert(!s.enum1);
+}
