@@ -61,7 +61,7 @@ def str~[StrCtor{prefix="", interpolation=false}] (
 *def cmp(str1: Str, str2: Str) -> Int {
     if (str1.len > str2.len) {
         return 1;
-    } elif (str2.len < str2.len) {
+    } elif (str1.len < str2.len) {
         return -1;
     }
     return c.strncmp(str1.addr, str2.addr, str1.len);
