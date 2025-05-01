@@ -56,7 +56,7 @@ struct Listing {
 ) -> [ Listing ] || SystemError
 >> nullTerminated(path)
 {
-    pDir :  mut Ptr~[c.DIR] = c.opendir(path.addr);
+    pDir :  mut Ptr~[c.DIR] = c.opendir(path.addr~[c.char]);
     if (pDir == Ptr{}) {
         errno : Int = c.errno;
         error SystemError{errno};
@@ -83,7 +83,7 @@ struct Listing {
 
 def loadNodeInfo(node: mut Node, dirent: Ptr~[inlinec"struct dirent"]) {
     name := Str~MemExt{
-        inlinec"{dirent}->d_name", c.strlen(inlinec"{dirent}->d_name")
+        Ptr~Byte{inlinec"{dirent}->d_name"}, c.strlen(inlinec"{dirent}->d_name")
     };
     node.name =< name'copy;
 }

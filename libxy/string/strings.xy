@@ -145,25 +145,25 @@ def nullTerminated(str: Str, :MemExt) false;
 
 *def append(builder: mut StrBuilder, num: Int) {
     builder'ensureCap(10z);
-    added : Int = c.sprintf(builder.mem.addr~[c.char] + builder.len, c"%d", num);
+    added : Int = c.sprintf(builder.mem.addr~[c.char] + builder.len, inlinec"\"%\"PRId32", num);
     builder.len += added;
 }
 
 *def append(builder: mut StrBuilder, num: Uint) {
     builder'ensureCap(10z);
-    added : Int = c.sprintf(builder.mem.addr~[c.char] + builder.len, c"%u", num);
+    added : Int = c.sprintf(builder.mem.addr~[c.char] + builder.len, inlinec"\"%\"PRIu32", num);
     builder.len += added;
 }
 
 *def append(builder: mut StrBuilder, num: Long) {
     builder'ensureCap(20z);
-    added : Int = c.sprintf(builder.mem.addr~[c.char] + builder.len, c"%lld", num);
+    added : Int = c.sprintf(builder.mem.addr~[c.char] + builder.len, inlinec"\"%\"PRId64", num);
     builder.len += added;
 }
 
 *def append(builder: mut StrBuilder, num: Size) {
     builder'ensureCap(10z);
-    added : Int = c.sprintf(builder.mem.addr~[c.char] + builder.len, c"%ld", num);
+    added : Int = c.sprintf(builder.mem.addr~[c.char] + builder.len, c"%zd", num);
     builder.len += added;
 }
 

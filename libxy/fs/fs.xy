@@ -59,7 +59,7 @@ import libxy.error;
 ) -> File || SystemError
 >> nullTerminated(path)
 {
-    fd : Int = c.open(path.addr, flags.value, mode);
+    fd : Int = c.open(path.addr~[c.char], flags.value, mode);
     if (fd < 0) {
         error SystemError{c.errno};
     }

@@ -6,5 +6,5 @@ import libxy.time;
     (assert) ts.nsec != 0;
 
     ## assuming a reasonably set system time
-    (assert) ts.nsec > (1970-2025)*365*24*60*60*1000000000;
+    (assert) ts.nsec > (2025-1970)*365*24*60*60*1000000000ul;
 }
