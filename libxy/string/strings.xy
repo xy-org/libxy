@@ -163,7 +163,7 @@ def nullTerminated(str: Str, :MemExt) false;
 
 *def append(builder: mut StrBuilder, num: Size) {
     builder'ensureCap(10z);
-    added : Int = c.sprintf(builder.mem.addr~[c.char] + builder.len, c"%zd", num);
+    added : Int = c.sprintf(builder.mem.addr~[c.char] + builder.len, c"%zu", num);
     builder.len += added;
 }
 
@@ -179,7 +179,7 @@ def nullTerminated(str: Str, :MemExt) false;
     builder.len += added;
 }
 
-*def backtrack(builder: mut StrBuilder, num: Int) {
+*def backtrack(builder: mut StrBuilder, num: Uint) {
     builder.len -= num;
 }
 

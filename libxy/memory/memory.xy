@@ -12,7 +12,9 @@ struct Memory {
     if (newMem == Ptr{}) {
         error SystemError{c.ENOMEM};
     }
-    c.memset(newMem + mem.size, 0, size - mem.size);
+    if (size > mem.size) {
+        c.memset(newMem + mem.size, 0, size - mem.size);
+    }
     mem.addr = newMem;
     mem.size = size;
 }

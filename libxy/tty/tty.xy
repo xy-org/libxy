@@ -111,6 +111,6 @@ def set(esc: mut Color, enum: Enum, on: Bool) esc.mode[enum] = on;
     if (esc.bg.white) fstr'append("47;");
     if (esc.bg.default) fstr'append("49;");
 
-    fstr'backtrack(1);
+    fstr'backtrack(1u);
     fstr'append("m");
 }
