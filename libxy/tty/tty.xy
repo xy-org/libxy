@@ -75,7 +75,7 @@ struct Color {
 def get(esc: Color, enum: Enum) esc.mode[enum];
 def set(esc: mut Color, enum: Enum, on: Bool) esc.mode[enum] = on;
 
-*def append(fstr: mut StrBuilder, esc: Esc, enabled: Bool = true) {
+*def append(fstr: mut Fstr, esc: Esc, enabled: Bool = true) {
     if (!enabled) return;
     if (esc.flags == 0 & esc.bg.mode == 0 & esc.fg.mode == 0) return;
 
