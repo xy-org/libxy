@@ -1,4 +1,4 @@
-import posix~[CLib{headers=@{"errno.h"}}] in c;
+import posix~[CLib{headers=@{"errno.h"}, defines=@{"_DEFAULT_SOURCE"}}] in c;
 
 ;; Error occurring during system operations like syscalls or memory allocation 
 *struct SystemError {
