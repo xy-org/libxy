@@ -29,6 +29,6 @@ def timestamp() -> Timestamp {
     if (err != 0) {
         error SystemError{c.errno}; 
     }
-    nsec: Ulong~ns = inlinec"(intmax_t){ts}.tv_sec * 1000000000 + {ts}.tv_nsec";
+    nsec: Ulong~ns = inlinec"(uintmax_t){ts}.tv_sec * 1000000000 + (uintmax_t){ts}.tv_nsec";
     return Timestamp{nsec};
 }

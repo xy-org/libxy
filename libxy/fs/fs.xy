@@ -70,13 +70,13 @@ import libxy.error;
     total : mut Size;
     do {
         # TODO use c.ssize_t
-        written : Size = c.write(
+        written : c.ssize_t = c.write(
             file.fd, str.addr + total, str.len - total
         );
-        if (written < 0) {
+        if (inlinec"{written} < 0") {
             error SystemError{c.errno};
         }
-        total += written;
+        inlinec"{total} += {written}";
     } while (total < str.len);
 }
 

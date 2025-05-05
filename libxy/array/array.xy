@@ -56,7 +56,7 @@ def ensureCapacity(
     arr: Array, i: Int,
     elemSize : Size = sizeof(arr..elemType)
 ) -> arr[ Ptr~[^arr..elemType] ] {
-    return arr.mem.addr + i * elemSize;
+    return arr.mem.addr + i'to(Size) * elemSize;
 }
 
 struct ArrayIter {
