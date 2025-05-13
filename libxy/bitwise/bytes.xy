@@ -1,0 +1,69 @@
+;; Empty struct used to provide syntax like num'bytes or num'bytes[i] = byte
+struct Bytes{}
+
+;; Struct representing a fixed number of bytes
+struct Bytes2 { bits: Bits16; }
+struct Bytes4 { bits: Bits32; }
+struct Bytes8 { bits: Bits64; }
+
+;; Convert from bytes back to a number
+def to(b: Bytes2, t: pseudo (Short, Ushort)) b.bits'to(%t);
+def to(b: Bytes4, t: pseudo (Int, Uint)    ) b.bits'to(%t);
+def to(b: Bytes8, t: pseudo (Long, Ulong)  ) b.bits'to(%t);
+
+;; Compare for (in)equality
+def cmpEq(a: (Bytes2, Bytes4, Bytes8), b: %a) = a.bits == b.bits;
+def cmpNe(a: (Bytes2, Bytes4, Bytes8), b: %a) = a.bits != b.bits;
+
+def bytes(
+    num: (Bits16, Bits32, Bits64, Short, Ushort, Int, Uint, Long, Ulong)
+) -> num[ Bytes ] {
+    return Bytes{};
+}
+
+;; Get bytes of a number
+def get(bits: Bits16, :Bytes) = Bytes2{bits};
+def get(bits: Bits32, :Bytes) = Bytes4{bits};
+def get(bits: Bits64, :Bytes) = Bytes8{bits};
+def get(num: (Short, Ushort), :Bytes) = Bytes2{num'bits};
+def get(num: (Int, Uint),     :Bytes) = Bytes4{num'bits};
+def get(num: (Long, Ulong),   :Bytes) = Bytes8{num'bits};
+
+;; Set bytes of a number
+def set(num: mut (Short, Ushort), :Bytes, bytes: Bytes2) num'bits = bytes.bits;
+def set(num: mut (Int, Uint),     :Bytes, bytes: Bytes4) num'bits = bytes.bits;
+def set(num: mut (Long, Ulong),   :Bytes, bytes: Bytes8) num'bits = bytes.bits;
+
+;; Get the {i}th byte of {bytes}
+;; Called for expressions like num'bytes[i]
+def get(bytes: (Bytes2, Bytes4, Bytes8), i: Int) =
+    (bytes.bits & 0xFF'bits'to(%bytes.bits)'shiftl(i*8))'shiftr(i*8)'to(Bits8)'to(Byte);
+
+;; Set the {i}th byte of {num}
+;; Called for expressions like num'bytes[i] = byte;
+def set(
+    num: (Short, Ushort, Int, Uint, Long, Ulong),
+    :Bytes, i: Int, byte: Byte
+) num'bits = num'bits & !(0xFF'bits'to(%num'bits)'shiftl(i*8)) | byte'bits'to(%num'bits)'shiftl(i*8);
+
+;; Reverse bytes around the middle i.e. reverse byte order
+def reverse(bytes: Bytes2)
+    Bytes2{bytes.bits'shiftl(8) | bytes.bits'shiftr(8)};
+
+;; ...
+def reverse(bytes: Bytes4)
+    Bytes4{bytes.bits'shiftl(24) | (bytes.bits'shiftl(8) & 0xFF0000'bits) | (bytes.bits'shiftr(8) & 0xFF00'bits) | bytes.bits'shiftr(24)};
+
+;; ...
+def reverse(bytes: Bytes8)
+    Bytes8{
+        (bytes.bits \shiftl 56) | ((bytes.bits & 0xFF00ul'bits) \shiftl 40) | ((bytes.bits & 0xFF0000ul'bits) \shiftl 24) | ((bytes.bits & 0xFF000000ul'bits) \shiftl 8) | ((bytes.bits \shiftr 8) & 0xFF000000ul'bits) | ((bytes.bits \shiftr 24) & 0xFF0000ul'bits) | ((bytes.bits \shiftr 40) & 0xFF00ul'bits) | (bytes.bits \shiftr 56)
+    };
+
+;; Rotate left by {i} bytes
+def rotl(bytes: (Bytes2, Bytes4, Bytes8), i: Int)
+    (%bytes){bytes.bits'rotl(i*8)};
+
+;; Rotate right by {i} bytes
+def rotr(bytes: (Bytes2, Bytes4, Bytes8), i: Int)
+    (%bytes){bytes.bits'rotr(i*8)};

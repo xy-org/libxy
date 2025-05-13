@@ -1,0 +1,86 @@
+;; Used to mark that what we want is the bytes of a number
+struct Nibbles {}
+
+;; Struct representing a fixed number of nibbles
+struct Nibbles2 { bits: Bits8; }
+struct Nibbles4 { bits: Bits16; }
+struct Nibbles8 { bits: Bits32; }
+struct Nibbles16 { bits: Bits64; }
+
+;; Convert from nibbles back to a number
+def to(b: Nibbles2,  t: pseudo (Byte, Ubyte))  b.bits'to(%t);
+def to(b: Nibbles4,  t: pseudo (Short, Ushort)) b.bits'to(%t);
+def to(b: Nibbles8,  t: pseudo (Int, Uint)    ) b.bits'to(%t);
+def to(b: Nibbles16, t: pseudo (Long, Ulong)  ) b.bits'to(%t);
+
+;; Compare for (in)equality
+def cmpEq(a: (Nibbles2, Nibbles4, Nibbles8, Nibbles16), b: %a) =
+    a.bits == b.bits;
+def cmpNe(a: (Nibbles2, Nibbles4, Nibbles8, Nibbles16), b: %a) =
+    a.bits != b.bits;
+
+def nibbles(
+    num: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong)
+) -> num[ Nibbles ] {
+    return Nibbles{};
+}
+
+;; Get nibbles of a number
+def get(num: (Byte, Ubyte),   :Nibbles) = Nibbles2{num'bits};
+def get(num: (Short, Ushort), :Nibbles) = Nibbles4{num'bits};
+def get(num: (Int, Uint),     :Nibbles) = Nibbles8{num'bits};
+def get(num: (Long, Ulong),   :Nibbles) = Nibbles16{num'bits};
+
+;; Set nibbles of a number
+def set(num: mut (Byte, Ubyte),   :Nibbles, nibbles: Nibbles2)
+    num'bits = nibbles.bits;
+def set(num: mut (Short, Ushort), :Nibbles, nibbles: Nibbles4)
+    num'bits = nibbles.bits;
+def set(num: mut (Int, Uint),     :Nibbles, nibbles: Nibbles8)
+    num'bits = nibbles.bits;
+def set(num: mut (Long, Ulong),   :Nibbles, nibbles: Nibbles16)
+    num'bits = nibbles.bits;
+
+;; Get the {i}th nibble of {nibbles}
+;; Called for expressions like num'nibbles[i]
+;; There is no integer 4-bit type so we are going to use Byte
+def get(nibbles: (Nibbles2, Nibbles4, Nibbles8, Nibbles16), i: Int) =
+    (nibbles.bits & 0xF'bits'to(%nibbles.bits)'shiftl(i*4))'shiftr(i*4)'to(Bits8)'to(Byte);
+
+;; Set the {i}th nibble of {num}
+;; Called for expressions like num'nibbles[i] = nibble;
+def set(
+    num: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong),
+    :Nibbles, i: Int, nibble: Byte
+) num'bits = num'bits & !(0xF'bits'to(%num'bits)'shiftl(i*4)) | (nibble'bits'to(%num'bits) & 0xF'bits'to(%num'bits))'shiftl(i*4);
+
+;; Reflect nibbles around the middle i.e. reverse nibble order
+def reverse(nibs: Nibbles2) -> %nibs {
+    return (%nibs){(nibs.bits & 0x0Fub'bits) \shiftl 4 | (nibs.bits \shiftr 4) & 0x0Fub'bits};
+}
+
+;; ...
+def reverse(nibs: Nibbles4) -> %nibs {
+    bits := (nibs.bits & 0x0F0Fs'bits) \shiftl 4 | (nibs.bits \shiftr 4) & 0x0F0Fs'bits;
+    return Nibbles4{bits'bytes'reverse'to(Ushort)'bits};
+}
+
+;; ...
+def reverse(nibs: Nibbles8) -> %nibs {
+    bits := (nibs.bits & 0x0F0F0F0F'bits) \shiftl 4 | (nibs.bits \shiftr 4) & 0x0F0F0F0F'bits;
+    return Nibbles8{bits'bytes'reverse'to(Uint)'bits};
+}
+
+;; ...
+def reverse(nibs: Nibbles16) -> %nibs {
+    bits := (nibs.bits & 0x0F0F0F0F0F0F0F0Ful'bits) \shiftl 4 | (nibs.bits \shiftr 4) & 0x0F0F0F0F0F0F0F0Ful'bits;
+    return Nibbles16{bits'bytes'reverse'to(Ulong)'bits};
+}
+
+;; Rotate left by {i} bytes
+def rotl(nibbles: (Nibbles2, Nibbles4, Nibbles8, Nibbles16), i: Int)
+    (%nibbles){nibbles.bits'rotl(i*4)};
+
+;; Rotate right by {i} bytes
+def rotr(nibbles: (Nibbles2, Nibbles4, Nibbles8, Nibbles16), i: Int)
+    (%nibbles){nibbles.bits'rotr(i*4)};

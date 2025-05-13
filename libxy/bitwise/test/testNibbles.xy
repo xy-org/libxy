@@ -1,0 +1,41 @@
+*def gettingNibbles~Test() {
+    num := 0x27FA;
+    (assert) num'nibbles[0] == 0xA;
+    (assert) num'nibbles[1] == 0xF;
+    (assert) num'nibbles[2] == 0x7;
+    (assert) num'nibbles[3] == 0x2;
+    (assert) num'nibbles[4] == 0x0;
+    (assert) num'nibbles[5] == 0x0;
+    (assert) num'nibbles[6] == 0x0;
+    (assert) num'nibbles[7] == 0x0;
+}
+
+*def settingNibbles~Test() {
+    num : Int;
+    num'nibbles[0] = 0xAb;
+    num'nibbles[1] = 0xFb;
+    num'nibbles[2] = 0x7b;
+    num'nibbles[3] = 0x2b;
+    (assert) num == 0x27FA;
+}
+
+*def reversingNibbles~Test() {
+    (assert) 0x12ub'nibbles'reverse == 0x21ub'nibbles;
+    (assert) 0x1234s'nibbles'reverse == 0x4321s'nibbles;
+    (assert) 0x12345678'nibbles'reverse == 0x87654321'nibbles;
+    (assert) 0x34567890ABCDEFl'nibbles'reverse == 0xFEDCBA0987654300l'nibbles;
+}
+
+*def rotatingNibbles~Test() {
+    num := 0x3579FECF;
+    (assert) num'nibbles'rotl(3) == 0x9FECF357'nibbles;
+    (assert) num'nibbles'rotr(5) == 0x9FECF357'nibbles;
+}
+
+*def nibblewiseOpsOutOfBounds~Test() {
+    (assert) 0x11223344'nibbles[0] == 0x11223344'nibbles[8];
+    (assert) 0x11223344'nibbles[-1] == 0x11223344'nibbles[7];
+
+    (assert) 0x3579s'nibbles'rotl(5) == 0x3579s'nibbles'rotl(1);
+    (assert) 0x3579FECF'nibbles'rotr(-1) == 0x3579FECF'nibbles'rotr(7);
+}

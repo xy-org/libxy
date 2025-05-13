@@ -1,0 +1,41 @@
+*def gettingBytes~Test() {
+    num := 0x27FA;
+    #TODO (assert) num'bytes[0] == 0xFA;
+    (assert) num'bytes[1] == 0x27;
+    (assert) num'bytes[2] == 0x00;
+    (assert) num'bytes[3] == 0x00;
+}
+
+*def settingBytes~Test() {
+    num : Int;
+    num'bytes[0] = 0xFAb;
+    num'bytes[1] = 0x27b;
+    (assert) num == 0x27FA;
+}
+
+*def reversingBytes~Test() {
+    (assert) 0x1122s'bytes'reverse'to(Short) == 0x2211s;
+    (assert) 0x11223344'bytes'reverse == 0x44332211'bytes;
+    #TODO (assert) 0x12FAs'bytes'reverse'to(Short) == 0xFA12s;
+    #TODO (assert) 0x1234567890ABCDEFl'bytes'reverse == 0xEFCDAB9078563412l;
+}
+
+*def rotatingBytes~Test() {
+    (assert) 0x3579s'bytes'rotr(1) == 0x7935s'bytes;
+    (assert) 0x3579FECF'bytes'rotr(0) == 0x3579FECF'bytes;
+    (assert) 0x3579FECF'bytes'rotr(3) == 0x79FECF35'bytes;
+    (assert) 0x1234567890ABCDEFl'bytes'rotr(5) == 0x7890ABCDEF123456l'bytes;
+
+    (assert) 0x3579s'bytes'rotl(1) == 0x7935s'bytes;
+    (assert) 0x3579FECF'bytes'rotl(0) == 0x3579FECF'bytes;
+    (assert) 0x3579FECF'bytes'rotl(3) == 0xCF3579FE'bytes;
+    (assert) 0x1234567890ABCDEFl'bytes'rotl(5) == 0xABCDEF1234567890l'bytes;
+}
+
+*def bytewiseOpsOutOfBounds~Test() {
+    (assert) 0x11223344'bytes[0] == 0x11223344'bytes[4];
+    (assert) 0x11223344'bytes[-1] == 0x11223344'bytes[3];
+
+    (assert) 0x3579s'bytes'rotl(3) == 0x3579s'bytes'rotl(1);
+    (assert) 0x3579FECF'bytes'rotr(-1) == 0x3579FECF'bytes'rotr(3);
+}
