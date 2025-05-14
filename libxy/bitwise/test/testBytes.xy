@@ -1,9 +1,9 @@
 *def gettingBytes~Test() {
     num := 0x27FA;
-    #TODO (assert) num'bytes[0] == 0xFA;
-    (assert) num'bytes[1] == 0x27;
-    (assert) num'bytes[2] == 0x00;
-    (assert) num'bytes[3] == 0x00;
+    (assert) num'bytes[0] == 0xFAb;
+    (assert) num'bytes[1] == 0x27b;
+    (assert) num'bytes[2] == 0x00b;
+    (assert) num'bytes[3] == 0x00b;
 }
 
 *def settingBytes~Test() {
@@ -16,8 +16,8 @@
 *def reversingBytes~Test() {
     (assert) 0x1122s'bytes'reverse'to(Short) == 0x2211s;
     (assert) 0x11223344'bytes'reverse == 0x44332211'bytes;
-    #TODO (assert) 0x12FAs'bytes'reverse'to(Short) == 0xFA12s;
-    #TODO (assert) 0x1234567890ABCDEFl'bytes'reverse == 0xEFCDAB9078563412l;
+    (assert) 0x12FAs'bytes'reverse'to(Short) == 0xFA12s;
+    (assert) 0x1234567890ABCDEFl'bytes'reverse == 0xEFCDAB9078563412l'bytes;
 }
 
 *def rotatingBytes~Test() {

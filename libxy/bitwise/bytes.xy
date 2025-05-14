@@ -6,6 +6,11 @@ struct Bytes2 { bits: Bits16; }
 struct Bytes4 { bits: Bits32; }
 struct Bytes8 { bits: Bits64; }
 
+# Byte length
+def len(b: Bytes2) 2;
+def len(b: Bytes4) 4;
+def len(b: Bytes8) 8;
+
 ;; Convert from bytes back to a number
 def to(b: Bytes2, t: pseudo (Short, Ushort)) b.bits'to(%t);
 def to(b: Bytes4, t: pseudo (Int, Uint)    ) b.bits'to(%t);

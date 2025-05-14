@@ -7,6 +7,12 @@ struct Nibbles4 { bits: Bits16; }
 struct Nibbles8 { bits: Bits32; }
 struct Nibbles16 { bits: Bits64; }
 
+# Nibble length
+def len(b: Nibbles2)   2;
+def len(b: Nibbles4)   4;
+def len(b: Nibbles8)   8;
+def len(b: Nibbles16) 16;
+
 ;; Convert from nibbles back to a number
 def to(b: Nibbles2,  t: pseudo (Byte, Ubyte))  b.bits'to(%t);
 def to(b: Nibbles4,  t: pseudo (Short, Ushort)) b.bits'to(%t);
