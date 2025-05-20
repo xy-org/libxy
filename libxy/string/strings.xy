@@ -2,6 +2,7 @@ import libc~[CLib{headers=@{"string.h", "stdio.h", "inttypes.h"}}] in c;
 import libxy.memory;
 import libxy.error;
 import libxy.slice;
+import libxy.bitwise;
 
 def cstr~[StrCtor{prefix="c", interpolation=false}] (
     addr: Ptr, size: Size
@@ -49,6 +50,33 @@ def str~[StrCtor{prefix="", interpolation=false}] (
 >> i < s'len
 {
     return [(s.addr)~[to=Byte] + i];
+}
+
+;; Count the number of unicode code points (chars) in the string
+*def count(s: Str) -> Size {
+    res : Size;
+    i : Size;
+    while (i < s.len) {
+        contBytes := s[i]'bits'countLeadingOnes;
+        res++;
+        i++;
+        if (contBytes >= 2 & contBytes <= 4) {
+            for (j in 1:contBytes) {
+                contOnes := s[i]'bits'countLeadingOnes;
+                if (contOnes != 1 & contOnes <= 4) {
+                    # premature end of current sequence. Break b/c
+                    # a new sequence is following
+                    break;
+                }
+                # else if {contOnes} is 0 or 2, 3, 4 then we have a new seq
+                # if {contOnes} is > 4 then we have a broken byte and we want to
+                # skip it
+                i++;
+            }
+        }
+        ;; if contBytes == 0 then ascii otherwise broken byte
+    }
+    return res;
 }
 
 *def get(s: Str, int: SizeInterval) -> Str~MemExt
@@ -122,7 +150,7 @@ def nullTerminated(str: Str, :MemExt) false;
     return Fstr{};
 }
 
-*def ensureCap(builder: mut Fstr, requiredCap: Size) {
+def ensureCap(builder: mut Fstr, requiredCap: Size) {
     minSize := builder.len + requiredCap;
     if (builder.mem.size < minSize) {
         newSize : mut = 2 * builder.mem.size;
@@ -135,7 +163,7 @@ def nullTerminated(str: Str, :MemExt) false;
 
 *def append(builder: mut Fstr, addr: Ptr, size: Size) {
     builder'ensureCap(size);
-    c.memcpy(builder.mem.addr + builder.len, addr, size); 
+    c.memcpy(builder.mem.addr + builder.len, addr, size);
     builder.len += size;
 }
 
@@ -143,28 +171,34 @@ def nullTerminated(str: Str, :MemExt) false;
     builder'append(str.addr, str.len);
 }
 
-*def append(builder: mut Fstr, num: Int) {
-    builder'ensureCap(10z);
-    added : Int = c.sprintf(builder.mem.addr~[c.char] + builder.len, inlinec"\"%\"PRId32", num);
-    builder.len += added'to(Size);
-}
+;; Number of available bytes in builder
+def capacity(fstr: Fstr) fstr.mem.size - fstr.len;
 
-*def append(builder: mut Fstr, num: Uint) {
-    builder'ensureCap(10z);
-    added : Int = c.sprintf(builder.mem.addr~[c.char] + builder.len, inlinec"\"%\"PRIu32", num);
-    builder.len += added'to(Size);
-}
+def printfFmt(:Byte) inlinec"\"%\"PRId8";
+def printfFmt(:Ubyte) inlinec"\"%\"PRIu8";
+def printfFmt(:Short) inlinec"\"%\"PRId16";
+def printfFmt(:Ushort) inlinec"\"%\"PRIu16";
+def printfFmt(:Int) inlinec"\"%\"PRId32";
+def printfFmt(:Uint) inlinec"\"%\"PRIu32";
+def printfFmt(:Long) inlinec"\"%\"PRId64";
+def printfFmt(:Ulong) inlinec"\"%\"PRIu64";
+def printfFmt(:Size) inlinec"\"%zu\"";
 
-*def append(builder: mut Fstr, num: Long) {
-    builder'ensureCap(20z);
-    added : Int = c.sprintf(builder.mem.addr~[c.char] + builder.len, inlinec"\"%\"PRId64", num);
-    builder.len += added'to(Size);
-}
-
-*def append(builder: mut Fstr, num: Size) {
-    builder'ensureCap(10z);
-    added : Int = c.sprintf(builder.mem.addr~[c.char] + builder.len, c"%zu", num);
-    builder.len += added'to(Size);
+*def append(builder: mut Fstr, num: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong, Size)) {
+    do {
+        capacity := builder'capacity();
+        added : Int = c.snprintf(builder.mem.addr~[c.char] + builder.len, capacity, num'printfFmt, num);
+        if (added >= 0) {
+            if (added'to(Size) >= capacity) {
+                builder'ensureCap(added'to(Size) + 1);
+            } else {
+                builder.len += added'to(Size);
+                break;
+            }
+        } else {
+            break;  # I think it is safe to ignore this kind of error
+        }
+    } while(true);
 }
 
 *def append(builder: mut Fstr, num: Float, precision:=6) {
@@ -184,8 +218,10 @@ def nullTerminated(str: Str, :MemExt) false;
 }
 
 *def to(builder: mut Fstr, :Str) -> Str {
+    builder'ensureCap(1z);
+    ;; not really needed but better safe than sorry
+    [builder.mem.addr~[c.char] + builder.len] = 0;
     res := Str{builder.mem.addr, builder.len};
-    builder.mem.addr = Ptr{};
-    builder.mem.size = 0;
+    builder.mem =< Memory{};
     return res;
 }

@@ -1,0 +1,26 @@
+import xytest;
+
+*def charLen~Test() {
+    (assert) "".len == 0;
+    (assert) ""'count == 0;
+    (assert) "a".len == 1;
+    (assert) "a"'count == 1;
+    (assert) "abc".len == 3;
+    (assert) "abc"'count == 3;
+    (assert) "абв".len == 6;
+    (assert) "абв"'count == 3;
+    #(assert) "\U+1F396\U+FE0F".len == 8; # https://unicode-explorer.com/emoji/military-medal
+    #(assert) "\U+1F396\U+FE0F"'count == 2;
+}
+
+#*def chars~Test() {
+#    str := "AБくΔ";
+#    chars: @char[4];
+#    for (i in :, c in str'chars) {
+#        chars[i] = c;
+#    }
+#    (assert) chars[0] == `A`;
+#    (assert) chars[1] == `Б`;
+#    (assert) chars[2] == `く`;
+#    (assert) chars[3] == `Δ`;
+#}
