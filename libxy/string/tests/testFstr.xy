@@ -1,7 +1,7 @@
 import libxy.string;
 import xytest;
 
-#*def charInterpolation~Test() {
+#*def interpolatingChar~Test() {
 #    (assert) f"{`a`}" == "a";
 #    (assert) f"{`ж`}" == "ж";
 #    (assert) f"before{`😊`}after" == "before😊after";

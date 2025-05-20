@@ -20,16 +20,28 @@ import xytest;
     ;; A truncated 3-byte code followed by a space.
     ;; Count the truncated code as 1 invalid symbol and the space as other.
     (assert) "\xE1\xA0\x20"'count == 2;
+
+    ;; Truncated 3-byte codes
+    (assert) "\xE1\xA0"'count == 1;
+    (assert) "\xE1"'count == 1;
+
+    ;; Truncated 3-byte codes multiple types
+    (assert) "\xE1\xA0\xE1"'count == 2;
+
+    ;; Invalid continuation byte
+    (assert) "\xA0"'count == 1;
+    (assert) "\xA0\x20"'count == 2;
 }
 
 *def iteratingChars~Test() {
+    ;; U+0041 U+0411 U+304F U+0394
     str := "AБくΔ";
-    chars: @Char[4];
-#    for (i in :, c in str'chars) {
-#        chars[i] = c;
-#    }
-#    (assert) chars[0] == `A`;
-#    (assert) chars[1] == `Б`;
-#    (assert) chars[2] == `く`;
-#    (assert) chars[3] == `Δ`;
+    expr := @{`A`, `Б`, `く`, `Δ`};
+    i : Int;
+    for (c in str'chars) {
+        (assert) expr[i] == c;
+        i++;
+    }
+    charLen := i;
+    (assert) charLen == 4;
 }

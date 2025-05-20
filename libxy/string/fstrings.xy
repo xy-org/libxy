@@ -1,0 +1,90 @@
+*struct Fstr~[xy_dtor=true] {
+    mem: Memory;
+    len: Size;
+}
+
+*def dtor(builder: mut Fstr) {
+    builder.mem'free();
+}
+
+*def fstr~[StrCtor{prefix="f", interpolation=true, to=Str}] (
+    addr: pseudo Ptr, size: Size
+) -> Fstr {
+    return Fstr{};
+}
+
+def ensureCap(builder: mut Fstr, requiredCap: Size) {
+    minSize := builder.len + requiredCap;
+    if (builder.mem.size < minSize) {
+        newSize : mut = 2 * builder.mem.size;
+        if (newSize < minSize) {
+            newSize = minSize;
+        }
+        builder.mem'realloc(newSize + 1);
+    }
+}
+
+*def append(builder: mut Fstr, addr: Ptr, size: Size) {
+    builder'ensureCap(size);
+    c.memcpy(builder.mem.addr + builder.len, addr, size);
+    builder.len += size;
+}
+
+*def append(builder: mut Fstr, str: Str) {
+    builder'append(str.addr, str.len);
+}
+
+;; Number of available bytes in builder
+def capacity(fstr: Fstr) fstr.mem.size - fstr.len;
+
+def printfFmt(:Byte) inlinec"\"%\"PRId8";
+def printfFmt(:Ubyte) inlinec"\"%\"PRIu8";
+def printfFmt(:Short) inlinec"\"%\"PRId16";
+def printfFmt(:Ushort) inlinec"\"%\"PRIu16";
+def printfFmt(:Int) inlinec"\"%\"PRId32";
+def printfFmt(:Uint) inlinec"\"%\"PRIu32";
+def printfFmt(:Long) inlinec"\"%\"PRId64";
+def printfFmt(:Ulong) inlinec"\"%\"PRIu64";
+def printfFmt(:Size) inlinec"\"%zu\"";
+
+*def append(builder: mut Fstr, num: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong, Size)) {
+    do {
+        capacity := builder'capacity();
+        added : Int = c.snprintf(builder.mem.addr~[c.char] + builder.len, capacity, num'printfFmt, num);
+        if (added >= 0) {
+            if (added'to(Size) >= capacity) {
+                builder'ensureCap(added'to(Size) + 1);
+            } else {
+                builder.len += added'to(Size);
+                break;
+            }
+        } else {
+            break;  # I think it is safe to ignore this kind of error
+        }
+    } while(true);
+}
+
+*def append(builder: mut Fstr, num: Float, precision:=6) {
+    builder'ensureCap(20z);
+    added : Int = c.sprintf(builder.mem.addr~[c.char] + builder.len, c"%.*f", precision, num);
+    builder.len += added'to(Size);
+}
+
+*def append(builder: mut Fstr, num: Double, precision:=6) {
+    builder'ensureCap(20z);
+    added : Int = c.sprintf(builder.mem.addr~[c.char] + builder.len, c"%.*f", precision, num);
+    builder.len += added'to(Size);
+}
+
+*def backtrack(builder: mut Fstr, num: Uint) {
+    builder.len -= num;
+}
+
+*def to(builder: mut Fstr, :Str) -> Str {
+    builder'ensureCap(1z);
+    ;; not really needed but better safe than sorry
+    [builder.mem.addr~[c.char] + builder.len] = 0;
+    res := Str{builder.mem.addr, builder.len};
+    builder.mem =< Memory{};
+    return res;
+}

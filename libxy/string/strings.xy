@@ -52,16 +52,20 @@ def str~[StrCtor{prefix="", interpolation=false}] (
     return [(s.addr)~[to=Byte] + i];
 }
 
+def min(a: Size, b: Size) if (a < b) a else b;
+
 ;; Count the number of unicode code points (chars) in the string
+;; Illegal byte sequences are counted as 1 code point
 *def count(s: Str) -> Size {
     res : Size;
     i : Size;
     while (i < s.len) {
-        contBytes := s[i]'bits'countLeadingOnes;
+        leadingOnes := s[i]'bits'countLeadingOnes;
         res++;
         i++;
-        if (contBytes >= 2 & contBytes <= 4) {
-            for (j in 1:contBytes) {
+        if (leadingOnes >= 2 & leadingOnes <= 4) {
+            contBytes := min((leadingOnes - 1)'to(Size), s.len - i);
+            for (_ in 0:contBytes) {
                 contOnes := s[i]'bits'countLeadingOnes;
                 if (contOnes != 1 & contOnes <= 4) {
                     # premature end of current sequence. Break b/c
@@ -74,7 +78,7 @@ def str~[StrCtor{prefix="", interpolation=false}] (
                 i++;
             }
         }
-        ;; if contBytes == 0 then ascii otherwise broken byte
+        ;; if {leadingOnes == 0} then ascii otherwise broken byte
     }
     return res;
 }
@@ -135,93 +139,67 @@ def nullTerminated(str: Str, :MemExt) false;
     return Str{addr=newmem.addr, len=str.len};
 }
 
-*struct Fstr~[xy_dtor=true] {
-    mem: Memory;
-    len: Size;
+struct CharIter {
+    i: Size;; byte-offset of the code pointer after {char} in string
+    char: Char;; character at that offset
 }
 
-*def dtor(builder: mut Fstr) {
-    builder.mem'free();
+*def get(str: Str, charIter: CharIter) = charIter.char;
+
+;; Iterate of the unicode characters (code points) in {str}
+;; Illegal byte sequences are replaced by U+FFFD
+*def chars~IterCtor(str: Str) -> str[ CharIter ] {
+    iter : CharIter;
+    next(str, iter);
+    return iter;
 }
 
-*def fstr~[StrCtor{prefix="f", interpolation=true, to=Str}] (
-    addr: pseudo Ptr, size: Size
-) -> Fstr {
-    return Fstr{};
+*def valid(str: Str, iter: CharIter) iter.char'to(Int) >= 0;
+
+*def next(str: Str, iter: mut CharIter) {
+    cp := decode(str, iter.i);
+    iter.char = cp;
 }
 
-def ensureCap(builder: mut Fstr, requiredCap: Size) {
-    minSize := builder.len + requiredCap;
-    if (builder.mem.size < minSize) {
-        newSize : mut = 2 * builder.mem.size;
-        if (newSize < minSize) {
-            newSize = minSize;
-        }
-        builder.mem'realloc(newSize + 1);
+def decode(s: Str, i: mut Size) -> Char {
+    if (i >= s.len) {
+        return (-1)'to(Char);
     }
-}
 
-*def append(builder: mut Fstr, addr: Ptr, size: Size) {
-    builder'ensureCap(size);
-    c.memcpy(builder.mem.addr + builder.len, addr, size);
-    builder.len += size;
-}
+    cp : Int;
+    leadingByte := s[i];
+    leadingOnes := leadingByte'bits'countLeadingOnes;
+    i++;
 
-*def append(builder: mut Fstr, str: Str) {
-    builder'append(str.addr, str.len);
-}
-
-;; Number of available bytes in builder
-def capacity(fstr: Fstr) fstr.mem.size - fstr.len;
-
-def printfFmt(:Byte) inlinec"\"%\"PRId8";
-def printfFmt(:Ubyte) inlinec"\"%\"PRIu8";
-def printfFmt(:Short) inlinec"\"%\"PRId16";
-def printfFmt(:Ushort) inlinec"\"%\"PRIu16";
-def printfFmt(:Int) inlinec"\"%\"PRId32";
-def printfFmt(:Uint) inlinec"\"%\"PRIu32";
-def printfFmt(:Long) inlinec"\"%\"PRId64";
-def printfFmt(:Ulong) inlinec"\"%\"PRIu64";
-def printfFmt(:Size) inlinec"\"%zu\"";
-
-*def append(builder: mut Fstr, num: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong, Size)) {
-    do {
-        capacity := builder'capacity();
-        added : Int = c.snprintf(builder.mem.addr~[c.char] + builder.len, capacity, num'printfFmt, num);
-        if (added >= 0) {
-            if (added'to(Size) >= capacity) {
-                builder'ensureCap(added'to(Size) + 1);
-            } else {
-                builder.len += added'to(Size);
+    if (leadingOnes >= 2 & leadingOnes <= 4) {
+        cp'bits = 0xFF'bits'shiftr(leadingOnes+1) & leadingByte'bits'to(Bits32);
+        contBytes := min((leadingOnes - 1)'to(Size), s.len - i);
+        for (_ in 0:contBytes) {
+            contOnes := s[i]'bits'countLeadingOnes;
+            if (contOnes == 1) {
+                cp'bits = cp'bits'shiftl(6) | (0x3Fo'bits & s[i]'bits)'to(Bits32);
+            } elif (contOnes != 1 & contOnes <= 4) {
+                # premature end of current sequence. Break b/c
+                # a new sequence is following
+                cp = -1;
                 break;
+            } else {
+                # broken byte.
+                cp = -1;
             }
-        } else {
-            break;  # I think it is safe to ignore this kind of error
+            i++;
         }
-    } while(true);
-}
+    } elif (leadingOnes == 0) {
+        ;; Ascii symbol
+        cp = leadingByte'to(Int);
+    } else {
+        ;; Broken byte
+        cp = -1;
+    }
 
-*def append(builder: mut Fstr, num: Float, precision:=6) {
-    builder'ensureCap(20z);
-    added : Int = c.sprintf(builder.mem.addr~[c.char] + builder.len, c"%.*f", precision, num);
-    builder.len += added'to(Size);
-}
+    if (cp < 0) {
+        cp = 0xFFFD;; Replace invalid bytes by replacement char
+    }
 
-*def append(builder: mut Fstr, num: Double, precision:=6) {
-    builder'ensureCap(20z);
-    added : Int = c.sprintf(builder.mem.addr~[c.char] + builder.len, c"%.*f", precision, num);
-    builder.len += added'to(Size);
-}
-
-*def backtrack(builder: mut Fstr, num: Uint) {
-    builder.len -= num;
-}
-
-*def to(builder: mut Fstr, :Str) -> Str {
-    builder'ensureCap(1z);
-    ;; not really needed but better safe than sorry
-    [builder.mem.addr~[c.char] + builder.len] = 0;
-    res := Str{builder.mem.addr, builder.len};
-    builder.mem =< Memory{};
-    return res;
+    return cp'to(Char);
 }
