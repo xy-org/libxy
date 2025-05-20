@@ -68,9 +68,9 @@ def str~[StrCtor{prefix="", interpolation=false}] (
                     # a new sequence is following
                     break;
                 }
-                # else if {contOnes} is 0 or 2, 3, 4 then we have a new seq
-                # if {contOnes} is > 4 then we have a broken byte and we want to
-                # skip it
+                # else if {contOnes} == 1 then we have a valid seq
+                # if {contOnes} is > 4 then we have a broken byte and we want
+                # to skip it
                 i++;
             }
         }

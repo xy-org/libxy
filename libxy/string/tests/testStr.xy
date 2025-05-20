@@ -3,19 +3,28 @@ import xytest;
 *def charLen~Test() {
     (assert) "".len == 0;
     (assert) ""'count == 0;
+    (assert) "\x00".len == 1;
+    (assert) "\x00"'count == 1;
     (assert) "a".len == 1;
     (assert) "a"'count == 1;
     (assert) "abc".len == 3;
     (assert) "abc"'count == 3;
     (assert) "абв".len == 6;
     (assert) "абв"'count == 3;
-    #(assert) "\U+1F396\U+FE0F".len == 8; # https://unicode-explorer.com/emoji/military-medal
-    #(assert) "\U+1F396\U+FE0F"'count == 2;
+    ;; https://unicode-explorer.com/emoji/military-medal
+    (assert) "\U+1F396\U+FE0F".len == 7;
+    (assert) "\U+1F396\U+FE0F"'count == 2;
 }
 
-#*def chars~Test() {
-#    str := "AБくΔ";
-#    chars: @char[4];
+*def charLenInvalidInput~Test() {
+    ;; A truncated 3-byte code followed by a space.
+    ;; Count the truncated code as 1 invalid symbol and the space as other.
+    (assert) "\xE1\xA0\x20"'count == 2;
+}
+
+*def iteratingChars~Test() {
+    str := "AБくΔ";
+    chars: @Char[4];
 #    for (i in :, c in str'chars) {
 #        chars[i] = c;
 #    }
@@ -23,4 +32,4 @@ import xytest;
 #    (assert) chars[1] == `Б`;
 #    (assert) chars[2] == `く`;
 #    (assert) chars[3] == `Δ`;
-#}
+}

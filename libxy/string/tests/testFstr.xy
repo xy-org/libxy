@@ -1,0 +1,118 @@
+import libxy.string;
+import xytest;
+
+#*def charInterpolation~Test() {
+#    (assert) f"{`a`}" == "a";
+#    (assert) f"{`ж`}" == "ж";
+#    (assert) f"before{`😊`}after" == "before😊after";
+#}
+#
+#*def strInterpolation~Test() {
+#    str := "John";
+#    (assert) "My name is {str}" == "My name is John";
+#    (assert) "My name is {str, .upper}" == "My name is JOHN";
+#    (assert) "My name is {str, .lower}" == "My name is john";
+#    (assert) "{str, fill=`*`, width=10, .center}" == "***John***";
+#}
+#
+#*def strInterpolationUnicode~Test() {
+#    str := "Йоан";
+#    (assert) "My name is {str}" == "My name is Йоан";
+#    (assert) "My name is {str, .upper}" == "My name is ЙОАН";
+#    (assert) "My name is {str, .lower}" == "My name is йоан";
+#    (assert) "{str, fill=`⁈`, width=6, .center}" == "⁈Йоан⁈";
+#}
+#
+#*def intInterpolation~Test() {
+#    (assert) f"{1b}" == "1";
+#    (assert) f"{2ub}" == "2";
+#    (assert) f"{3s}" == "3";
+#    (assert) f"{4us}" == "4";
+#    (assert) f"{5}" == "5";
+#    (assert) f"{6u}" == "6";
+#    (assert) f"{-7l}" == "-7";
+#    (assert) f"{8ul}" == "8";
+#    (assert) f"{9z}" == "9";
+#}
+#
+#*def base~Test() {
+#    num := 789024328ul;
+#    (assert) f"{num, base=16}" == "2f078e48";
+#    (assert) f"{num, base=8}" == "5701707110";
+#    (assert) f"{num, base=2}" == "101111000001111000111001001000";
+#    (assert) f"{num, base=27}" == "20qifo7";
+#    (assert) f"{48461859, base=36}" == "super";
+#}
+#
+#*def plusSign~Test() {
+#    num := 500l;
+#    (assert) f"{num, plusSign=`+`}" == "+500";
+#    (assert) f"{num, plusSign=` `}" == " 500";
+#    (assert) f"{-num, plusSign=`+`}" == "-500";
+#    (assert) f"{num, width=5, .left, plusSign=`＋`}" == "＋500 ";
+#}
+#
+#*def floatInterpolation~Test() {
+#    (assert) f"{4125.6}" == "4125.6";
+#    (assert) f"{4125.6d}" == "4125.6";
+#    (assert) f"{3.0}" == "3.0";
+#    (assert) f"{3.0d}" == "3.0";
+#    (assert) f"{float'inf}" == "inf";
+#    (assert) f"{-float'inf}" == "inf";
+#    (assert) f"{float'nan(.quiet)}" == "nan";
+#    (assert) f"{double'nan(quiet=False)}" == "nan";
+#}
+#
+#*def scientificNotation~Test() {
+#    num := 3.14;
+#    (assert) f"{num, .scientific}" == "3.140000e+00";
+#    (assert) f"{num, .scientific, precision=2}" == "3.14e+00";
+#}
+#
+#*def width~Test() {
+#    num := 500;
+#    (assert) f"{num, width=5}" == "  500";
+#    (assert) f"{-num, width=5}" == " -500";
+#    (assert) f"{num, width=5, .left}" == "500  ";
+#    (assert) f"{num, width=5, .center}" == " 500 ";
+#    (assert) f"{-num, width=5, .center}" == "-500 ";
+#    (assert) f"{num, width=1}" == "500";
+#    (assert) f"{num, width=0}" == "500";
+#    (assert) f"{num, width=-5}" == "500";
+#}
+#
+#*def fill~Test() {
+#    num := 128s;
+#    str := "String";
+#    (assert) f"{num, width=5, fill=`*`}" == "**128";
+#    (assert) f"{str, width=10, fill=`.`}" == "..String..";
+#    (assert) f"{num, width=7, fill=`ə`, .center}" == "əə128əə";
+#    (assert) f"{"!", width=3, fill=`😊`}" == "😊😊!";
+#}
+#
+#*def group~Test() {
+#    num := 12345;
+#    fnum := 12345.6789;
+#    (assert) f"{num, group=`_`}" == "12_345";
+#    (assert) f"{fnum, group=`_`}" == "12_345.6789";
+#    (assert) f"{fnum, group=`_`, precision=0}" == "12_345";
+#    (assert) f"{fnum, group=`,`, precision=2}" == "12,345.67";
+#}
+#
+#*def clip~Test() {
+#    str := "Very long string";
+#    (assert) f"{str, width=10}" == "Very long string";
+#    (assert) f"{str, width=str'len, clip="..."}" == "Very long string";
+#    (assert) f"{str, width=str'len-1, clip="..."}" == "Very long st...";
+#    (assert) f"{str, width=5, clip="⚠⚠⚠"}" == "Ve⚠⚠⚠";
+#    (assert) f"{str, width=2, clip="..."}" == "..";
+#}
+#
+#*def precision~Test() {
+#    num := 4125.6;
+#    (assert) f"{num, precision=2}" == "4125.60";
+#    (assert) f"{num, precision=1}" == "4125.6";
+#    (assert) f"{num, precision=0}" == "4125";
+#    (assert) f"{num, precision=-1}" == "4125";
+#}
+#
