@@ -1,3 +1,5 @@
+import xy.ctti;
+
 *struct Fstr~[xy_dtor=true] {
     mem: Memory;
     len: Size;
@@ -47,7 +49,21 @@ def printfFmt(:Long) inlinec"\"%\"PRId64";
 def printfFmt(:Ulong) inlinec"\"%\"PRIu64";
 def printfFmt(:Size) inlinec"\"%zu\"";
 
-*def append(builder: mut Fstr, num: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong, Size)) {
+;; Stringify and append {num}
+*def append(
+    builder: mut Fstr,
+    num: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong, Size),
+    base := 10
+)
+>> base >= 2 & base <= 36
+{
+    #if (num < 0) {
+    #    builder'append(`-`);
+    #    builder'appendUnsigned((-num)'unsigned, base=base'to(Ubyte), ...);
+    #} else {
+    #    builder'appendUnsigned(num'unsigned, base=base'to(Ubyte), ...);
+    #}
+
     do {
         capacity := builder'capacity();
         added : Int = c.snprintf(builder.mem.addr~[c.char] + builder.len, capacity, num'printfFmt, num);
@@ -64,12 +80,44 @@ def printfFmt(:Size) inlinec"\"%zu\"";
     } while(true);
 }
 
+def unsigned(a: Byte) a'to(Ubyte);
+def unsigned(a: Short) a'to(Ushort);
+def unsigned(a: Int) a'to(Uint);
+def unsigned(a: Long) a'to(Ulong);
+def unsigned(a: Ubyte) a;
+def unsigned(a: Ushort) a;
+def unsigned(a: Uint) a;
+def unsigned(a: Ulong) a;
+def unsigned(a: Size) a;
+
+#def appendUnsigned(
+#    fstr: mut Fstr,
+#    num: (Ubyte, Ushort, Uint, Ulong, Size),
+#    base : Ubyte
+#) {
+#    fstr'ensureCap(num'sizeof * 8);; Worst-case number of symbols
+#    rem : mut = num;
+#    do {
+#        digit := rem \mod base;
+#        rem = rem / base;
+#
+#        #if (digit <= 9) {
+#        #    [builder.mem.addr + builder.len] = (`0` + digit)'to(Byte);
+#        #} else {
+#        #    [builder.mem.addr + builder.len] = (`A` + digit)'to(Byte);
+#        #}
+#        #builder.len++;
+#    } while (rem != 0);
+#}
+
+;; ...
 *def append(builder: mut Fstr, num: Float, precision:=6) {
     builder'ensureCap(20z);
     added : Int = c.sprintf(builder.mem.addr~[c.char] + builder.len, c"%.*f", precision, num);
     builder.len += added'to(Size);
 }
 
+;; ...
 *def append(builder: mut Fstr, num: Double, precision:=6) {
     builder'ensureCap(20z);
     added : Int = c.sprintf(builder.mem.addr~[c.char] + builder.len, c"%.*f", precision, num);
@@ -78,6 +126,32 @@ def printfFmt(:Size) inlinec"\"%zu\"";
 
 *def backtrack(builder: mut Fstr, num: Uint) {
     builder.len -= num;
+}
+
+;; Encode {char} to utf-8 and append to str. Invalid chars are ignored.
+*def append(builder: mut Fstr, char: Char) {
+    builder'ensureCap(4z);
+    nchar := char'to(Uint);
+    if (nchar <= 0x7F) {
+        [builder.mem.addr+builder.len] = nchar'to(Byte);
+        builder.len += 1;
+    } elif (nchar <= 0x07FF) {
+        [builder.mem.addr+builder.len+0] = (0xC0'bits | nchar'bits'shiftr(6))'to(Bits8)'to(Byte);
+        [builder.mem.addr+builder.len+1] = (0x80'bits | (0x3F'bits & nchar'bits))'to(Bits8)'to(Byte);
+        builder.len += 2;
+    } elif (nchar <= 0xFFFF) {
+        [builder.mem.addr+builder.len+0] = (0xE0'bits | nchar'bits'shiftr(12))'to(Bits8)'to(Byte);
+        [builder.mem.addr+builder.len+1] = (0x80'bits | (0x3F'bits & nchar'bits'shiftr(6)))'to(Bits8)'to(Byte);
+        [builder.mem.addr+builder.len+2] = (0x80'bits | (0x3F'bits & nchar'bits))'to(Bits8)'to(Byte);
+        builder.len += 3;
+    } elif (nchar <= 0x10FFFF) {
+        [builder.mem.addr+builder.len+0] = (0xF0'bits | nchar'bits'shiftr(18))'to(Bits8)'to(Byte);
+        [builder.mem.addr+builder.len+1] = (0x80'bits | (0x3F'bits & nchar'bits'shiftr(12)))'to(Bits8)'to(Byte);
+        [builder.mem.addr+builder.len+2] = (0x80'bits | (0x3F'bits & nchar'bits'shiftr(6)))'to(Bits8)'to(Byte);
+        [builder.mem.addr+builder.len+3] = (0x80'bits | (0x3F'bits & nchar'bits))'to(Bits8)'to(Byte);
+        builder.len += 4;
+    }
+    ;; Else invalid char. Just ignore.
 }
 
 *def to(builder: mut Fstr, :Str) -> Str {

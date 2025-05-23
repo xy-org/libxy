@@ -52,8 +52,6 @@ def str~[StrCtor{prefix="", interpolation=false}] (
     return [(s.addr)~[to=Byte] + i];
 }
 
-def min(a: Size, b: Size) if (a < b) a else b;
-
 ;; Count the number of unicode code points (chars) in the string
 ;; Illegal byte sequences are counted as 1 code point
 *def count(s: Str) -> Size {

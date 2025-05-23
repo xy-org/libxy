@@ -1,20 +1,25 @@
 import libxy.string;
 import xytest;
 
-#*def interpolatingChar~Test() {
-#    (assert) f"{`a`}" == "a";
-#    (assert) f"{`ж`}" == "ж";
-#    (assert) f"before{`😊`}after" == "before😊after";
-#}
-#
-#*def strInterpolation~Test() {
-#    str := "John";
-#    (assert) "My name is {str}" == "My name is John";
-#    (assert) "My name is {str, .upper}" == "My name is JOHN";
-#    (assert) "My name is {str, .lower}" == "My name is john";
-#    (assert) "{str, fill=`*`, width=10, .center}" == "***John***";
-#}
-#
+*def interpolatingChar~Test() {
+    (assert) f"{`a`}" == "a";
+    (assert) f"{`ж`}" == "ж";
+    (assert) f"{`😊`}xyz" == "😊xyz";
+    (assert) f"abc{`😊`}" == "abc😊";
+    (assert) f"before{`😊`}after" == "before😊after";
+}
+
+*def interpolatingStr~Test() {
+    str := "John";
+    (assert) f"My name is {str}" == "My name is John";
+
+    # Case folding in unicode is a mess. For now I am going to
+    # not bother implementing it.
+    # (assert) f"My name is {str, .upper}" == "My name is JOHN";
+    # (assert) f"My name is {str, .lower}" == "My name is john";
+    # (assert) f"{str, fill=`*`, width=10, .center}" == "***John***";
+}
+
 #*def strInterpolationUnicode~Test() {
 #    str := "Йоан";
 #    (assert) "My name is {str}" == "My name is Йоан";
@@ -22,28 +27,29 @@ import xytest;
 #    (assert) "My name is {str, .lower}" == "My name is йоан";
 #    (assert) "{str, fill=`⁈`, width=6, .center}" == "⁈Йоан⁈";
 #}
-#
-#*def intInterpolation~Test() {
-#    (assert) f"{1b}" == "1";
-#    (assert) f"{2ub}" == "2";
-#    (assert) f"{3s}" == "3";
-#    (assert) f"{4us}" == "4";
-#    (assert) f"{5}" == "5";
-#    (assert) f"{6u}" == "6";
-#    (assert) f"{-7l}" == "-7";
-#    (assert) f"{8ul}" == "8";
-#    (assert) f"{9z}" == "9";
-#}
-#
-#*def base~Test() {
-#    num := 789024328ul;
-#    (assert) f"{num, base=16}" == "2f078e48";
-#    (assert) f"{num, base=8}" == "5701707110";
-#    (assert) f"{num, base=2}" == "101111000001111000111001001000";
-#    (assert) f"{num, base=27}" == "20qifo7";
-#    (assert) f"{48461859, base=36}" == "super";
-#}
-#
+
+*def interpolatingInt~Test() {
+    (assert) f"{1o}" == "1";
+    (assert) f"{12uo}" == "12";
+    (assert) f"{123s}" == "123";
+    (assert) f"{4us}" == "4";
+    (assert) f"{12345}" == "12345";
+    (assert) f"{6u}" == "6";
+    (assert) f"{-1234567l}" == "-1234567";
+    (assert) f"{8ul}" == "8";
+    (assert) f"{369z}" == "369";
+}
+
+*def interpolatingIntExplicitBase~Test() {
+    num := 789024328ul;
+    (assert) f"{num, base=10}" == "789024328";
+    #(assert) f"{num, base=16}" == "2f078e48";
+    #(assert) f"{num, base=8}" == "5701707110";
+    #(assert) f"{num, base=2}" == "101111000001111000111001001000";
+    #(assert) f"{num, base=27}" == "20qifo7";
+    #(assert) f"{48461859, base=36}" == "super";
+}
+
 #*def plusSign~Test() {
 #    num := 500l;
 #    (assert) f"{num, plusSign=`+`}" == "+500";
@@ -51,18 +57,18 @@ import xytest;
 #    (assert) f"{-num, plusSign=`+`}" == "-500";
 #    (assert) f"{num, width=5, .left, plusSign=`＋`}" == "＋500 ";
 #}
-#
-#*def floatInterpolation~Test() {
-#    (assert) f"{4125.6}" == "4125.6";
-#    (assert) f"{4125.6d}" == "4125.6";
-#    (assert) f"{3.0}" == "3.0";
-#    (assert) f"{3.0d}" == "3.0";
-#    (assert) f"{float'inf}" == "inf";
-#    (assert) f"{-float'inf}" == "inf";
-#    (assert) f"{float'nan(.quiet)}" == "nan";
-#    (assert) f"{double'nan(quiet=False)}" == "nan";
-#}
-#
+
+*def interpolatingFloat~Test() {
+    (assert) f"{4125.6, precision=1}" == "4125.6";
+    #(assert) f"{4125.6d}" == "4125.6";
+    #(assert) f"{3.0}" == "3.0";
+    #(assert) f"{3.0d}" == "3.0";
+    #(assert) f"{float'inf}" == "inf";
+    #(assert) f"{-float'inf}" == "inf";
+    #(assert) f"{float'nan(.quiet)}" == "nan";
+    #(assert) f"{double'nan(quiet=False)}" == "nan";
+}
+
 #*def scientificNotation~Test() {
 #    num := 3.14;
 #    (assert) f"{num, .scientific}" == "3.140000e+00";
