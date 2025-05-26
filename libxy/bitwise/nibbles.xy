@@ -20,10 +20,8 @@ def to(b: Nibbles8,  t: pseudo (Int, Uint)    ) b.bits'to(%t);
 def to(b: Nibbles16, t: pseudo (Long, Ulong)  ) b.bits'to(%t);
 
 ;; Compare for (in)equality
-def cmpEq(a: (Nibbles2, Nibbles4, Nibbles8, Nibbles16), b: %a) =
-    a.bits == b.bits;
-def cmpNe(a: (Nibbles2, Nibbles4, Nibbles8, Nibbles16), b: %a) =
-    a.bits != b.bits;
+def cmp(a: (Nibbles2, Nibbles4, Nibbles8, Nibbles16), b: %a) =
+    cmp(a.bits, b.bits);
 
 def nibbles(
     num: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong)

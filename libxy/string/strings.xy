@@ -97,13 +97,6 @@ def str~[StrCtor{prefix="", interpolation=false}] (
     return c.strncmp(str1.addr~[c.char], str2.addr~[c.char], str1.len);
 }
 
-*def cmpEq(str1: Str, str2: Str) cmp(str1, str2) == 0;
-*def cmpNe(str1: Str, str2: Str) cmp(str1, str2) != 0;
-*def cmpGt(str1: Str, str2: Str) cmp(str1, str2) > 0;
-*def cmpGe(str1: Str, str2: Str) cmp(str1, str2) >= 0;
-*def cmpLt(str1: Str, str2: Str) cmp(str1, str2) < 0;
-*def cmpLe(str1: Str, str2: Str) cmp(str1, str2) <= 0;
-
 *def startswith(str: Str, prefix: Str) -> Bool {
     if (prefix.len > str.len) {
         return false;

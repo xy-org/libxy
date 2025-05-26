@@ -17,8 +17,7 @@ def to(b: Bytes4, t: pseudo (Int, Uint)    ) b.bits'to(%t);
 def to(b: Bytes8, t: pseudo (Long, Ulong)  ) b.bits'to(%t);
 
 ;; Compare for (in)equality
-def cmpEq(a: (Bytes2, Bytes4, Bytes8), b: %a) = a.bits == b.bits;
-def cmpNe(a: (Bytes2, Bytes4, Bytes8), b: %a) = a.bits != b.bits;
+def cmp(a: (Bytes2, Bytes4, Bytes8), b: %a) = cmp(a.bits, b.bits);
 
 def bytes(
     num: (Bits16, Bits32, Bits64, Short, Ushort, Int, Uint, Long, Ulong)

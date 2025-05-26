@@ -125,7 +125,7 @@ def unsigned(a: Size) a;
 }
 
 *def backtrack(builder: mut Fstr, num: Uint) {
-    builder.len -= num;
+    builder.len -= num'to(Size);
 }
 
 ;; Encode {char} to utf-8 and append to str. Invalid chars are ignored.
