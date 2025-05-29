@@ -4,11 +4,21 @@ import libxy.string;
 import libxy.fs;
 import xytest;
 
-*def ls~Test() {
+*def listing~Test() {
     len : Size;
-    for (node in ls(dirname('fileof)'ensureNullTerminated)) {
-        (assert) (node.name'startswith(".")) | (node.name'startswith("test"));
+    sampleDir := f"{'fileof'dirname}/sampleDir";
+    for (i in :, node in ls(sampleDir)) {
+        (assert) node.name'startswith("file");
         len++;
     }
-    (assert) len > 0;
+    (assert) len == 2;
+}
+
+*def listingAll~Test() {
+    numHidden : Int;
+    sampleDir := f"{'fileof'dirname}/sampleDir";
+    for (node in ls(sampleDir, .all)) {
+        numHidden += node.name'startswith(".")'to(Int);
+    }
+    (assert) numHidden > 0;
 }

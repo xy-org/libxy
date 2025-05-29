@@ -5,15 +5,16 @@ import libxy.memory;
 ;; List directory content
 *def ls(
     path: Str,
-    type  := true,  ;; want the type of each directory entry
+    all   := false, ;; want all the files in a dir including hidden ones
+    type  := false, ;; want the type of each directory entry
     size  := false, ;; want the size of each directory entry
     atime := false, ;; want the access time
     mtime := false, ;; want the modification time
     ctime := false, ;; want the last status change time
-) ls(path, LsFlags{=type, =size, =atime, =mtime, =ctime});
+) ls(path, LsFlags{=all, =type, =size, =atime, =mtime, =ctime});
 
 *struct LsFlags {
-    mask: Uint;
+    all: Bool;
     type: Bool;
     size: Bool;
     atime: Bool;
@@ -24,7 +25,6 @@ import libxy.memory;
 ;; Info about a node on a filesystem
 *struct Node {
     name: Str;
-    mask: LsFlags;
     type: NodeType;
     size: Size;
     atime: Timestamp;
@@ -33,13 +33,20 @@ import libxy.memory;
 }
 
 *struct NodeType {
-    dir: Bool;
-    file: Bool;
-    unknown: Bool;
+    file: Bool;; Regular file
+    dir: Bool;; Directory
+    block: Bool;; Block device
+    char: Bool;; Char device
+    fifo: Bool;; Named pipe
+    link: Bool;; Symbolic link
+    socket: Bool;; Domain socket
 }
 
 ;; Book keeping info for a directory that's being listed
 struct Listing {
+    wants: LsFlags;
+
+    dirfd: Int;
     pDir : Ptr~[c.DIR];
     currNode: Node;
     eol: Bool;; end of listing
@@ -52,16 +59,17 @@ struct Listing {
 }
 
 *def ls~IterCtor(
-    path: Str, mask: LsFlags,
+    path: Str, flags: LsFlags,
 ) -> [ Listing ] || SystemError
 >> nullTerminated(path)
 {
-    pDir :  mut Ptr~[c.DIR] = c.opendir(path.addr~[c.char]);
+    dirfd : Int = c.open(path.addr~[c.char], inlinec"O_RDONLY | O_DIRECTORY");
+    pDir :  mut Ptr~[c.DIR] = c.fdopendir(dirfd);
     if (pDir == Ptr{}) {
         errno : Int = c.errno;
         error SystemError{errno};
     }
-    res : mut = Listing{pDir};
+    res : mut = Listing{flags, dirfd, pDir};
     next(res);
     return res;
 }
@@ -73,19 +81,66 @@ struct Listing {
         d.eol = true;
         return;
     }
+
     pDirent: mut Ptr~[inlinec"struct dirent"] = c.readdir(d.pDir);
     if (pDirent != Ptr{}) {
-        d.currNode'loadNodeInfo(pDirent);
+        if (!loadNodeInfo(d, pDirent) ) {
+            ;; skip current file and more to the next one
+            next(d);
+        }
     } else {
         d.eol = true;
     }
 }
 
-def loadNodeInfo(node: mut Node, dirent: Ptr~[inlinec"struct dirent"]) {
+;; Return false if {dirent} needs to be skipped
+def loadNodeInfo(
+    d: mut Listing,
+    dirent: Ptr~[inlinec"struct dirent"]
+) -> Bool {
     name := Str~MemExt{
-        Ptr~Byte{inlinec"{dirent}->d_name"}, c.strlen(inlinec"{dirent}->d_name")
+        Ptr~Byte{inlinec"{dirent}->d_name"},
+        c.strlen(inlinec"{dirent}->d_name")
     };
-    node.name =< name'copy;
+
+    ;; check if we can early skip the file
+    if (!d.wants.all & name'startswith(".")) {
+        return false;
+    }
+
+    d.currNode.name =< name'copy;
+
+    #callStat : mut = d.wants.size | d.wants.atime | d.wants.mtime | d.wants.ctime;
+#
+    #if (d.wants.type & Bool{inlinec"{dirent}->d_type != DT_UNKNOWN"}) {
+    #    d.currNode.type.file = inlinec"{dirent}->d_type == DT_REG";
+    #    d.currNode.type.dir = inlinec"{dirent}->d_type == DT_DIR";
+    #    d.currNode.type.block = inlinec"{dirent}->d_type == DT_BLK";
+    #    d.currNode.type.char = inlinec"{dirent}->d_type == DT_CHR";
+    #    d.currNode.type.fifo = inlinec"{dirent}->d_type == DT_FIFO";
+    #    d.currNode.type.link = inlinec"{dirent}->d_type == DT_LNK";
+    #    d.currNode.
+    #    type.socket = inlinec"{dirent}->d_type == DT_SOCK";
+    #} elif (d.wants.type) {
+    #    callStat = true;
+    #}
+#
+    #if (!callStat) return true;
+#
+    #sb : inlinec"struct stat";
+    #fstatat(d.dirfd, d.currNode.name.addr, &sb, inlinec"AT_SYMLINK_NOFOLLOW");
+#
+    #d.currNode.type.file = inlinec"({sb}.st_mode & S_IFMT) == S_IFREG";
+    #d.currNode.type.dir = inlinec"({sb}.st_mode & S_IFMT) == S_IFDIR";
+    #d.currNode.type.block = inlinec"({sb}.st_mode & S_IFMT) == S_IFBLK";
+    #d.currNode.type.char = inlinec"({sb}.st_mode & S_IFMT) == S_IFCHR";
+    #d.currNode.type.fifo = inlinec"({sb}.st_mode & S_IFMT) == S_IFIFO";
+    #d.currNode.type.link = inlinec"({sb}.st_mode & S_IFMT) == S_IFLNK";
+    #d.currNode.type.socket = inlinec"({sb}.st_mode & S_IFMT) == S_IFSOCK";
+#
+    ## TODO load times
+#
+    return true;
 }
 
 *def get(d: Listing) d.currNode;
