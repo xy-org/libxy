@@ -92,3 +92,9 @@ import libxy.error;
 *def dtor(f: File) {
     f'close;
 }
+
+*def mkdir(path: Str, mode := 0755, parents := false) -> void || SystemError
+>> nullTerminated(path)
+{
+    c.mkdir(path.addr~[c.char], mode);
+}
