@@ -1,0 +1,43 @@
+import posix~[CLib{headers=@{"unistd.h", "sys/wait.h"}}] in c;
+import libxy.string;
+import libxy.array;
+import libxy.error;
+
+struct Process {
+    pid: Int;
+}
+
+*def run(
+    path: Str, ;; Path to an executable
+    args: Array~Str, ;; Arguments to pass to the executable
+) -> Process || SystemError {
+    childPid : Int = c.fork();
+    if (childPid == 0) {
+        ;; child process
+        # TODO prealloc args'len + 2 elems in argv
+        argv : Array~Ptr~[c.char];
+        argv'push(path.addr);
+        for (arg in args) {
+            argv'push(arg.addr);
+        }
+        null := Ptr{};
+        argv'push(null);
+
+        err: Int = c.execvp(path.addr~[c.char], argv.mem.addr~Ptr~[c.char]);
+
+        ;; If this code is reached then exec failed
+        error SystemError{c.errno};
+    } elif (childPid > 0) {
+        ;; parent process
+        return Process{childPid};
+    } else {
+        ;; fork failed
+        error SystemError{c.errno};
+    }
+}
+
+*def wait(p: Process) -> Int {
+    status: Int;
+    c.waitpid(p.pid, status'addrof, 0);
+    return status;
+}

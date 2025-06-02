@@ -1,0 +1,12 @@
+import libxy.process;
+import libxy.string;
+import libxy.array;
+import libxy.error;
+import xytest;
+
+*def runningLs~Test() {
+    args : Array~Str;
+    args'push("Echoing from test");
+    p := run("echo", args);
+    p'wait();
+}
