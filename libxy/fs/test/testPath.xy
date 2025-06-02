@@ -33,3 +33,16 @@
     (assert) dirname("~/home/.скрытый файл") == "~/home";
     (assert) dirname("😀/💯/🐊") == "😀/💯";
 }
+
+*def joiningPathStrs~Test() {
+    (assert) path"dir/subdir" == "dir/subdir";
+
+    dir := "dir";
+    subdir := "subdir";
+    (assert) path"{dir}/{subdir}" == "dir/subdir";
+
+    absDir := "/root";
+    (assert) path"{absDir}/{dir}/mydir" == "/root/dir/mydir";
+
+    (assert) path"{dir}/{subdir}/{absDir}" == "/root";
+}

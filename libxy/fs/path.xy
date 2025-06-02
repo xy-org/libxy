@@ -2,7 +2,6 @@ import libxy.slice;
 
 ;; Separator character used to separate components in a path
 ;; typically / on unix and \ on windows
-# TODO change to \ on windows
 pathSeparator := `/`;
 
 ;; Strip last component from a filesystem path
@@ -30,4 +29,27 @@ pathSeparator := `/`;
 
     x := 0z:dirLen;
     return x;
+}
+
+struct PathStr {
+    fstr: Fstr;
+}
+
+def path~[StrCtor{prefix="path", interpolation=true, to=Str}](addr: Ptr, len: Size) -> PathStr{
+    return PathStr{fstr(addr, len)};
+}
+
+*def append(path: mut PathStr, str: Str) {
+    if (str'startswith("/")) {
+        path.fstr.len = 0;
+    }
+    path.fstr'append(str);
+}
+
+*def append(path: mut PathStr, cstr: Ptr, len: Size) {
+    path.fstr'append(cstr, len);
+}
+
+*def to(path: mut PathStr, :Str) -> Str {
+    return path.fstr'to(Str);
 }
