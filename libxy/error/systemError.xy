@@ -1,4 +1,15 @@
-import posix~[CLib{headers=@{"errno.h"}, defines=@{"_DEFAULT_SOURCE"}}] in c;
+import posix~[CLib{
+    headers=@{"errno.h"},
+    defines=@{
+        ;; tells glibc to expose (recent) posix apis
+        "_POSIX_C_SOURCE=201410L",
+        ;; tells glibc to expose symbols (like DT_DIR, DT_REG, ...) that are
+        ;; "posix extensions" but really useful for most programs.
+        "_DEFAULT_SOURCE",
+        ;; Pretty much the same as _DEFAULT_SOURCE but for MacOS
+        "_DARWIN_C_SOURCE",
+    }
+}] in c;
 
 ;; Error occurring during system operations like syscalls or memory allocation 
 *struct SystemError {
@@ -6,3 +17,18 @@ import posix~[CLib{headers=@{"errno.h"}, defines=@{"_DEFAULT_SOURCE"}}] in c;
 }
 
 *def to(s: SystemError, :Bool) s.code != 0;
+
+# RAGE RANT: I hate these defines. Why everything needs to be so complicated.
+# I want to use some basic functionality provided by most OSs.
+# Why do I need to jump hoops?
+# This is one of the reasons people use libraries to do things which are
+# already covered by standard functionality. Or in extreme cases create their
+# own programming languages because they've had enought after years dealing
+# with frustrating #ifdef's.
+# Take for example "_DARWIN_C_SOURCE". Where is it documented?
+# I coun't find it in any of the man pages on my mac (v15). I googled it and
+# found a bunch of issues relating to it but no documentation by apple.
+# Well, if I could ask apple they would probably tell me to get rid of
+# _POSIX_C_SOURCE. But I need it when compiling against glibc! So what?
+# Other #ifdef!
+# No, wait, if I could ask apple they would tell me to just use swift.

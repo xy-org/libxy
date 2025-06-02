@@ -8,17 +8,49 @@ import xytest;
     len : Size;
     sampleDir := f"{'fileof'dirname}/sampleDir";
     for (i in :, node in ls(sampleDir)) {
-        (assert) node.name'startswith("file");
+        (assert) node.name'startswith("file") | node.name == "subdir";
         len++;
     }
-    (assert) len == 2;
+    (assert) len == 3;
 }
 
 *def listingAll~Test() {
     numHidden : Int;
     sampleDir := f"{'fileof'dirname}/sampleDir";
-    for (node in ls(sampleDir, .all)) {
+    for (node in ls(sampleDir, .hidden)) {
+        ;; note that "." and ".." will also be counted here
         numHidden += node.name'startswith(".")'to(Int);
     }
     (assert) numHidden > 0;
+}
+
+*def listingWithType~Test() {
+    numFiles: Int;
+    numDirs: Int;
+    sampleDir := f"{'fileof'dirname}/sampleDir";
+    for (node in ls(sampleDir, .type)) {
+        numFiles += node.type.file'to(Int);
+        numDirs += node.type.dir'to(Int);
+    }
+    (assert) numFiles > 0;
+    (assert) numDirs > 0;
+}
+
+*def listingWithTypeAndSize~Test() {
+    sampleDir := f"{'fileof'dirname}/sampleDir";
+    for (node in ls(sampleDir, .type, .size)) {
+        (assert) node.size > 0;
+    }
+}
+
+*def listingEverything~Test() {
+    sampleDir := f"{'fileof'dirname}/sampleDir";
+    for (
+        node in ls(sampleDir, .type, .size, .hidden, .atime, .mtime, .ctime)
+    ) {
+        (assert) node.size > 0;
+        (assert) node.atime.nsec > 0;
+        (assert) node.mtime.nsec > 0;
+        (assert) node.ctime.nsec > 0;
+    }
 }

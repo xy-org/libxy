@@ -1,20 +1,20 @@
-import posix~[CLib{headers=@{"sys/types.h", "dirent.h"}}] in c;
+import posix~[CLib{headers=@{"sys/types.h", "dirent.h", "sys/stat.h"}}] in c;
 import libxy.time;
 import libxy.memory;
 
 ;; List directory content
 *def ls(
     path: Str,
-    all   := false, ;; want all the files in a dir including hidden ones
+    hidden := false, ;; want all the files in a dir including hidden ones
     type  := false, ;; want the type of each directory entry
     size  := false, ;; want the size of each directory entry
     atime := false, ;; want the access time
     mtime := false, ;; want the modification time
     ctime := false, ;; want the last status change time
-) ls(path, LsFlags{=all, =type, =size, =atime, =mtime, =ctime});
+) ls(path, LsFlags{=hidden, =type, =size, =atime, =mtime, =ctime});
 
 *struct LsFlags {
-    all: Bool;
+    hidden: Bool;
     type: Bool;
     size: Bool;
     atime: Bool;
@@ -50,6 +50,7 @@ struct Listing {
     pDir : Ptr~[c.DIR];
     currNode: Node;
     eol: Bool;; end of listing
+    callStat: Bool;; should we call stat
 }
 
 *def dtor(ls: Listing) {
@@ -66,10 +67,10 @@ struct Listing {
     dirfd : Int = c.open(path.addr~[c.char], inlinec"O_RDONLY | O_DIRECTORY");
     pDir :  mut Ptr~[c.DIR] = c.fdopendir(dirfd);
     if (pDir == Ptr{}) {
-        errno : Int = c.errno;
-        error SystemError{errno};
+        error SystemError{c.errno};
     }
     res : mut = Listing{flags, dirfd, pDir};
+    res.callStat = flags.size | flags.atime | flags.mtime | flags.ctime;
     next(res);
     return res;
 }
@@ -104,42 +105,81 @@ def loadNodeInfo(
     };
 
     ;; check if we can early skip the file
-    if (!d.wants.all & name'startswith(".")) {
+    if (!d.wants.hidden & name'startswith(".")) {
         return false;
     }
 
     d.currNode.name =< name'copy;
 
-    #callStat : mut = d.wants.size | d.wants.atime | d.wants.mtime | d.wants.ctime;
-#
-    #if (d.wants.type & Bool{inlinec"{dirent}->d_type != DT_UNKNOWN"}) {
-    #    d.currNode.type.file = inlinec"{dirent}->d_type == DT_REG";
-    #    d.currNode.type.dir = inlinec"{dirent}->d_type == DT_DIR";
-    #    d.currNode.type.block = inlinec"{dirent}->d_type == DT_BLK";
-    #    d.currNode.type.char = inlinec"{dirent}->d_type == DT_CHR";
-    #    d.currNode.type.fifo = inlinec"{dirent}->d_type == DT_FIFO";
-    #    d.currNode.type.link = inlinec"{dirent}->d_type == DT_LNK";
-    #    d.currNode.
-    #    type.socket = inlinec"{dirent}->d_type == DT_SOCK";
-    #} elif (d.wants.type) {
-    #    callStat = true;
-    #}
-#
-    #if (!callStat) return true;
-#
-    #sb : inlinec"struct stat";
-    #fstatat(d.dirfd, d.currNode.name.addr, &sb, inlinec"AT_SYMLINK_NOFOLLOW");
-#
-    #d.currNode.type.file = inlinec"({sb}.st_mode & S_IFMT) == S_IFREG";
-    #d.currNode.type.dir = inlinec"({sb}.st_mode & S_IFMT) == S_IFDIR";
-    #d.currNode.type.block = inlinec"({sb}.st_mode & S_IFMT) == S_IFBLK";
-    #d.currNode.type.char = inlinec"({sb}.st_mode & S_IFMT) == S_IFCHR";
-    #d.currNode.type.fifo = inlinec"({sb}.st_mode & S_IFMT) == S_IFIFO";
-    #d.currNode.type.link = inlinec"({sb}.st_mode & S_IFMT) == S_IFLNK";
-    #d.currNode.type.socket = inlinec"({sb}.st_mode & S_IFMT) == S_IFSOCK";
-#
-    ## TODO load times
-#
+    if (d.wants.type & !d.callStat) {
+        if (Bool{inlinec"{dirent}->d_type != DT_UNKNOWN"}) {
+            d.currNode.type.file = inlinec"{dirent}->d_type == DT_REG";
+            d.currNode.type.dir = inlinec"{dirent}->d_type == DT_DIR";
+            d.currNode.type.block = inlinec"{dirent}->d_type == DT_BLK";
+            d.currNode.type.char = inlinec"{dirent}->d_type == DT_CHR";
+            d.currNode.type.fifo = inlinec"{dirent}->d_type == DT_FIFO";
+            d.currNode.type.link = inlinec"{dirent}->d_type == DT_LNK";
+            d.currNode.type.socket = inlinec"{dirent}->d_type == DT_SOCK";
+        } else {
+            d.callStat = true;; readdir api doesn't provide a type so call stat
+        }
+    }
+
+    if (!d.callStat) return true;
+
+    sb : inlinec"struct stat";
+    statRet : Int = c.fstatat(
+        d.dirfd, inlinec"{dirent}->d_name", &sb,
+        inlinec"AT_SYMLINK_NOFOLLOW"
+    );
+    if (statRet != 0) {
+        error SystemError{c.errno};
+    }
+
+    if (d.wants.type) {
+        d.currNode.type.file = inlinec"({sb}.st_mode & S_IFMT) == S_IFREG";
+        d.currNode.type.dir = inlinec"({sb}.st_mode & S_IFMT) == S_IFDIR";
+        d.currNode.type.block = inlinec"({sb}.st_mode & S_IFMT) == S_IFBLK";
+        d.currNode.type.char = inlinec"({sb}.st_mode & S_IFMT) == S_IFCHR";
+        d.currNode.type.fifo = inlinec"({sb}.st_mode & S_IFMT) == S_IFIFO";
+        d.currNode.type.link = inlinec"({sb}.st_mode & S_IFMT) == S_IFLNK";
+        d.currNode.type.socket = inlinec"({sb}.st_mode & S_IFMT) == S_IFSOCK";
+    }
+
+    if (d.wants.size) {
+        d.currNode.size = inlinec"({sb}.st_size)";
+    }
+
+    inlinec"""
+    #define LIBXY_FS_TO_NSEC(ts) ((uint64_t)ts.tv_sec * 1000000000 + ts.tv_nsec)
+    #if defined(__APPLE__)
+    #define LIBXY_FS_ATIM_NSEC(sb) LIBXY_FS_TO_NSEC(sb.st_atimespec)
+    #define LIBXY_FS_MTIM_NSEC(sb) LIBXY_FS_TO_NSEC(sb.st_mtimespec)
+    #define LIBXY_FS_CTIM_NSEC(sb) LIBXY_FS_TO_NSEC(sb.st_ctimespec)
+    #else
+    #define LIBXY_FS_ATIM_NSEC(sb) LIBXY_FS_TO_NSEC(sb.st_atim)
+    #define LIBXY_FS_MTIM_NSEC(sb) LIBXY_FS_TO_NSEC(sb.st_mtim)
+    #define LIBXY_FS_CTIM_NSEC(sb) LIBXY_FS_TO_NSEC(sb.st_ctim)
+    #endif
+    ";
+
+    if (d.wants.atime) {
+        d.currNode.atime = Timestamp{ inlinec"LIBXY_FS_ATIM_NSEC({sb})" };
+    }
+    if (d.wants.mtime) {
+        d.currNode.mtime = Timestamp{ inlinec"LIBXY_FS_MTIM_NSEC({sb})" };
+    }
+    if (d.wants.ctime) {
+        d.currNode.ctime = Timestamp{ inlinec"LIBXY_FS_CTIM_NSEC({sb})" };
+    }
+
+    inlinec"""
+    #undef LIBXY_FS_TO_NSEC
+    #undef LIBXY_FS_ATIM_NSEC
+    #undef LIBXY_FS_MTIM_NSEC
+    #undef LIBXY_FS_CTIM_NSEC
+    ";
+
     return true;
 }
 
