@@ -67,7 +67,7 @@ import libxy.bitwise;
     (assert) num == 0xC0uo;
 }
 
-*def coppingBits~Test() {
+*def copyingBits~Test() {
     num := 0random(36);
 
     (assert) copyBits(num) == num;
