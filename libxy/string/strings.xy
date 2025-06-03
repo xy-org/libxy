@@ -127,6 +127,7 @@ def nullTerminated(str: Str, :MemExt) false;
     newmem : Memory;
     newmem'realloc(str.len + 1);
     c.memcpy(newmem.addr, str.addr, str.len);
+    [newmem.addr + str.len] = 0;; add terminating \0
     return Str{addr=newmem.addr, len=str.len};
 }
 
