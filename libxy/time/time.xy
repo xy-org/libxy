@@ -1,6 +1,6 @@
 import libxy.unit;
 import libxy.error;
-import libc~[CLib{headers=@{"errno.h", "time.h"}}] in c;
+import libc~[Clib{headers=@{"errno.h", "time.h"}}] in c;
 
 ;; Represent a point in time by the number of nanoseconds since
 ;; 00:00:00 UTC 1 January 1970 (Unix Epoch). Values before the Epoch are not

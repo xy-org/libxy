@@ -1,4 +1,4 @@
-import posix~[CLib{
+import posix~[Clib{
     headers=@{"errno.h"},
     defines=@{
         ;; tells glibc to expose (recent) posix apis

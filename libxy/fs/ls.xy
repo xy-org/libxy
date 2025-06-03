@@ -1,4 +1,4 @@
-import posix~[CLib{headers=@{"sys/types.h", "dirent.h", "sys/stat.h"}}] in c;
+import posix~[Clib{headers=@{"sys/types.h", "dirent.h", "sys/stat.h"}}] in c;
 import libxy.time;
 import libxy.memory;
 

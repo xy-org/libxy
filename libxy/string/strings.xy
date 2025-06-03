@@ -1,4 +1,4 @@
-import libc~[CLib{headers=@{"string.h", "stdio.h", "inttypes.h"}}] in c;
+import libc~[Clib{headers=@{"string.h", "stdio.h", "inttypes.h"}}] in c;
 import libxy.memory;
 import libxy.error;
 import libxy.slice;

@@ -1,6 +1,6 @@
 import libxy.unit;
 import libxy.error;
-import libc~[CLib{headers=@{"errno.h", "time.h"}}] in c;
+import libc~[Clib{headers=@{"errno.h", "time.h"}}] in c;
 
 ;; Return the number of nanoseconds since some arbitrary moment in time
 ;; that does not change as the program runs but may change from run to run.
