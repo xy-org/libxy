@@ -2,40 +2,29 @@
 ;; Mostly basic stuff. You can do pretty colors and query a tty about common
 ;; properties.
 
+;; Helpful resources:
+;;   * https://gist.github.com/ConnerWill/d4b6c776b509add763e17f9f113fd25b
+;;   * https://invisible-island.net/xterm/ctlseqs/ctlseqs.html
+;;   * https://en.wikipedia.org/wiki/ANSI_escape_code
+
 import libxy.string;
 import libxy.flag;
 
-;; Reset any previous color/graphics modes
-*def esc(reset: Bool) Esc{=reset};
+;; Data required to generate escape codes
+*struct Esc {
+    ;; Control Sequence Introducer section
 
-;; Create an escape sequence for a specific color/graphics mode
-*def esc(
-    bold := false, faint := false, italic := false, underline := false,
-    blinking := false, inverse := false, hidden := false,
-    strikethrough := false,
-    black := false, red := false, green := false, yellow := false,
-    blue := false, magenta := false, cyan := false, white := false,
-    default := false,
-    bgBlack := false, bgRed := false, bgGreen := false, bgYellow := false,
-    bgBlue := false, bgMagenta := false, bgCyan := false, bgWhite := false,
-    bgDefault := false
-) = Esc {
-    =bold, =faint, =italic, =underline, =blinking, =inverse, =hidden,
-    =strikethrough,
-    fg=Color{
-        =black, =red, =green, =yellow, =blue, =magenta, =cyan, =white,
-        =default
-    },
-    bg=Color{
-        black=bgBlack, red=bgRed, green=bgGreen, yellow=bgYellow, blue=bgBlue,
-        magenta=bgMagenta, cyan=bgCyan, white=bgWhite, default=bgDefault
-    },
-};
+    cursor: CursorControl;
+    clear: ClearMode;
+    erase: EraseMode;
+    screenBuffer: ScreenBufferControl;
 
-;; Holds info about a particular set of escapes.
-;; Don't use directly. Use {esc} func
-struct Esc {
-    flags: Uint;
+    bracketedPasteEnum : Byte;; > 0 for turn on; < 0 for turn off;
+    bracketedpaste : pseudo = BracketedPaste{};
+
+    ;; Select Graphic Rendition section
+
+    sgrFlags: Uint;
 
     bold: pseudo          = Flag{1};
     faint: pseudo         = Flag{2};
@@ -45,39 +34,113 @@ struct Esc {
     inverse: pseudo       = Flag{32};
     hidden: pseudo        = Flag{64};
     strikethrough: pseudo = Flag{128};
-    reset: pseudo         = Flag{256};
+    reset: pseudo         = Flag{256};; Reset any previous color/graphics modes
 
     bg: Color;
     fg: Color;
 }
 
-def get(esc: Esc, flag: Flag) esc.flags[flag];
+*def get(esc: Esc, flag: Flag) esc.sgrFlags[flag];
 
-def set(esc: mut Esc, flag: Flag, on: Bool) esc.flags[flag] = on;
+*def set(esc: mut Esc, flag: Flag, on: Bool) esc.sgrFlags[flag] = on;
 
-;; Info about a color on the terminals
-;; Don't use directly
-struct Color {
-    mode : Uint;
+struct CursorControl {
+    up := 0;; move cursor up or down {up} lines
+    left := 0;; move cursor left or right {left} columns
 
-    black: pseudo = Enum{1};
-    red:   pseudo = Enum{2};
-    green:   pseudo = Enum{4};
-    yellow: pseudo = Enum{8};
-    blue: pseudo = Enum{16};
-    magenta: pseudo = Enum{32};
-    cyan: pseudo = Enum{64};
-    white: pseudo = Enum{128};
-    default: pseudo = Enum{256};
+    x := 0;; set cursor position to {x} column (1-based)
+    y := 0;; set cursor position to {y} line (1-based)
+
+    save := false;; save current cursor position
+    restore := false;; restore last saved cursor position
 }
 
+struct ScreenBufferControl {
+    alternate := false;; enable alternate screen buffer
+    normal := false;; restore normal screen buffer
+}
 
-def get(esc: Color, enum: Enum) esc.mode[enum];
-def set(esc: mut Color, enum: Enum, on: Bool) esc.mode[enum] = on;
+struct ClearMode {
+    toEndOfScreen := false;
+    toBeginningOfScreen := false;
+    screen := false;
+    screenAndScrollback := false;
+}
+
+struct EraseMode {
+    toEndOfLine := false;
+    toBeginningOfLine := false;
+    line := false;
+}
+
+struct BracketedPaste {}
+
+;; Info about a color on the terminals
+*struct Color {
+    r: Ubyte;
+    g: Ubyte;
+    b: Ubyte;
+
+    mode : ColorMode;
+
+    black:    pseudo = Enum{30};
+    red:      pseudo = Enum{31};
+    green:    pseudo = Enum{32};
+    yellow:   pseudo = Enum{33};
+    blue:     pseudo = Enum{34};
+    magenta:  pseudo = Enum{35};
+    cyan:     pseudo = Enum{36};
+    white:    pseudo = Enum{37};
+    default:  pseudo = Enum{39};
+
+    gray:          pseudo = Enum{90};
+    brightBlack:   pseudo = Enum{90};; Synonym for gray
+    brigthRed:     pseudo = Enum{91};
+    brigthGreen:   pseudo = Enum{92};
+    brigthYellow:  pseudo = Enum{93};
+    brigthBlue:    pseudo = Enum{94};
+    brigthMagenta: pseudo = Enum{95};
+    brigthCyan:    pseudo = Enum{96};
+    brigthWhite:   pseudo = Enum{97};
+
+    index: pseudo = IndexColor8Bit{};
+}
+
+;; Used just for a nice syntax around Color.index
+struct IndexColor8Bit {}
+
+*def get(esc: Color, enum: Enum) =
+    esc.mode.depth4 & esc.r == enum.value'to(%esc.r);
+
+*def get(esc: Color, :IndexColor8Bit) esc.r;
+
+*def set(esc: mut Color, enum: Enum, on: Bool) {
+    if (on) {
+        esc.mode.depth4 = true;
+        esc.r = enum.value'to(%esc.r);
+    }
+}
+
+*def set(esc: mut Color, :IndexColor8Bit, index: Ubyte) {
+    esc.mode.depth8 = true;
+    esc.r = index;
+}
+
+*struct ColorMode {
+    value: Ubyte;
+
+    none: pseudo = Enum{0};
+    depth4: pseudo = Enum{1};
+    depth8: pseudo = Enum{2};
+    depth24: pseudo = Enum{3};
+}
+
+*def get(cm: ColorMode, enum: Enum) cm.value[enum];
+*def set(cm: mut ColorMode, enum: Enum, on: Bool) cm.value[enum] = on;
 
 *def append(fstr: mut Fstr, esc: Esc, enabled: Bool = true) {
     if (!enabled) return;
-    if (esc.flags == 0 & esc.bg.mode == 0 & esc.fg.mode == 0) return;
+    if (esc.sgrFlags == 0 & esc.bg.mode.none & esc.fg.mode.none) return;
 
     fstr'append("\033[");
 
@@ -91,26 +154,41 @@ def set(esc: mut Color, enum: Enum, on: Bool) esc.mode[enum] = on;
     if (esc.hidden) fstr'append("8;");
     if (esc.strikethrough) fstr'append("9;");
 
-    if (esc.fg.black) fstr'append("30;");
-    if (esc.fg.red) fstr'append("31;");
-    if (esc.fg.green) fstr'append("32;");
-    if (esc.fg.yellow) fstr'append("33;");
-    if (esc.fg.blue) fstr'append("34;");
-    if (esc.fg.magenta) fstr'append("35;");
-    if (esc.fg.cyan) fstr'append("36;");
-    if (esc.fg.white) fstr'append("37;");
-    if (esc.fg.default) fstr'append("39;");
+    if (esc.fg.mode.depth4) {
+        fstr'append(esc.fg.r);
+        fstr'append(";");
+    } elif (esc.fg.mode.depth8) {
+        fstr'append("38;5;");
+        fstr'append(esc.fg.index);
+        fstr'append(";");
+    } elif (esc.fg.mode.depth24) {
+        fstr'append("38;2;");
+        fstr'append(esc.fg.r);
+        fstr'append(";");
+        fstr'append(esc.fg.g);
+        fstr'append(";");
+        fstr'append(esc.fg.b);
+        fstr'append(";");
+    }
 
-    if (esc.bg.black) fstr'append("40;");
-    if (esc.bg.red) fstr'append("41;");
-    if (esc.bg.green) fstr'append("42;");
-    if (esc.bg.yellow) fstr'append("43;");
-    if (esc.bg.blue) fstr'append("44;");
-    if (esc.bg.magenta) fstr'append("45;");
-    if (esc.bg.cyan) fstr'append("46;");
-    if (esc.bg.white) fstr'append("47;");
-    if (esc.bg.default) fstr'append("49;");
+    if (esc.bg.mode.depth4) {
+        fstr'append(esc.bg.r + 10);
+        fstr'append(";");
+    } elif (esc.bg.mode.depth8) {
+        fstr'append("48;5;");
+        fstr'append(esc.bg.index);
+        fstr'append(";");
+    } elif (esc.bg.mode.depth24) {
+        fstr'append("48;2;");
+        fstr'append(esc.bg.r);
+        fstr'append(";");
+        fstr'append(esc.bg.g);
+        fstr'append(";");
+        fstr'append(esc.bg.b);
+        fstr'append(";");
+    }
 
-    fstr'backtrack(1u);
+
+    fstr'backtrack(1u);; the trailing ';'
     fstr'append("m");
 }
