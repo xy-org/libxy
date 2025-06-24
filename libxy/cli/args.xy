@@ -6,9 +6,9 @@ import libxy.stdio;
 import libxy.array;
 
 struct Descriptor {
-    name: Str;
-    comment: Str;
-    offset: Size;
+    name: Str~[memory=MemStatic];
+    comment: Str~[memory=MemStatic];
+    offset: Size~[memory=MemStatic];
 }
 
 def printHelp(programComment: Str, descPtr: Ptr~Descriptor, descLen: Size) {
