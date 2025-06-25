@@ -169,7 +169,7 @@ def decode(s: Str, i: mut Size) -> Char {
         for (_ in 0:contBytes) {
             contOnes := s[i]'bits'countLeadingOnes;
             if (contOnes == 1) {
-                cp'bits = cp'bits'shiftl(6) | (0x3Fo'bits & s[i]'bits)'to(Bits32);
+                cp'bits = cp'bits'shiftl(6) | (0x3Fub'bits & s[i]'bits)'to(Bits32);
             } elif (contOnes != 1 & contOnes <= 4) {
                 # premature end of current sequence. Break b/c
                 # a new sequence is following

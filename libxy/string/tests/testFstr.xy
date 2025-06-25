@@ -29,8 +29,8 @@ import xytest;
 #}
 
 *def interpolatingInt~Test() {
-    (assert) f"{1o}" == "1";
-    (assert) f"{12uo}" == "12";
+    (assert) f"{1b}" == "1";
+    (assert) f"{12ub}" == "12";
     (assert) f"{123s}" == "123";
     (assert) f"{4us}" == "4";
     (assert) f"{12345}" == "12345";

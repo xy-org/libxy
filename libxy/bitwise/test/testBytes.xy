@@ -1,15 +1,15 @@
 *def gettingBytes~Test() {
     num := 0x27FA;
-    (assert) num'bytes[0] == 0xFAo;
-    (assert) num'bytes[1] == 0x27o;
-    (assert) num'bytes[2] == 0x00o;
-    (assert) num'bytes[3] == 0x00o;
+    (assert) num'bytes[0] == 0xFA()b;
+    (assert) num'bytes[1] == 0x27()b;
+    (assert) num'bytes[2] == 0x00()b;
+    (assert) num'bytes[3] == 0x00()b;
 }
 
 *def settingBytes~Test() {
     num : Int;
-    num'bytes[0] = 0xFAo;
-    num'bytes[1] = 0x27o;
+    num'bytes[0] = 0xFA()b;
+    num'bytes[1] = 0x27()b;
     (assert) num == 0x27FA;
 }
 

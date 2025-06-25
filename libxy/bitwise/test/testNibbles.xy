@@ -12,15 +12,15 @@
 
 *def settingNibbles~Test() {
     num : Int;
-    num'nibbles[0] = 0xAo;
-    num'nibbles[1] = 0xFo;
-    num'nibbles[2] = 0x7o;
-    num'nibbles[3] = 0x2o;
+    num'nibbles[0] = 0xA()b;
+    num'nibbles[1] = 0xF()b;
+    num'nibbles[2] = 0x7()b;
+    num'nibbles[3] = 0x2()b;
     (assert) num == 0x27FA;
 }
 
 *def reversingNibbles~Test() {
-    (assert) 0x12uo'nibbles'reverse == 0x21uo'nibbles;
+    (assert) 0x12ub'nibbles'reverse == 0x21ub'nibbles;
     (assert) 0x1234s'nibbles'reverse == 0x4321s'nibbles;
     (assert) 0x12345678'nibbles'reverse == 0x87654321'nibbles;
     (assert) 0x34567890ABCDEFl'nibbles'reverse == 0xFEDCBA0987654300l'nibbles;

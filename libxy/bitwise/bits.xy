@@ -10,7 +10,7 @@ def len(b: Bits64) 64;
 
 ;; Handle expressions like bits[i]
 def get(b: Bits8, i: (Byte, Ubyte, Short, Ushort, Int, Uint)) =
-    (b & (1uo'to(%b) \shiftl i))'any;
+    (b & (1ub'to(%b) \shiftl i))'any;
 
 def get(b: Bits16, i: (Byte, Ubyte, Short, Ushort, Int, Uint)) =
     (b & (1us'to(%b) \shiftl i))'any;
@@ -32,7 +32,7 @@ def set(b: mut Bits16, i: Int, val: Bool) =
     b = b & !(1s'to(Bits16) \shiftl i) | (val'to(Ushort)'to(Bits16) \shiftl i);
 
 def set(b: mut Bits8, i: Int, val: Bool) =
-    b = b & !(1o'to(Bits8) \shiftl i) | (val'to(Ubyte)'to(Bits8) \shiftl i);
+    b = b & !(1ub'to(Bits8) \shiftl i) | (val'to(Ubyte)'to(Bits8) \shiftl i);
 
 ;; Empty struct used to provide syntax like num'bits or num'bits[i] = bit 
 struct Bits {}
@@ -134,9 +134,9 @@ def reverse(bits: Bits64) -> %bits {
 
 def reverse(bits: Bits8) -> %bits {
     res : mut = bits;
-    res = (res & 0x55uo'bits) \shiftl 1 | (res \shiftr 1) & 0x55uo'bits;
-    res = (res & 0x33uo'bits) \shiftl 2 | (res \shiftr 2) & 0x33uo'bits;
-    res = (res & 0x0Fuo'bits) \shiftl 4 | (res \shiftr 4) & 0x0Fuo'bits;
+    res = (res & 0x55ub'bits) \shiftl 1 | (res \shiftr 1) & 0x55ub'bits;
+    res = (res & 0x33ub'bits) \shiftl 2 | (res \shiftr 2) & 0x33ub'bits;
+    res = (res & 0x0Fub'bits) \shiftl 4 | (res \shiftr 4) & 0x0Fub'bits;
     return res;
 }
 

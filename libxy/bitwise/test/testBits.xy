@@ -52,19 +52,19 @@ import libxy.bitwise;
     num : Ubyte;
     num'bits[0] = true;
     num'bits[7] = true;
-    (assert) num == 0x81uo;
+    (assert) num == 0x81ub;
 
     num'bits[8 + 0] = false;; should wrap around
-    (assert) num == 0x80uo;
+    (assert) num == 0x80ub;
 
     num'bits[8*30 + 7] = false;
-    (assert) num == 0x00uo;
+    (assert) num == 0x00ub;
 
     num'bits[-1] = true;
-    (assert) num == 0x80uo;
+    (assert) num == 0x80ub;
 
     num'bits[-2] = true;
-    (assert) num == 0xC0uo;
+    (assert) num == 0xC0ub;
 }
 
 *def copyingBits~Test() {
@@ -90,15 +90,15 @@ import libxy.bitwise;
 }
 
 *def xor~Test() {
-    n1 := 0x1fuo;
-    n2 := 0x22uo;
+    n1 := 0x1fub;
+    n2 := 0x22ub;
     xor := n1'bits - n2'bits;
-    (assert) xor'to(Ubyte) == 0x3duo;
+    (assert) xor'to(Ubyte) == 0x3dub;
 }
 
 *def countingLeadingZeros0~Test() {
     (assert) 0'bits'countLeadingZeros == 32;
-    (assert) 0x0uo'bits'countLeadingZeros == 8;
+    (assert) 0x0ub'bits'countLeadingZeros == 8;
     (assert) 0x0s'bits'countLeadingZeros == 16;
     (assert) 0x0u'bits'countLeadingZeros == 32;
     (assert) 0x0ul'bits'countLeadingZeros == 64;
@@ -106,21 +106,21 @@ import libxy.bitwise;
 
 *def countingLeadingZeros1~Test() {
     (assert) 1'bits'countLeadingZeros == 31;
-    (assert) 0x1uo'bits'countLeadingZeros == 7;
+    (assert) 0x1ub'bits'countLeadingZeros == 7;
     (assert) 0x1s'bits'countLeadingZeros == 15;
     (assert) 0x1u'bits'countLeadingZeros == 31;
     (assert) 0x1l'bits'countLeadingZeros == 63;
 }
 
 *def countingLeadingZerosMinus1~Test() {
-    (assert) (-1o)'bits'countLeadingZeros == 0;
+    (assert) (-1b)'bits'countLeadingZeros == 0;
     (assert) (-1s)'bits'countLeadingZeros == 0;
     (assert) (-1)'bits'countLeadingZeros == 0;
     (assert) (-1l)'bits'countLeadingZeros == 0;
 }
 
 *def countingLeadingZerosRandom~Test() {
-    (assert) 0x28o'bits'countLeadingZeros == 2;
+    (assert) 0x28()b'bits'countLeadingZeros == 2;
     (assert) 0x682As'bits'countLeadingZeros == 1;
     (assert) 0xE1A020'bits'countLeadingZeros == 8;
     (assert) 0x123CAFFEEul'bits'countLeadingZeros == 31;
@@ -130,21 +130,21 @@ import libxy.bitwise;
     ;; countLeadingOnes is more or less identical to countLeadingZeros
     ;; So we are going to run just a few simple tests
     (assert) 0'bits'countLeadingOnes == 0;
-    (assert) 0x80o'bits'countLeadingOnes == 1;
+    (assert) 0x80()b'bits'countLeadingOnes == 1;
     (assert) (-1)'bits'countLeadingOnes == 32;
     (assert) 0xCAD7s'bits'countLeadingOnes == 2;
 }
 
 *def countingTrailingZeros~Test() {
     (assert) 0'bits'countTrailingZeros == 32;
-    (assert) 0x80o'bits'countTrailingZeros == 7;
+    (assert) 0x80()b'bits'countTrailingZeros == 7;
     (assert) (-1)'bits'countTrailingZeros == 0;
     (assert) 0xCAD8s'bits'countTrailingZeros == 3;
 }
 
 *def countingTrailingOnes~Test() {
     (assert) 0'bits'countTrailingOnes == 0;
-    (assert) 0xF1o'bits'countTrailingOnes == 1;
+    (assert) 0xF1ub'bits'countTrailingOnes == 1;
     (assert) (-1)'bits'countTrailingOnes == 32;
     (assert) 0xCAD7s'bits'countTrailingOnes == 3;
 }
@@ -153,7 +153,7 @@ import libxy.bitwise;
     (assert) 0'bits'reverse == 0'bits;
     (assert) (-1)'bits'reverse == (-1)'bits;
 
-    (assert) 0xF3o'bits'reverse == 0xCFo'bits;
+    (assert) 0xF3ub'bits'reverse == 0xCFub'bits;
     (assert) 0xF319s'bits'reverse == 0x98CFs'bits;
     (assert) 0x01234567'bits'reverse == 0xE6A2C480'bits;
     (assert) 0x01234567ABCDEF01l'bits'reverse == 0x80F7B3D5E6A2C480l'bits;
@@ -168,7 +168,7 @@ import libxy.bitwise;
     (assert) 0x01234567'bits'rotl(16) == 0x45670123'bits;
     (assert) 0x01234567'bits'rotl(24) == 0x67012345'bits;
     (assert) 0x01234567ABCDEF01l'bits'rotl(4) == 0x1234567ABCDEF010l'bits;
-    (assert) 0xE3o'bits'rotl(3) == 31o'bits;
+    (assert) 0xE3()b'bits'rotl(3) == 31ub'bits;
     (assert) 0xCAFEs'bits'rotl(13) == 0xD95Fs'bits;
 }
 
@@ -181,7 +181,7 @@ import libxy.bitwise;
     (assert) 0x01234567'bits'rotr(16) == 0x45670123'bits;
     (assert) 0x01234567'bits'rotr(24) == 0x23456701'bits;
     (assert) 0x0123456789ABCDEFl'bits'rotr(4) == 0xF0123456789ABCDEl'bits;
-    (assert) 0xE3o'bits'rotr(3) == 0x7Co'bits;
+    (assert) 0xE3()b'bits'rotr(3) == 0x7Cub'bits;
     (assert) 0xCAFEs'bits'rotr(13) == 0x57F6s'bits;
 }
 
@@ -195,7 +195,7 @@ import libxy.bitwise;
 
     (assert) 0x0123s'bits'rotr(-4) == 0x0123s'bits'rotr(16-4);
     (assert) 0x0123s'bits'rotr(0) == 0x0123s'bits'rotr(16);
-    (assert) 0xFEo'bits'rotr(-4) == 0xFEo'bits'rotr(8-4);
+    (assert) 0xFEub'bits'rotr(-4) == 0xFEub'bits'rotr(8-4);
 
     (assert) 0x0123456789ABCDEFl'bits'rotr(-15) == 0x0123456789ABCDEFl'bits'rotr(64-15);
 }

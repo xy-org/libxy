@@ -60,7 +60,7 @@ def set(
 
 ;; Reflect nibbles around the middle i.e. reverse nibble order
 def reverse(nibs: Nibbles2) -> %nibs {
-    return (%nibs){(nibs.bits & 0x0Fuo'bits) \shiftl 4 | (nibs.bits \shiftr 4) & 0x0Fuo'bits};
+    return (%nibs){(nibs.bits & 0x0Fub'bits) \shiftl 4 | (nibs.bits \shiftr 4) & 0x0Fub'bits};
 }
 
 ;; ...
