@@ -1,5 +1,5 @@
 import libc~[Clib{headers=@{"string.h", "stdio.h"}}] in c;
-import xy.sys in sys;
+import xy.sys;
 import xy.ctti;
 import libxy.string;
 import libxy.stdio;
@@ -27,8 +27,8 @@ def printHelp(programComment: Str, descPtr: Ptr~Descriptor, descLen: Size) {
         comment=f'commentof,
     },
 
-    argc := sys.argc(),
-    argv := sys.argv(),
+    argc := [Global~CmdArgs].argc,
+    argv := [Global~CmdArgs].argv,
     programComment := commentof(%argObj),
     descPtr := description'addrof,
     descLen : Size = description'len,
