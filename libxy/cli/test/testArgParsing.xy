@@ -1,0 +1,29 @@
+import xytest;
+import libxy.array;
+import libxy.cli;
+import libxy.string;
+
+;; == Application specific data == ;;
+
+;; Concatenate and print files
+struct CatArgs {
+    ;; path to files
+    files : Array~Str;
+
+    ;; Display line count
+    lineCount: Bool;
+}
+
+*def helpMsgManual~Test() {
+    schema: CliSchema;
+    schema.desc = "Concatenate and print files"'copy;
+    #schema'arg(Bool, short=`b`, desc="Display line count");
+
+    (assert) f"{schema}" == "Concatenate and print files";
+}
+
+*def parsing~Test() {
+    schema := CliSchema'fromType(CatArgs);
+    args := parseCli(schema, res);; # what about remaining arguments
+    args.b
+}

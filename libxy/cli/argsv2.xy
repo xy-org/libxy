@@ -1,0 +1,39 @@
+import libxy.array;
+import libxy.string;
+
+*struct CliSchema {
+    desc: Str;
+    fields: Array~CliField;
+
+    numValues: Array~Long;
+    doubleValues: Array~Double;
+}
+
+*struct CliField {
+    name: Str;
+    defaultValueIdx: ValueIdx;
+}
+
+*struct ValueIdx {
+    #type: FieldType;
+    value: Uint;
+}
+
+*def append(fstr: mut Fstr, schema: CliSchema) {
+    fstr'append(schema.desc);
+}
+
+#def fromType(:CliSchema, type: pseudo Any) = (
+#    -> (res: CliSchema) {
+#        for (f in %type'fieldsof) {
+#            res'auto(f);
+#        }
+#    }
+#);
+#
+#def auto(
+#    schema: CliSchema, field: pseudo Field,
+#    name: Str = field..name,
+#) {
+#    schema.fields'append(CliField{name'copy});
+#}
