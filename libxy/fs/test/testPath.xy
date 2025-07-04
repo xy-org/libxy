@@ -1,48 +1,48 @@
 *def testDirname~Test() {
-    (assert) dirname("/basket/apples") == "/basket";
-    (assert) dirname("/basket/apples/") == "/basket";
-    (assert) dirname("/basket/apples//////") == "/basket";
-    (assert) dirname("/basket///apples///") == "/basket";
-    (assert) dirname("///basket/apples") == "///basket";
+    (equal) dirname("/basket/apples"), "/basket";
+    (equal) dirname("/basket/apples/"), "/basket";
+    (equal) dirname("/basket/apples//////"), "/basket";
+    (equal) dirname("/basket///apples///"), "/basket";
+    (equal) dirname("///basket/apples"), "///basket";
 
-    (assert) dirname("/i/made/this/up") == "/i/made/this";
+    (equal) dirname("/i/made/this/up"), "/i/made/this";
 
-    (assert) dirname("/etc/config/.") == "/etc/config";
-    (assert) dirname("/etc/config/..") == "/etc/config";
+    (equal) dirname("/etc/config/."), "/etc/config";
+    (equal) dirname("/etc/config/.."), "/etc/config";
 
-    (assert) dirname("") == "";
-    (assert) dirname("a") == "";
-    (assert) dirname("ab") == "";
-    (assert) dirname("file.txt") == "";
-    (assert) dirname("subdir/file.txt") == "subdir";
-    (assert) dirname("../file.txt") == "..";
+    (equal) dirname(""), "";
+    (equal) dirname("a"), "";
+    (equal) dirname("ab"), "";
+    (equal) dirname("file.txt"), "";
+    (equal) dirname("subdir/file.txt"), "subdir";
+    (equal) dirname("../file.txt"), "..";
 
-    (assert) dirname("/") == "/";
-    (assert) dirname("/a") == "/";
+    (equal) dirname("/"), "/";
+    (equal) dirname("/a"), "/";
 
-    (assert) dirname("..") == "";
-    (assert) dirname(".") == "";
+    (equal) dirname(".."), "";
+    (equal) dirname("."), "";
 
-    (assert) dirname("~") == "";
+    (equal) dirname("~"), "";
 }
 
 *def testDirnameNonLatin~Test() {
-    (assert) dirname("/кошница/ябълки") == "/кошница";
-    (assert) dirname("卷宗.txt") == "";
-    (assert) dirname("雪") == "";
-    (assert) dirname("~/home/.скрытый файл") == "~/home";
-    (assert) dirname("😀/💯/🐊") == "😀/💯";
+    (equal) dirname("/кошница/ябълки"), "/кошница";
+    (equal) dirname("卷宗.txt"), "";
+    (equal) dirname("雪"), "";
+    (equal) dirname("~/home/.скрытый файл"), "~/home";
+    (equal) dirname("😀/💯/🐊"), "😀/💯";
 }
 
 *def joiningPathStrs~Test() {
-    (assert) path"dir/subdir" == "dir/subdir";
+    (equal) path"dir/subdir", "dir/subdir";
 
     dir := "dir";
     subdir := "subdir";
-    (assert) path"{dir}/{subdir}" == "dir/subdir";
+    (equal) path"{dir}/{subdir}", "dir/subdir";
 
     absDir := "/root";
-    (assert) path"{absDir}/{dir}/mydir" == "/root/dir/mydir";
+    (equal) path"{absDir}/{dir}/mydir", "/root/dir/mydir";
 
-    (assert) path"{dir}/{subdir}/{absDir}" == "/root";
+    (equal) path"{dir}/{subdir}/{absDir}", "/root";
 }
