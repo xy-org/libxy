@@ -2,6 +2,7 @@ import xytest;
 import libxy.array;
 import libxy.cli;
 import libxy.string;
+import xy.sys;
 
 ;; == Application specific data == ;;
 
@@ -15,15 +16,58 @@ struct CatArgs {
 }
 
 *def helpMsgManual~Test() {
-    schema: CliSchema;
-    schema.desc = "Concatenate and print files"'copy;
-    #schema'arg(Bool, short=`b`, desc="Display line count");
+    schema : mut = CliSchema{
+    };
+    schema'prog(
+        "ProgramName",
+        desc="What the program does",
+        epilog="Text at the bottom of help"
+    );
+    schema'param("filename", .positional);
+    schema'param("count", short=`c`, type="num");
+    schema'param("verbose", short=`v`, type="");
 
-    (assert) f"{schema}" == "Concatenate and print files";
+    (equal) f"{schema}", """
+    Usage: ProgramName [-h] [-c <num>] [-v] <filename>
+
+    What the program does
+
+    Options:
+      -h, --help
+      -c, --count <num>
+      -v, --verbose
+
+    Text at the bottom of help
+    ";
 }
 
-*def parsing~Test() {
-    schema := CliSchema'fromType(CatArgs);
-    args := parseCli(schema, res);; # what about remaining arguments
-    args.b
+*def parsingOnePosArg~Test() {
+    schema : mut = CliSchema{
+    };
+    schema'prog("ProgramName");
+    schema'param("filename", .positional);
+
+    cliArgs := @{c"./a.out", c"myfile.txt"};
+    parsed := schema'prs(rawArgs=CmdArgs{cliArgs'len'to(Int), cliArgs'addrof});
+
+    (equal) parsed'len, 1;
+    (equal) parsed[0].name, "filename";
+    (equal) parsed[0].value, "myfile.txt";
 }
+
+#*def parsingOnePosArgErr~Test() {
+#    schema : mut = CliSchema{
+#    };
+#    schema'prog("ProgramName");
+#    schema'param("filename", .positional);
+#
+#    cliArgs := @{c"./a.out"};
+#
+#    errParsing := | schema'prs(CmdArgs{cliArgs'len'to(Int), cliArgs'addrof}) |;
+#    (assert) errParsing'to(Bool);
+#}
+
+#*def parsing~Test() {
+#    schema := CliSchema'fromType(CatArgs);
+#    args := parseCli(schema, res);; # what about remaining arguments
+#}
