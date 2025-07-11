@@ -8,7 +8,7 @@ import xytest;
     len : Size;
     sampleDir := f"{'fileof'dirname}/sampleDir";
     for (i in :, node in ls(sampleDir)) {
-        (assert) node.name'startswith("file") | node.name == "subdir";
+        (assert) node.name'startswith("file") || node.name == "subdir";
         len++;
     }
     (assert) len == 3;

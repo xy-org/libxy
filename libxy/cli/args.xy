@@ -65,7 +65,7 @@ def printHelp(programComment: Str, descPtr: Ptr~Descriptor, descLen: Size) {
     #     } elif (arg.startswith("-")) {
     #         for (i in 1:, flag in arg[1:]) {
     #             argDesc = descs'find(flag);
-    #             if (!argDesc'isBool & i < arg'len - 1) {
+    #             if (!argDesc'isBool && i < arg'len - 1) {
     #                 error "-{arg[i]} is requires arguments";
     #             }
     #             i += argDesc'parse(i,  argv);
@@ -84,7 +84,7 @@ def printHelp(programComment: Str, descPtr: Ptr~Descriptor, descLen: Size) {
 #     }
 #     # not a flag => parse arguments
 #     i++;
-#     while((i < argc & !argv[i]'startswith("-"))) {
+#     while((i < argc && !argv[i]'startswith("-"))) {
 #         arg := str(argv[i]);
 #         i++;
 #         if (argDesc'isArray) {

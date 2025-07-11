@@ -7,7 +7,7 @@ struct Memory {
     size: Size;
 }
 
-*def realloc(mem: mut Memory, size: Size) -> void || SystemError {
+*def realloc(mem: mut Memory, size: Size) -> void | SystemError {
     newMem : Ptr~Byte = c.realloc(mem.addr, size);
     if (newMem == Ptr{}) {
         error SystemError{c.ENOMEM};

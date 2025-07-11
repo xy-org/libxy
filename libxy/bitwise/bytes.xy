@@ -41,27 +41,27 @@ def set(num: mut (Long, Ulong),   :Bytes, bytes: Bytes8) num'bits = bytes.bits;
 ;; Get the {i}th byte of {bytes}
 ;; Called for expressions like num'bytes[i]
 def get(bytes: (Bytes2, Bytes4, Bytes8), i: Int) =
-    (bytes.bits & 0xFF'bits'to(%bytes.bits)'shiftl(i*8))'shiftr(i*8)'to(Bits8)'to(Byte);
+    (bytes.bits && 0xFF'bits'to(%bytes.bits)'shiftl(i*8))'shiftr(i*8)'to(Bits8)'to(Byte);
 
 ;; Set the {i}th byte of {num}
 ;; Called for expressions like num'bytes[i] = byte;
 def set(
     num: (Short, Ushort, Int, Uint, Long, Ulong),
     :Bytes, i: Int, byte: Byte
-) num'bits = num'bits & !(0xFF'bits'to(%num'bits)'shiftl(i*8)) | byte'bits'to(%num'bits)'shiftl(i*8);
+) num'bits = num'bits && !(0xFF'bits'to(%num'bits)'shiftl(i*8)) || byte'bits'to(%num'bits)'shiftl(i*8);
 
 ;; Reverse bytes around the middle i.e. reverse byte order
 def reverse(bytes: Bytes2)
-    Bytes2{bytes.bits'shiftl(8) | bytes.bits'shiftr(8)};
+    Bytes2{bytes.bits'shiftl(8) || bytes.bits'shiftr(8)};
 
 ;; ...
 def reverse(bytes: Bytes4)
-    Bytes4{bytes.bits'shiftl(24) | (bytes.bits'shiftl(8) & 0xFF0000'bits) | (bytes.bits'shiftr(8) & 0xFF00'bits) | bytes.bits'shiftr(24)};
+    Bytes4{bytes.bits'shiftl(24) || (bytes.bits'shiftl(8) && 0xFF0000'bits) || (bytes.bits'shiftr(8) && 0xFF00'bits) || bytes.bits'shiftr(24)};
 
 ;; ...
 def reverse(bytes: Bytes8)
     Bytes8{
-        (bytes.bits \shiftl 56) | ((bytes.bits & 0xFF00ul'bits) \shiftl 40) | ((bytes.bits & 0xFF0000ul'bits) \shiftl 24) | ((bytes.bits & 0xFF000000ul'bits) \shiftl 8) | ((bytes.bits \shiftr 8) & 0xFF000000ul'bits) | ((bytes.bits \shiftr 24) & 0xFF0000ul'bits) | ((bytes.bits \shiftr 40) & 0xFF00ul'bits) | (bytes.bits \shiftr 56)
+        (bytes.bits \shiftl 56) || ((bytes.bits && 0xFF00ul'bits) \shiftl 40) || ((bytes.bits && 0xFF0000ul'bits) \shiftl 24) || ((bytes.bits && 0xFF000000ul'bits) \shiftl 8) || ((bytes.bits \shiftr 8) && 0xFF000000ul'bits) || ((bytes.bits \shiftr 24) && 0xFF0000ul'bits) || ((bytes.bits \shiftr 40) && 0xFF00ul'bits) || (bytes.bits \shiftr 56)
     };
 
 ;; Rotate left by {i} bytes

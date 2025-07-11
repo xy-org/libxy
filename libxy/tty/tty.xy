@@ -110,7 +110,7 @@ struct BracketedPaste {}
 struct IndexColor8Bit {}
 
 *def get(esc: Color, enum: Enum) =
-    esc.mode.depth4 & esc.r == enum.value'to(%esc.r);
+    esc.mode.depth4 && esc.r == enum.value'to(%esc.r);
 
 *def get(esc: Color, :IndexColor8Bit) esc.r;
 
@@ -140,7 +140,7 @@ struct IndexColor8Bit {}
 
 *def append(fstr: mut Fstr, esc: Esc, enabled: Bool = true) {
     if (!enabled) return;
-    if (esc.sgrFlags == 0 & esc.bg.mode.none & esc.fg.mode.none) return;
+    if (esc.sgrFlags == 0 && esc.bg.mode.none && esc.fg.mode.none) return;
 
     fstr'append("\033[");
 

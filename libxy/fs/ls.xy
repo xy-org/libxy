@@ -61,7 +61,7 @@ struct Listing {
 
 *def ls~IterCtor(
     path: Str, flags: LsFlags,
-) -> [ Listing ] || SystemError
+) -> [ Listing ] | SystemError
 >> nullTerminated(path)
 {
     dirfd : Int = c.open(path.addr~[c.char], inlinec"O_RDONLY | O_DIRECTORY");
@@ -70,7 +70,7 @@ struct Listing {
         error SystemError{c.errno};
     }
     res : mut = Listing{flags, dirfd, pDir};
-    res.callStat = flags.size | flags.atime | flags.mtime | flags.ctime;
+    res.callStat = flags.size || flags.atime || flags.mtime || flags.ctime;
     next(res);
     return res;
 }
@@ -78,7 +78,7 @@ struct Listing {
 *def valid(d: Listing) !d.eol;
 
 *def next(d: mut Listing) {
-    if (d.pDir == Ptr{} | d.eol) {
+    if (d.pDir == Ptr{} || d.eol) {
         d.eol = true;
         return;
     }
@@ -105,13 +105,13 @@ def loadNodeInfo(
     };
 
     ;; check if we can early skip the file
-    if (!d.wants.hidden & name'startswith(".")) {
+    if (!d.wants.hidden && name'startswith(".")) {
         return false;
     }
 
     d.currNode.name =< name'copy;
 
-    if (d.wants.type & !d.callStat) {
+    if (d.wants.type && !d.callStat) {
         if (Bool{inlinec"{dirent}->d_type != DT_UNKNOWN"}) {
             d.currNode.type.file = inlinec"{dirent}->d_type == DT_REG";
             d.currNode.type.dir = inlinec"{dirent}->d_type == DT_DIR";

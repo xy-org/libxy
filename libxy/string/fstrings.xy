@@ -59,7 +59,7 @@ def printfFmt(:Size) inlinec"\"%zu\"";
     num: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong, Size),
     base := 10
 )
->> base >= 2 & base <= 36
+>> base >= 2 && base <= 36
 {
     #if (num < 0) {
     #    builder'append(`-`);
@@ -140,19 +140,19 @@ def unsigned(a: Size) a;
         [builder.mem.addr+builder.len] = nchar'to(Byte);
         builder.len += 1;
     } elif (nchar <= 0x07FF) {
-        [builder.mem.addr+builder.len+0] = (0xC0'bits | nchar'bits'shiftr(6))'to(Bits8)'to(Byte);
-        [builder.mem.addr+builder.len+1] = (0x80'bits | (0x3F'bits & nchar'bits))'to(Bits8)'to(Byte);
+        [builder.mem.addr+builder.len+0] = (0xC0'bits || nchar'bits'shiftr(6))'to(Bits8)'to(Byte);
+        [builder.mem.addr+builder.len+1] = (0x80'bits || (0x3F'bits && nchar'bits))'to(Bits8)'to(Byte);
         builder.len += 2;
     } elif (nchar <= 0xFFFF) {
-        [builder.mem.addr+builder.len+0] = (0xE0'bits | nchar'bits'shiftr(12))'to(Bits8)'to(Byte);
-        [builder.mem.addr+builder.len+1] = (0x80'bits | (0x3F'bits & nchar'bits'shiftr(6)))'to(Bits8)'to(Byte);
-        [builder.mem.addr+builder.len+2] = (0x80'bits | (0x3F'bits & nchar'bits))'to(Bits8)'to(Byte);
+        [builder.mem.addr+builder.len+0] = (0xE0'bits || nchar'bits'shiftr(12))'to(Bits8)'to(Byte);
+        [builder.mem.addr+builder.len+1] = (0x80'bits || (0x3F'bits && nchar'bits'shiftr(6)))'to(Bits8)'to(Byte);
+        [builder.mem.addr+builder.len+2] = (0x80'bits || (0x3F'bits && nchar'bits))'to(Bits8)'to(Byte);
         builder.len += 3;
     } elif (nchar <= 0x10FFFF) {
-        [builder.mem.addr+builder.len+0] = (0xF0'bits | nchar'bits'shiftr(18))'to(Bits8)'to(Byte);
-        [builder.mem.addr+builder.len+1] = (0x80'bits | (0x3F'bits & nchar'bits'shiftr(12)))'to(Bits8)'to(Byte);
-        [builder.mem.addr+builder.len+2] = (0x80'bits | (0x3F'bits & nchar'bits'shiftr(6)))'to(Bits8)'to(Byte);
-        [builder.mem.addr+builder.len+3] = (0x80'bits | (0x3F'bits & nchar'bits))'to(Bits8)'to(Byte);
+        [builder.mem.addr+builder.len+0] = (0xF0'bits || nchar'bits'shiftr(18))'to(Bits8)'to(Byte);
+        [builder.mem.addr+builder.len+1] = (0x80'bits || (0x3F'bits && nchar'bits'shiftr(12)))'to(Bits8)'to(Byte);
+        [builder.mem.addr+builder.len+2] = (0x80'bits || (0x3F'bits && nchar'bits'shiftr(6)))'to(Bits8)'to(Byte);
+        [builder.mem.addr+builder.len+3] = (0x80'bits || (0x3F'bits && nchar'bits))'to(Bits8)'to(Byte);
         builder.len += 4;
     }
     ;; Else invalid char. Just ignore.

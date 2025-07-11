@@ -63,7 +63,7 @@ struct CatArgs {
 #
 #    cliArgs := @{c"./a.out"};
 #
-#    errParsing := | schema'prs(CmdArgs{cliArgs'len'to(Int), cliArgs'addrof}) |;
+#    errParsing := || schema'prs(CmdArgs{cliArgs'len'to(Int), cliArgs'addrof}) |;
 #    (assert) errParsing'to(Bool);
 #}
 

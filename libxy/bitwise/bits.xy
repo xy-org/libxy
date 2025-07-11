@@ -10,29 +10,29 @@ def len(b: Bits64) 64;
 
 ;; Handle expressions like bits[i]
 def get(b: Bits8, i: (Byte, Ubyte, Short, Ushort, Int, Uint)) =
-    (b & (1ub'to(%b) \shiftl i))'any;
+    (b && (1ub'to(%b) \shiftl i))'any;
 
 def get(b: Bits16, i: (Byte, Ubyte, Short, Ushort, Int, Uint)) =
-    (b & (1us'to(%b) \shiftl i))'any;
+    (b && (1us'to(%b) \shiftl i))'any;
 
 def get(b: Bits32, i: (Byte, Ubyte, Short, Ushort, Int, Uint)) =
-    (b & (1u'to(%b) \shiftl i))'any;
+    (b && (1u'to(%b) \shiftl i))'any;
 
 def get(b: Bits64, i: (Byte, Ubyte, Short, Ushort, Int, Uint)) =
-    (b & (1ul'to(%b) \shiftl i))'any;
+    (b && (1ul'to(%b) \shiftl i))'any;
 
 ;; Handle expressions like bits[i] = bit
 def set(b: mut Bits64, i: Int, val: Bool) =
-    b = b & !(1l'to(Bits64) \shiftl i) | (val'to(Ulong)'to(Bits64) \shiftl i);
+    b = b && !(1l'to(Bits64) \shiftl i) || (val'to(Ulong)'to(Bits64) \shiftl i);
 
 def set(b: mut Bits32, i: Int, val: Bool) =
-    b = b & !(1'to(Bits32) \shiftl i) | (val'to(Uint)'to(Bits32) \shiftl i);
+    b = b && !(1'to(Bits32) \shiftl i) || (val'to(Uint)'to(Bits32) \shiftl i);
 
 def set(b: mut Bits16, i: Int, val: Bool) =
-    b = b & !(1s'to(Bits16) \shiftl i) | (val'to(Ushort)'to(Bits16) \shiftl i);
+    b = b && !(1s'to(Bits16) \shiftl i) || (val'to(Ushort)'to(Bits16) \shiftl i);
 
 def set(b: mut Bits8, i: Int, val: Bool) =
-    b = b & !(1ub'to(Bits8) \shiftl i) | (val'to(Ubyte)'to(Bits8) \shiftl i);
+    b = b && !(1ub'to(Bits8) \shiftl i) || (val'to(Ubyte)'to(Bits8) \shiftl i);
 
 ;; Empty struct used to provide syntax like num'bits or num'bits[i] = bit 
 struct Bits {}
@@ -111,11 +111,11 @@ def countTrailingOnes(bits: (Bits8, Bits16, Bits32, Bits64)) =
 ;; the second-to-first and second-to-last, and so on
 def reverse(bits: Bits32) -> %bits {
     res : mut = bits;
-    res = (res & 0x55555555'bits) \shiftl 1 | (res \shiftr 1) & 0x55555555'bits;
-    res = (res & 0x33333333'bits) \shiftl 2 | (res \shiftr 2) & 0x33333333'bits;
-    res = (res & 0x0F0F0F0F'bits) \shiftl 4 | (res \shiftr 4) & 0x0F0F0F0F'bits;
+    res = (res && 0x55555555'bits) \shiftl 1 || (res \shiftr 1) && 0x55555555'bits;
+    res = (res && 0x33333333'bits) \shiftl 2 || (res \shiftr 2) && 0x33333333'bits;
+    res = (res && 0x0F0F0F0F'bits) \shiftl 4 || (res \shiftr 4) && 0x0F0F0F0F'bits;
     res = (
-        (res \shiftl 24) | ((res & 0xFF00'bits) \shiftl 8) | ((res \shiftr 8) & 0xFF00'bits) | (res \shiftr 24)
+        (res \shiftl 24) || ((res && 0xFF00'bits) \shiftl 8) || ((res \shiftr 8) && 0xFF00'bits) || (res \shiftr 24)
     );
     return res;
 }
@@ -123,36 +123,36 @@ def reverse(bits: Bits32) -> %bits {
 ;; ...
 def reverse(bits: Bits64) -> %bits {
     res : mut = bits;
-    res = (res & 0x5555555555555555ul'bits) \shiftl 1 | (res \shiftr 1) & 0x5555555555555555ul'bits;
-    res = (res & 0x3333333333333333ul'bits) \shiftl 2 | (res \shiftr 2) & 0x3333333333333333ul'bits;
-    res = (res & 0x0F0F0F0F0F0F0F0Ful'bits) \shiftl 4 | (res \shiftr 4) & 0x0F0F0F0F0F0F0F0Ful'bits;
+    res = (res && 0x5555555555555555ul'bits) \shiftl 1 || (res \shiftr 1) && 0x5555555555555555ul'bits;
+    res = (res && 0x3333333333333333ul'bits) \shiftl 2 || (res \shiftr 2) && 0x3333333333333333ul'bits;
+    res = (res && 0x0F0F0F0F0F0F0F0Ful'bits) \shiftl 4 || (res \shiftr 4) && 0x0F0F0F0F0F0F0F0Ful'bits;
     res = (
-        (res \shiftl 56) | ((res & 0xFF00ul'bits) \shiftl 40) | ((res & 0xFF0000ul'bits) \shiftl 24) | ((res & 0xFF000000ul'bits) \shiftl 8) | ((res \shiftr 8) & 0xFF000000ul'bits) | ((res \shiftr 24) & 0xFF0000ul'bits) | ((res \shiftr 40) & 0xFF00ul'bits) | (res \shiftr 56)
+        (res \shiftl 56) || ((res && 0xFF00ul'bits) \shiftl 40) || ((res && 0xFF0000ul'bits) \shiftl 24) || ((res && 0xFF000000ul'bits) \shiftl 8) || ((res \shiftr 8) && 0xFF000000ul'bits) || ((res \shiftr 24) && 0xFF0000ul'bits) || ((res \shiftr 40) && 0xFF00ul'bits) || (res \shiftr 56)
     );
     return res;
 }
 
 def reverse(bits: Bits8) -> %bits {
     res : mut = bits;
-    res = (res & 0x55ub'bits) \shiftl 1 | (res \shiftr 1) & 0x55ub'bits;
-    res = (res & 0x33ub'bits) \shiftl 2 | (res \shiftr 2) & 0x33ub'bits;
-    res = (res & 0x0Fub'bits) \shiftl 4 | (res \shiftr 4) & 0x0Fub'bits;
+    res = (res && 0x55ub'bits) \shiftl 1 || (res \shiftr 1) && 0x55ub'bits;
+    res = (res && 0x33ub'bits) \shiftl 2 || (res \shiftr 2) && 0x33ub'bits;
+    res = (res && 0x0Fub'bits) \shiftl 4 || (res \shiftr 4) && 0x0Fub'bits;
     return res;
 }
 
 def reverse(bits: Bits16) -> %bits {
     res : mut = bits;
-    res = (res & 0x5555us'bits) \shiftl 1 | (res \shiftr 1) & 0x5555us'bits;
-    res = (res & 0x3333us'bits) \shiftl 2 | (res \shiftr 2) & 0x3333us'bits;
-    res = (res & 0x0F0Fus'bits) \shiftl 4 | (res \shiftr 4) & 0x0F0Fus'bits;
-    res = (res \shiftl 8) | (res \shiftr 8);
+    res = (res && 0x5555us'bits) \shiftl 1 || (res \shiftr 1) && 0x5555us'bits;
+    res = (res && 0x3333us'bits) \shiftl 2 || (res \shiftr 2) && 0x3333us'bits;
+    res = (res && 0x0F0Fus'bits) \shiftl 4 || (res \shiftr 4) && 0x0F0Fus'bits;
+    res = (res \shiftl 8) || (res \shiftr 8);
     return res;
 }
 
 ;; Rotate {bits} left {times} mod {bits'len} times.
 def rotl(bits: (Bits8, Bits16, Bits32, Bits64), times: Int) =
-    (bits \shiftl times) | (bits \shiftr -times);
+    (bits \shiftl times) || (bits \shiftr -times);
 
 ;; Rotate {bits} right {times} mod {bits'len} times.
 def rotr(bits: (Bits8, Bits16, Bits32, Bits64), times: Int) =
-    (bits \shiftr times) | (bits \shiftl -times);
+    (bits \shiftr times) || (bits \shiftl -times);

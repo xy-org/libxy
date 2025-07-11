@@ -61,11 +61,11 @@ def str~[StrCtor{prefix="", interpolation=false}] (
         leadingOnes := s[i]'bits'countLeadingOnes;
         res++;
         i++;
-        if (leadingOnes >= 2 & leadingOnes <= 4) {
+        if (leadingOnes >= 2 && leadingOnes <= 4) {
             contBytes := min((leadingOnes - 1)'to(Size), s.len - i);
             for (_ in 0:contBytes) {
                 contOnes := s[i]'bits'countLeadingOnes;
-                if (contOnes != 1 & contOnes <= 4) {
+                if (contOnes != 1 && contOnes <= 4) {
                     # premature end of current sequence. Break b/c
                     # a new sequence is following
                     break;
@@ -163,14 +163,14 @@ def decode(s: Str, i: mut Size) -> Char {
     leadingOnes := leadingByte'bits'countLeadingOnes;
     i++;
 
-    if (leadingOnes >= 2 & leadingOnes <= 4) {
-        cp'bits = 0xFF'bits'shiftr(leadingOnes+1) & leadingByte'bits'to(Bits32);
+    if (leadingOnes >= 2 && leadingOnes <= 4) {
+        cp'bits = 0xFF'bits'shiftr(leadingOnes+1) && leadingByte'bits'to(Bits32);
         contBytes := min((leadingOnes - 1)'to(Size), s.len - i);
         for (_ in 0:contBytes) {
             contOnes := s[i]'bits'countLeadingOnes;
             if (contOnes == 1) {
-                cp'bits = cp'bits'shiftl(6) | (0x3Fub'bits & s[i]'bits)'to(Bits32);
-            } elif (contOnes != 1 & contOnes <= 4) {
+                cp'bits = cp'bits'shiftl(6) || (0x3Fub'bits && s[i]'bits)'to(Bits32);
+            } elif (contOnes != 1 && contOnes <= 4) {
                 # premature end of current sequence. Break b/c
                 # a new sequence is following
                 cp = -1;

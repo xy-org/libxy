@@ -56,7 +56,7 @@ import libxy.error;
 ;; Open a file
 *def open(
     path: Str, flags: OpenFlags, mode := 0644
-) -> File || SystemError
+) -> File | SystemError
 >> nullTerminated(path)
 {
     fd : Int = c.open(path.addr~[c.char], flags.value, mode);
@@ -66,7 +66,7 @@ import libxy.error;
     return File{fd};
 }
 
-*def write(file: File, str: Str) -> void || SystemError {
+*def write(file: File, str: Str) -> void | SystemError {
     total : mut Size;
     do {
         # TODO use c.ssize_t
@@ -80,7 +80,7 @@ import libxy.error;
     } while (total < str.len);
 }
 
-*def close(file: File) -> void || SystemError {
+*def close(file: File) -> void | SystemError {
     if (file.fd >= 0) {
         res: Int = c.close(file.fd);
         if (res != 0) {
@@ -93,7 +93,7 @@ import libxy.error;
     f'close;
 }
 
-*def mkdir(path: Str, mode := 0755, parents := false) -> void || SystemError
+*def mkdir(path: Str, mode := 0755, parents := false) -> void | SystemError
 >> nullTerminated(path)
 {
     c.mkdir(path.addr~[c.char], mode);

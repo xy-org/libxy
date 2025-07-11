@@ -49,35 +49,35 @@ def set(num: mut (Long, Ulong),   :Nibbles, nibbles: Nibbles16)
 ;; Called for expressions like num'nibbles[i]
 ;; There is no integer 4-bit type so we are going to use Byte
 def get(nibbles: (Nibbles2, Nibbles4, Nibbles8, Nibbles16), i: Int) =
-    (nibbles.bits & 0xF'bits'to(%nibbles.bits)'shiftl(i*4))'shiftr(i*4)'to(Bits8)'to(Byte);
+    (nibbles.bits && 0xF'bits'to(%nibbles.bits)'shiftl(i*4))'shiftr(i*4)'to(Bits8)'to(Byte);
 
 ;; Set the {i}th nibble of {num}
 ;; Called for expressions like num'nibbles[i] = nibble;
 def set(
     num: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong),
     :Nibbles, i: Int, nibble: Byte
-) num'bits = num'bits & !(0xF'bits'to(%num'bits)'shiftl(i*4)) | (nibble'bits'to(%num'bits) & 0xF'bits'to(%num'bits))'shiftl(i*4);
+) num'bits = num'bits && !(0xF'bits'to(%num'bits)'shiftl(i*4)) || (nibble'bits'to(%num'bits) && 0xF'bits'to(%num'bits))'shiftl(i*4);
 
 ;; Reflect nibbles around the middle i.e. reverse nibble order
 def reverse(nibs: Nibbles2) -> %nibs {
-    return (%nibs){(nibs.bits & 0x0Fub'bits) \shiftl 4 | (nibs.bits \shiftr 4) & 0x0Fub'bits};
+    return (%nibs){(nibs.bits && 0x0Fub'bits) \shiftl 4 || (nibs.bits \shiftr 4) && 0x0Fub'bits};
 }
 
 ;; ...
 def reverse(nibs: Nibbles4) -> %nibs {
-    bits := (nibs.bits & 0x0F0Fs'bits) \shiftl 4 | (nibs.bits \shiftr 4) & 0x0F0Fs'bits;
+    bits := (nibs.bits && 0x0F0Fs'bits) \shiftl 4 || (nibs.bits \shiftr 4) && 0x0F0Fs'bits;
     return Nibbles4{bits'bytes'reverse'to(Ushort)'bits};
 }
 
 ;; ...
 def reverse(nibs: Nibbles8) -> %nibs {
-    bits := (nibs.bits & 0x0F0F0F0F'bits) \shiftl 4 | (nibs.bits \shiftr 4) & 0x0F0F0F0F'bits;
+    bits := (nibs.bits && 0x0F0F0F0F'bits) \shiftl 4 || (nibs.bits \shiftr 4) && 0x0F0F0F0F'bits;
     return Nibbles8{bits'bytes'reverse'to(Uint)'bits};
 }
 
 ;; ...
 def reverse(nibs: Nibbles16) -> %nibs {
-    bits := (nibs.bits & 0x0F0F0F0F0F0F0F0Ful'bits) \shiftl 4 | (nibs.bits \shiftr 4) & 0x0F0F0F0F0F0F0F0Ful'bits;
+    bits := (nibs.bits && 0x0F0F0F0F0F0F0F0Ful'bits) \shiftl 4 || (nibs.bits \shiftr 4) && 0x0F0F0F0F0F0F0F0Ful'bits;
     return Nibbles16{bits'bytes'reverse'to(Ulong)'bits};
 }
 

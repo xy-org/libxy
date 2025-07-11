@@ -16,16 +16,16 @@ pathSeparator := `/`;
     dirLen : mut = path'len;
 
     # strip trailing /
-    while (dirLen >= 2 & path[dirLen-1] == separator) dirLen--;
+    while (dirLen >= 2 && path[dirLen-1] == separator) dirLen--;
 
     # find next /
-    while (dirLen >= 1 & path[dirLen-1] != separator) dirLen--;
+    while (dirLen >= 1 && path[dirLen-1] != separator) dirLen--;
 
     # skip multiple / separating the dirname from basename
-    while(dirLen >= 2 & path[dirLen-1] == separator) dirLen--;
+    while(dirLen >= 2 && path[dirLen-1] == separator) dirLen--;
 
     # finally strip the separating /
-    if (dirLen >= 2 & path[dirLen-1] == separator) dirLen--;
+    if (dirLen >= 2 && path[dirLen-1] == separator) dirLen--;
 
     x := 0z:dirLen;
     return x;
