@@ -53,7 +53,7 @@ def param(
         fstr'append(schema.short);
         fstr'append("\n\n");
     }
-    
+
     fstr'append("Usage: ");
     fstr'append(schema.name);
 
@@ -124,19 +124,53 @@ def param(
     fstr'append("\n");
 }
 
+struct ParsingError {
+    msg: Str;
+}
+
+*def to(pe: ParsingError, :Bool) pe.msg.len > 0;
+
 def prs(
     schema: CliSchema, rawArgs := [Global~CmdArgs]
-) -> Array~Arg {
+) -> Array~Arg | ParsingError {
     stream : Array~Arg;
+
+    numPositional := schema.positional'len;
+    numNamed := schema.named'len;
+
+    nargsPositional : Array~Int;
+    nargsPositional'fill(numPositional);
+    nargsNamed: Array~Int;
+    nargsNamed'fill(numNamed);
+
+    posParamIdx: Size;
+
     for (i in 1:rawArgs.argc) {
         tmp : Ptr = rawArgs.argv[i];
         arg := Str~MemExt{tmp, c.strlen(rawArgs.argv[i])};
+
+        ;; Assume positional
+        if (posParamIdx >= numPositional) {
+            error ParsingError{f"Unrecognized positional argument '{arg}'"};
+        }
+
         stream'push(Arg{
-            name=schema.positional[0].name,
+            name=schema.positional[posParamIdx].name,
             value=arg,
-            # dataIdx=schema.positional[0].dataIdx,
+            # dataIdx=schema.positional[posParamIdx].dataIdx,
         });
+        nargsPositional[posParamIdx]++;
     }
+
+    ;; Check for unsatisifed params
+    for (i in :numPositional) {
+        if (nargsPositional[i] < schema.positional[i].nargs.start) {
+            error ParsingError{
+                f"Missing positional parameter '{schema.positional[i].name}'"
+            };
+        }
+    }
+
     return stream;
 }
 

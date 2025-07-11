@@ -55,17 +55,19 @@ struct CatArgs {
     (equal) parsed[0].value, "myfile.txt";
 }
 
-#*def parsingOnePosArgErr~Test() {
-#    schema : mut = CliSchema{
-#    };
-#    schema'prog("ProgramName");
-#    schema'param("filename", .positional);
-#
-#    cliArgs := @{c"./a.out"};
-#
-#    errParsing := || schema'prs(CmdArgs{cliArgs'len'to(Int), cliArgs'addrof}) |;
-#    (assert) errParsing'to(Bool);
-#}
+*def parsingOnePosArgErr~Test() {
+    schema : mut = CliSchema{
+    };
+    schema'prog("ProgramName");
+    schema'param("filename", .positional);
+
+    cliArgs := @{c"./a.out"};
+
+    err := | schema'prs(CmdArgs{cliArgs'len'to(Int), cliArgs'addrof}) |;
+    (assert) err'to(Bool), "Parsing didn't fail despite missing pos arg";
+
+    (equal) err.msg, "Missing positional parameter 'filename'";
+}
 
 #*def parsing~Test() {
 #    schema := CliSchema'fromType(CatArgs);
