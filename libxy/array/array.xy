@@ -45,17 +45,13 @@ def ensureCapacity(
 }
 
 
-*def get(
-    arr: Array, i: Size,
-    elemSize : Size = sizeof(arr..elemType)
-) -> arr[ Ptr~[^arr..elemType] ] {
-    return arr.mem.addr + i * elemSize;
-}
 
 *def get(
-    arr: Array, i: Int,
+    arr: Array, i: (Size, Int),
     elemSize : Size = sizeof(arr..elemType)
-) -> arr[ Ptr~[^arr..elemType] ] {
+) -> arr[ Ptr~[^arr..elemType] ]
+>> i'to(Size) < arr'len
+{
     return arr.mem.addr + i'to(Size) * elemSize;
 }
 

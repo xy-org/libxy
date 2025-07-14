@@ -81,12 +81,15 @@ def str~[StrCtor{prefix="", interpolation=false}] (
     return res;
 }
 
-*def get(s: Str, int: SizeInterval) -> Str~MemExt
->> int.start <= s.len
->> (int.end - int.start) <= s.len
+*def get(s: Str, int: (IntInterval, SizeInterval)) -> Str~MemExt
+>> int.start >= 0 && int.start <= int.end
 {
-    return Str{s.addr + int.start, int.end - int.start};
+    start := min(int.start'to(Size), s.len);
+    end := min(int.end'to(Size), s.len);
+    return Str{s.addr + start, end - start};
 }
+
+*def empty(s: Str) s.len == 0;
 
 *def cmp(str1: Str, str2: Str) -> Int {
     if (str1.len > str2.len) {

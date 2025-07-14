@@ -10,6 +10,11 @@ import libxy.slice;
 
     named: Array~CliField;
     positional: Array~CliField;
+
+    prefixLong: Str~MemStatic;
+    prefixShort: Str~MemStatic;
+
+    noShortGrouping: Bool;
 }
 
 *struct CliField {
@@ -19,6 +24,15 @@ import libxy.slice;
     short: Char;
     nargs: IntInterval;
     positional: Bool;
+    greedy: Bool;
+    command: Bool;
+}
+
+def config(schema: mut CliSchema, prefixLong := "--", prefixShort := "-") {
+    schema .= {
+        =prefixLong, =prefixShort,
+        noShortGrouping= prefixLong != prefixShort
+    };
 }
 
 def prog(schema: mut CliSchema, name := "", short := "", desc := "", epilog := "") {
@@ -36,14 +50,25 @@ def param(
     desc := "",
     type := "value",
     positional := false,
-    nargs : IntInterval = if (positional) 1:2 else 0:1
+    nargs : IntInterval = if (positional) 1:2 else 0:1,
+    greedy := false,
+    command := false,
 ) {
-    field := CliField{=name, =short, =desc, =type, nargs=nargs};
+    field := CliField{=name, =short, =desc, =type, =nargs, =greedy, =command};
+
     if (positional) {
         schema.positional'push(field);
     } else {
         schema.named'push(field);
     }
+}
+
+def command(
+    schema: mut CliSchema,
+    name: Str~MemStatic,
+    desc := "",
+) {
+    # TODO implement
 }
 
 *def append(fstr: mut Fstr, schema: CliSchema) {
@@ -130,6 +155,11 @@ struct ParsingError {
 
 *def to(pe: ParsingError, :Bool) pe.msg.len > 0;
 
+*def unhandled(pe: ParsingError) {
+    print(pe.msg);
+    print("\n");
+}
+
 def prs(
     schema: CliSchema, rawArgs := [Global~CmdArgs]
 ) -> Array~Arg | ParsingError {
@@ -143,23 +173,94 @@ def prs(
     nargsNamed: Array~Int;
     nargsNamed'fill(numNamed);
 
+    ;; index of current positional param
     posParamIdx: Size;
+    greedyPosParam: Bool;
+    ;; >= 0 if we have processed a named param and now waiting for its value
+    namedParamIdx: mut = -1;
+
 
     for (i in 1:rawArgs.argc) {
         tmp : Ptr = rawArgs.argv[i];
         arg := Str~MemExt{tmp, c.strlen(rawArgs.argv[i])};
 
-        ;; Assume positional
-        if (posParamIdx >= numPositional) {
-            error ParsingError{f"Unrecognized positional argument '{arg}'"};
-        }
+        if (!greedyPosParam && arg'startswith("--")) {
+            ;; long form
+            if (namedParamIdx >= 0) {
+                error ParsingError{f"Missing value for {schema.named[namedParamIdx].name}"};
+            }
+            name := arg[2:];
 
-        stream'push(Arg{
-            name=schema.positional[posParamIdx].name,
-            value=arg,
-            # dataIdx=schema.positional[posParamIdx].dataIdx,
-        });
-        nargsPositional[posParamIdx]++;
+            paramIdx := findParam(schema, name);
+            if (paramIdx < 0) {
+                error ParsingError{f"Unknown argument {arg}"};
+            }
+
+            if (schema.named[paramIdx].type'empty) {
+                stream'push(Arg{
+                    name=schema.named[paramIdx].name,
+                    value=""~MemExt,
+                    # dataIdx=schema.named[paramIdx].dataIdx,
+                });
+                nargsNamed[paramIdx]++;
+            } else {
+                namedParamIdx = paramIdx;
+            }
+        } elif (!greedyPosParam && arg'startswith("-")) {
+            ;; short form
+            for (short in arg[1:]'chars) {
+                if (namedParamIdx >= 0) {
+                    error ParsingError{f"Missing value for {schema.named[namedParamIdx].name}"};
+                }
+
+                paramIdx := findParam(schema, short);
+                if (paramIdx < 0) {
+                    error ParsingError{f"Unknown argument '-{short}'"};
+                }
+
+                if (schema.named[paramIdx].type'empty) {
+                    stream'push(Arg{
+                        name=schema.named[paramIdx].name,
+                        value=""~MemExt,
+                        # dataIdx=schema.named[paramIdx].dataIdx,
+                    });
+                    nargsNamed[paramIdx]++;
+                } else {
+                    namedParamIdx = paramIdx;
+                }
+            }
+        } elif (namedParamIdx >= 0) {
+            ;; value of named
+            stream'push(Arg{
+                name=schema.named[namedParamIdx].name,
+                value=arg,
+                # dataIdx=schema.named[namedParamIdx].dataIdx,
+            });
+            nargsNamed[namedParamIdx]++;
+            if (nargsNamed[namedParamIdx] + 1 >= schema.named[namedParamIdx].nargs.end) {
+                namedParamIdx = -1;
+            } elif (!schema.named[namedParamIdx].greedy) {
+                namedParamIdx = -1;
+            }
+        } else {
+            ;; positional
+            if (posParamIdx >= numPositional) {
+                error ParsingError{f"Unrecognized positional argument '{arg}'"};
+            }
+
+            stream'push(Arg{
+                name=schema.positional[posParamIdx].name,
+                value=arg,
+                # dataIdx=schema.positional[posParamIdx].dataIdx,
+            });
+            nargsPositional[posParamIdx]++;
+            greedyPosParam = schema.positional[posParamIdx].greedy;
+            if (nargsPositional[posParamIdx] + 1 >= schema.positional[posParamIdx].nargs.end) {
+                ;; current positional param satisfied. Move to next one.
+                posParamIdx++;
+                !.greedyPosParam;
+            }
+        }
     }
 
     ;; Check for unsatisifed params
@@ -171,6 +272,14 @@ def prs(
         }
     }
 
+    for (i in :numNamed) {
+        if (nargsNamed[i] < schema.named[i].nargs.start) {
+            error ParsingError{
+                f"Missing parameter '{schema.named[i].name}'"
+            };
+        }
+    }
+
     return stream;
 }
 
@@ -178,6 +287,24 @@ struct Arg {
     name: Str~MemStatic;
     value: Str~MemExt;
     # dataIdx: Size;
+}
+
+-def findParam(schema: CliSchema, name: Str) -> Int {
+    for (idx in :, param in schema.named) {
+        if (param.name == name) {
+            return idx'to(Int);
+        }
+    }
+    return -1;
+}
+
+-def findParam(schema: CliSchema, short: Char) -> Int {
+    for (idx in :, param in schema.named) {
+        if (param.short == short) {
+            return idx'to(Int);
+        }
+    }
+    return -1;
 }
 
 #def get(schema: CliSchema, iter: ArgIter, argn: ArgName) -> Str~MemStatic {
