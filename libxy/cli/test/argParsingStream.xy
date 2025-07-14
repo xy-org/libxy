@@ -5,17 +5,6 @@ import libxy.cli;
 import libxy.string;
 import libxy.slice;
 
-;; == Application specific data == ;;
-
-;; Concatenate and print files
-struct CatArgs {
-    ;; path to files
-    files : Array~Str;
-
-    ;; Display line count
-    lineCount: Bool;
-}
-
 *def helpMsgManual~Test() {
     schema : mut = CliSchema{
     };

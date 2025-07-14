@@ -1,0 +1,32 @@
+;; == Application specific data == ;;
+
+;; Concatenate and print files
+struct ProgramArgs {
+    ;; path to files
+    files : Array~Str;
+
+    ;; Display line count
+    lineCount: Bool;
+}
+
+# *def parseToStruct~Test() {
+#     cliArgs := @{c"./a.out", c"--line-count", "file1.txt", "file2.txt"};
+#     rawArgs=CmdArgs{cliArgs'len'to(Int), cliArgs'addrof};
+#
+#     args: cliArgs;
+#     parseToStruct(args, rawArgs);
+# }
+#
+# def rtti(f) {
+#     FieldDesc{
+#         offsetof=f'offsetof,
+#         type=typeof(f..typeof)
+#     }
+# }
+#
+# def parseToStruct(a: mut Any) = {
+#     schema : CliSchema{};
+#     for (f in a'fieldsof) {
+#         schema'param(f'nameof, desc=f'commentof, data=rtti(f));
+#     }
+# }
