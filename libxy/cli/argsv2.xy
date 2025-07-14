@@ -20,7 +20,7 @@ import libxy.slice;
 *struct CliField {
     name: Str~MemStatic;
     desc: Str~MemStatic;
-    type: Str~MemStatic;
+    arg: Str~MemStatic;
     short: Char;
     nargs: IntInterval;
     positional: Bool;
@@ -48,13 +48,13 @@ def param(
     name := "",
     short := Char{},
     desc := "",
-    type := "value",
+    arg := "value",
     positional := false,
     nargs : IntInterval = if (positional) 1:2 else 0:1,
     greedy := false,
     command := false,
 ) {
-    field := CliField{=name, =short, =desc, =type, =nargs, =greedy, =command};
+    field := CliField{=name, =short, =desc, =arg, =nargs, =greedy, =command};
 
     if (positional) {
         schema.positional'push(field);
@@ -94,9 +94,9 @@ def command(
             fstr'append("--");
             fstr'append(arg.name);
         }
-        if (arg.type.len > 0) {
+        if (arg.arg.len > 0) {
             fstr'append(" <");
-            fstr'append(arg.type);
+            fstr'append(arg.arg);
             fstr'append(">");
         }
         if (arg.nargs.start == 0) {
@@ -134,9 +134,9 @@ def command(
             fstr'append("--");
             fstr'append(arg.name);
         }
-        if (arg.type.len > 0) {
+        if (arg.arg.len > 0) {
             fstr'append(" <");
-            fstr'append(arg.type);
+            fstr'append(arg.arg);
             fstr'append(">");
         }
         fstr'append("\n");
@@ -196,7 +196,7 @@ def prs(
                 error ParsingError{f"Unknown argument {arg}"};
             }
 
-            if (schema.named[paramIdx].type'empty) {
+            if (schema.named[paramIdx].arg'empty) {
                 stream'push(Arg{
                     name=schema.named[paramIdx].name,
                     value=""~MemExt,
@@ -218,7 +218,7 @@ def prs(
                     error ParsingError{f"Unknown argument '-{short}'"};
                 }
 
-                if (schema.named[paramIdx].type'empty) {
+                if (schema.named[paramIdx].arg'empty) {
                     stream'push(Arg{
                         name=schema.named[paramIdx].name,
                         value=""~MemExt,
@@ -306,22 +306,3 @@ struct Arg {
     }
     return -1;
 }
-
-#def get(schema: CliSchema, iter: ArgIter, argn: ArgName) -> Str~MemStatic {
-#    return schema.positional[iter.i].name;
-#}
-
-#def fromType(:CliSchema, type: pseudo Any) = (
-#    -> (res: CliSchema) {
-#        for (f in %type'fieldsof) {
-#            res'auto(f);
-#        }
-#    }
-#);
-#
-#def auto(
-#    schema: CliSchema, field: pseudo Field,
-#    name: Str = field..name,
-#) {
-#    schema.fields'append(CliField{name'copy});
-#}

@@ -20,7 +20,7 @@ struct ProgramArgs {
 # def rtti(f) {
 #     FieldDesc{
 #         offsetof=f'offsetof,
-#         type=typeof(f..typeof)
+#         arg=typeof(f..typeof)
 #     }
 # }
 #

@@ -14,8 +14,8 @@ import libxy.slice;
         epilog="Text at the bottom of help"
     );
     schema'param("filename", .positional);
-    schema'param("count", short=`c`, type="num");
-    schema'param("verbose", short=`v`, type="");
+    schema'param("count", short=`c`, arg="num");
+    schema'param("verbose", short=`v`, arg="");
 
     (equal) f"{schema}", """
     Usage: ProgramName [-h] [-c <num>] [-v] <filename>
@@ -66,9 +66,9 @@ def lsSchema() -> CliSchema {
     schema : mut = CliSchema{
     };
     schema'prog("ls");
-    schema'param("long", `l`, type="");
-    schema'param("all", `a`, type="");
-    schema'param("reverse", `r`, type="");
+    schema'param("long", `l`, arg="");
+    schema'param("all", `a`, arg="");
+    schema'param("reverse", `r`, arg="");
     schema'param("files", .positional, nargs=0:, .greedy);
     return schema;
 }
@@ -147,9 +147,9 @@ def lsSchema() -> CliSchema {
     schema: CliSchema;
     schema'config(prefixLong="-", prefixShort="-");
     schema'param("filename", .positional, nargs=1:2);
-    schema'param("compile-only", short=`c`, type="");
-    schema'param("output", short=`o`, type="file");
-    schema'param("warning", short=`W`, type="warning");
+    schema'param("compile-only", short=`c`, arg="");
+    schema'param("output", short=`o`, arg="file");
+    schema'param("warning", short=`W`, arg="warning");
 
     return schema;
 }
@@ -172,7 +172,7 @@ def lsSchema() -> CliSchema {
 
 #-def gitSchema() -> CliSchema {
 #    schema : CliSchema;
-#    schema'param("version", type="");
+#    schema'param("version", arg="");
 #    schema'param("command", .command);
 #    schema'command("push");
 #    schema'param("repository", .positional, nargs=0:2);
