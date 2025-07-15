@@ -5,7 +5,7 @@ import libxy.cli;
 import libxy.string;
 import libxy.slice;
 
-*def helpMsgManual~Test() {
+*def helpMsg1~Test() {
     schema : mut = CliSchema{
     };
     schema'prog(
@@ -18,17 +18,50 @@ import libxy.slice;
     schema'param("verbose", short=`v`, arg="");
 
     (equal) f"{schema}", """
-    Usage: ProgramName [-h] [-c <num>] [-v] <filename>
+    Usage: ProgramName [--help] [-c <num>] [-v] <filename>
 
     What the program does
 
+    Positional Arguments:
+      <filename>
+
     Options:
-      -h, --help
+      --help
       -c, --count <num>
       -v, --verbose
 
     Text at the bottom of help
     ";
+}
+
+*def helpMsg2~Test() {
+    schema: CliSchema;
+    schema'prog("xytest", desc="Discover and Run Tests");
+    schema'param("dir", .positional);
+
+    (equal) f"{schema}", """
+    Usage: xytest [--help] <dir>
+
+    Discover and Run Tests
+
+    Positional Arguments:
+      <dir>
+
+    Options:
+      --help
+    ";
+}
+
+*def autoHelp~Test() {
+    schema : CliSchema;
+    schema'param("filename", .positional);
+
+    cliArgs := @{c"./a.out", c"--help"};
+    err := | schema'parse(
+        rawArgs=CmdArgs{cliArgs'len'to(Int), cliArgs'addrof
+    }) |;
+
+    (assert) err.msg'startswith("Usage");
 }
 
 *def parsingOnePosArg~Test() {

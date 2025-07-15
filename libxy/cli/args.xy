@@ -18,6 +18,7 @@ import libxy.slice;
     prefixShort: Str~MemStatic;
 
     noShortGrouping: Bool;
+    manualHelp: Bool;
 }
 
 *struct CliParam {
@@ -31,19 +32,24 @@ import libxy.slice;
     command: Bool;
 }
 
-*def config(schema: mut CliSchema, prefixLong := "--", prefixShort := "-") {
+*def config(
+    schema: mut CliSchema, prefixLong := "--", prefixShort := "-",
+    manualHelp := false
+) {
     schema .= {
-        =prefixLong, =prefixShort,
-        noShortGrouping= prefixLong != prefixShort
+        =prefixLong, =prefixShort, =manualHelp,
+        noShortGrouping= prefixLong != prefixShort,
     };
 }
 
-*def prog(schema: mut CliSchema, name := "", short := "", desc := "", epilog := "") {
+*def prog(
+    schema: mut CliSchema, name := "", short := "", desc := "", epilog := ""
+) {
     schema.name = name;
     schema.desc = desc;
     schema.epilog = epilog;
     schema.short = short;
-    schema.named'push(CliParam{"help", short=`h`, desc="show this help message and exit"});
+    schema.named'push(CliParam{"help", desc="show this help message and exit"});
 }
 
 *def param(
@@ -118,12 +124,36 @@ def command(
             fstr'append("]");
         }
     }
-    fstr'append("\n\n");
+    fstr'append("\n");
 
-    fstr'append(schema.desc);
-    fstr'append("\n\n");
+    if (schema.desc.len > 0) {
+        fstr'append("\n");
+        fstr'append(schema.desc);
+        fstr'append("\n");
+    }
 
-    fstr'append("Options:\n");
+    ;; print positional
+    if (schema.positional'len > 0) {
+        fstr'append("\nPositional Arguments:\n");
+    }
+    for (arg in schema.positional) {
+        fstr'append("  ");
+        if (arg.arg.len > 0) {
+            fstr'append("<");
+            fstr'append(arg.name);
+            fstr'append(">");
+        }
+        if (arg.desc.len > 0) {
+            fstr'append(" - ");
+            fstr'append(arg.desc);
+        }
+        fstr'append("\n");
+    }
+
+    ;; print named a.k.a. options
+    if (schema.named'len > 0) {
+        fstr'append("\nOptions:\n");
+    }
     for (arg in schema.named) {
         fstr'append("  ");
         if (arg.short != Char{}) {
@@ -144,12 +174,13 @@ def command(
         }
         fstr'append("\n");
     }
-    if (len(schema.named) > 0) {
+
+    ;; epilog if any
+    if (schema.epilog.len > 0) {
+        fstr'append("\n");
+        fstr'append(schema.epilog);
         fstr'append("\n");
     }
-
-    fstr'append(schema.epilog);
-    fstr'append("\n");
 }
 
 struct ParsingError {
@@ -160,7 +191,9 @@ struct ParsingError {
 
 *def unhandled(pe: ParsingError) {
     print(pe.msg);
-    print("\n");
+    if (!pe.msg'endswith("\n")) {
+        print("\n");
+    }
 }
 
 *def parse(
@@ -189,6 +222,11 @@ struct ParsingError {
 
         if (!greedyPosParam && arg'startswith("--")) {
             ;; long form
+
+            if (!schema.manualHelp && arg=="--help") {
+                error ParsingError{ f"{schema}" };
+            }
+
             if (namedParamIdx >= 0) {
                 error ParsingError{f"Missing value for {schema.named[namedParamIdx].name}"};
             }
