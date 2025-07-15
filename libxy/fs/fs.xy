@@ -1,9 +1,7 @@
 ;; FileSystem and Blocking File IO functionality
 
 import posix~[Clib{headers=@{"unistd.h", "fcntl.h"}}] in c;
-import libxy.string;
-import libxy.flag;
-import libxy.error;
+import libxy.(string, flag, error);
 
 ;; Flags governing how a file is to be opened
 *struct OpenFlags {

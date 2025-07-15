@@ -1,9 +1,6 @@
-import libc~[Clib{headers=@{"string.h", "stdio.h"}}] in c;
+import libc~[Clib{headers=@{"string.h"}}] in c;
 import xy.sys;
-import libxy.string;
-import libxy.stdio;
-import libxy.array;
-import libxy.slice;
+import libxy.(string, stdio, array, slice);
 
 *struct CliSchema {
     name: Str~MemStatic;

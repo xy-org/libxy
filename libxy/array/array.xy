@@ -1,8 +1,5 @@
 import xy.ctti;
-import libxy.unit;
-import libxy.memory;
-import libxy.slice;
-import libxy.error;
+import libxy.(unit, memory, slice, error);
 
 ;; A dynamic array. Can grow and shrink as you push and pop elements.
 *struct Array~[elemType: struct, xy_dtor=true] {

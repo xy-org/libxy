@@ -1,9 +1,6 @@
 import xy.sys;
 import xytest;
-import libxy.array;
-import libxy.cli;
-import libxy.string;
-import libxy.slice;
+import libxy.(array, cli, string, slice);
 
 *def helpMsg1~Test() {
     schema : mut = CliSchema{

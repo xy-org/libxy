@@ -1,8 +1,5 @@
 import libc~[Clib{headers=@{"string.h", "stdio.h", "inttypes.h"}}] in c;
-import libxy.memory;
-import libxy.error;
-import libxy.slice;
-import libxy.bitwise;
+import libxy.(memory, error, slice, bitwise);
 
 def cstr~[StrCtor{prefix="c", interpolation=false}] (
     addr: Ptr, size: Size
