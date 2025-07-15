@@ -8,8 +8,8 @@ import libxy.slice;
     epilog: Str~MemStatic;
     short: Str~MemStatic;
 
-    named: Array~CliField;
-    positional: Array~CliField;
+    named: Array~CliParam;
+    positional: Array~CliParam;
 
     prefixLong: Str~MemStatic;
     prefixShort: Str~MemStatic;
@@ -17,7 +17,7 @@ import libxy.slice;
     noShortGrouping: Bool;
 }
 
-*struct CliField {
+*struct CliParam {
     name: Str~MemStatic;
     desc: Str~MemStatic;
     arg: Str~MemStatic;
@@ -40,7 +40,7 @@ def prog(schema: mut CliSchema, name := "", short := "", desc := "", epilog := "
     schema.desc = desc;
     schema.epilog = epilog;
     schema.short = short;
-    schema.named'push(CliField{"help", short=`h`, desc="show this help message and exit"});
+    schema.named'push(CliParam{"help", short=`h`, desc="show this help message and exit"});
 }
 
 def param(
@@ -54,7 +54,7 @@ def param(
     greedy := false,
     command := false,
 ) {
-    field := CliField{=name, =short, =desc, =arg, =nargs, =greedy, =command};
+    field := CliParam{=name, =short, =desc, =arg, =nargs, =greedy, =command};
 
     if (positional) {
         schema.positional'push(field);
@@ -162,8 +162,8 @@ struct ParsingError {
 
 def prs(
     schema: CliSchema, rawArgs := [Global~CmdArgs]
-) -> Array~Arg | ParsingError {
-    stream : Array~Arg;
+) -> Array~CliArg | ParsingError {
+    stream : Array~CliArg;
 
     numPositional := schema.positional'len;
     numNamed := schema.named'len;
@@ -197,7 +197,7 @@ def prs(
             }
 
             if (schema.named[paramIdx].arg'empty) {
-                stream'push(Arg{
+                stream'push(CliArg{
                     name=schema.named[paramIdx].name,
                     value=""~MemExt,
                     # dataIdx=schema.named[paramIdx].dataIdx,
@@ -219,7 +219,7 @@ def prs(
                 }
 
                 if (schema.named[paramIdx].arg'empty) {
-                    stream'push(Arg{
+                    stream'push(CliArg{
                         name=schema.named[paramIdx].name,
                         value=""~MemExt,
                         # dataIdx=schema.named[paramIdx].dataIdx,
@@ -231,7 +231,7 @@ def prs(
             }
         } elif (namedParamIdx >= 0) {
             ;; value of named
-            stream'push(Arg{
+            stream'push(CliArg{
                 name=schema.named[namedParamIdx].name,
                 value=arg,
                 # dataIdx=schema.named[namedParamIdx].dataIdx,
@@ -248,7 +248,7 @@ def prs(
                 error ParsingError{f"Unrecognized positional argument '{arg}'"};
             }
 
-            stream'push(Arg{
+            stream'push(CliArg{
                 name=schema.positional[posParamIdx].name,
                 value=arg,
                 # dataIdx=schema.positional[posParamIdx].dataIdx,
@@ -283,7 +283,7 @@ def prs(
     return stream;
 }
 
-struct Arg {
+*struct CliArg {
     name: Str~MemStatic;
     value: Str~MemExt;
     # dataIdx: Size;
