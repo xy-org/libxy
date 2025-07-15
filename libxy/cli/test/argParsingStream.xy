@@ -38,7 +38,7 @@ import libxy.slice;
     schema'param("filename", .positional);
 
     cliArgs := @{c"./a.out", c"myfile.txt"};
-    parsed := schema'prs(rawArgs=CmdArgs{cliArgs'len'to(Int), cliArgs'addrof});
+    parsed := schema'parse(rawArgs=CmdArgs{cliArgs'len'to(Int), cliArgs'addrof});
 
     (equal) parsed'len, 1;
     (equal) parsed[0].name, "filename";
@@ -53,7 +53,7 @@ import libxy.slice;
     schema'param("fileB", .positional);
 
     cliArgs := @{c"./a.out", c"file1.txt", c"file2.txt"};
-    parsed := schema'prs(rawArgs=CmdArgs{cliArgs'len'to(Int), cliArgs'addrof});
+    parsed := schema'parse(rawArgs=CmdArgs{cliArgs'len'to(Int), cliArgs'addrof});
 
     (equal) parsed'len, 2;
     (equal) parsed[0].name, "fileA";
@@ -79,7 +79,7 @@ def lsSchema() -> CliSchema {
     cliArgs := @{c"ls", c"-lr"};
     # TODO cliArgs := @{c"ls", c"-lr", "."};
     # TODO cliArgs := @{c"ls", c".", c"-lr"};
-    parsed := schema'prs(rawArgs=CmdArgs{cliArgs'len'to(Int), cliArgs'addrof});
+    parsed := schema'parse(rawArgs=CmdArgs{cliArgs'len'to(Int), cliArgs'addrof});
 
     (equal) parsed'len, 2;
     (equal) parsed[0].name, "long";
@@ -88,7 +88,7 @@ def lsSchema() -> CliSchema {
     (equal) parsed[1].value, "";
 
     altForm := @{c"ls", c"-l", c"-r"};
-    alt := schema'prs(rawArgs=CmdArgs{altForm'len'to(Int), altForm'addrof});
+    alt := schema'parse(rawArgs=CmdArgs{altForm'len'to(Int), altForm'addrof});
 
     (equal) alt'len, parsed'len;
     for (i in :alt'len) {
@@ -102,7 +102,7 @@ def lsSchema() -> CliSchema {
 
     cliArgs := @{c"ls", c"-lr", c"."};
     # cliArgs := @{c"ls", c".", c"-lr"};
-    parsed := schema'prs(rawArgs=CmdArgs{cliArgs'len'to(Int), cliArgs'addrof});
+    parsed := schema'parse(rawArgs=CmdArgs{cliArgs'len'to(Int), cliArgs'addrof});
 
     (equal) parsed'len, 3;
     (equal) parsed[0].name, "long";
@@ -117,7 +117,7 @@ def lsSchema() -> CliSchema {
     schema := 'lsSchema;
 
     cliArgs := @{c"ls", c".", c"-lr"};
-    parsed := schema'prs(rawArgs=CmdArgs{cliArgs'len'to(Int), cliArgs'addrof});
+    parsed := schema'parse(rawArgs=CmdArgs{cliArgs'len'to(Int), cliArgs'addrof});
 
     (equal) parsed'len, 2;
     (equal) parsed[0].name, "files";
@@ -130,7 +130,7 @@ def lsSchema() -> CliSchema {
     schema := 'lsSchema;
 
     cliArgs := @{c"ls", c"-l", c".", c"-ar"};
-    parsed := schema'prs(rawArgs=CmdArgs{cliArgs'len'to(Int), cliArgs'addrof});
+    parsed := schema'parse(rawArgs=CmdArgs{cliArgs'len'to(Int), cliArgs'addrof});
 
     (equal) parsed'len, 3;
     (equal) parsed[0].name, "long";
@@ -158,7 +158,7 @@ def lsSchema() -> CliSchema {
     schema := 'gccLikeSchema;
 
     cliArgs := @{c"cc", c"program.c", c"-c", c"-o", c"prg.o", c"-W", c"all"};
-    parsed := schema'prs(rawArgs=CmdArgs{cliArgs'len'to(Int), cliArgs'addrof});
+    parsed := schema'parse(rawArgs=CmdArgs{cliArgs'len'to(Int), cliArgs'addrof});
 
     (equal) parsed'len, 4;
     (equal) parsed[0].name, "filename";
@@ -185,7 +185,7 @@ def lsSchema() -> CliSchema {
 #    schema := 'gitSchema;
 #
 #    cliArgs := @{c"git", c"push", c"origin", c"master"};
-#    parsed := schema'prs(rawArgs=CmdArgs{cliArgs'len'to(Int), cliArgs'addrof});
+#    parsed := schema'parse(rawArgs=CmdArgs{cliArgs'len'to(Int), cliArgs'addrof});
 #
 #    (equal) parsed'len, 3;
 #    (equal) parsed[0].name, "command";
@@ -230,7 +230,7 @@ def parsingFfmpeg~Test() {
         c"ffmpeg", c"-i", c"A.avi", c"-i", c",B.mp4", c"out1.mkv", c"out2.wav",
         c"-map", c"1:a", c"-c:a", c"copy", c"out3.mov"
     };
-    parsed := schema'prs(rawArgs=CmdArgs{cliArgs'len'to(Int), cliArgs'addrof});
+    parsed := schema'parse(rawArgs=CmdArgs{cliArgs'len'to(Int), cliArgs'addrof});
 
     (equal) parsed'len, 7;
 }
@@ -246,7 +246,7 @@ def parsingFfmpeg~Test() {
 #    expectedPtr: Ptr = args'addrof,
 #    expectedNum: Size = expected'len,
 #) {
-#    parsed := schema'prs(rawArgs=CmdArgs{argc, argv});
+#    parsed := schema'parse(rawArgs=CmdArgs{argc, argv});
 #
 #    (equal) parsed'len, expectedNum;
 #}
@@ -259,7 +259,7 @@ def parsingFfmpeg~Test() {
 
     cliArgs := @{c"./a.out"};
 
-    err := | schema'prs(CmdArgs{cliArgs'len'to(Int), cliArgs'addrof}) |;
+    err := | schema'parse(CmdArgs{cliArgs'len'to(Int), cliArgs'addrof}) |;
     (assert) err'to(Bool), "Parsing didn't fail despite missing pos arg";
 
     (equal) err.msg, "Missing positional parameter 'filename'";

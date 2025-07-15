@@ -1,5 +1,8 @@
-import libxy.array;
+import libc~[Clib{headers=@{"string.h", "stdio.h"}}] in c;
+import xy.sys;
 import libxy.string;
+import libxy.stdio;
+import libxy.array;
 import libxy.slice;
 
 *struct CliSchema {
@@ -28,14 +31,14 @@ import libxy.slice;
     command: Bool;
 }
 
-def config(schema: mut CliSchema, prefixLong := "--", prefixShort := "-") {
+*def config(schema: mut CliSchema, prefixLong := "--", prefixShort := "-") {
     schema .= {
         =prefixLong, =prefixShort,
         noShortGrouping= prefixLong != prefixShort
     };
 }
 
-def prog(schema: mut CliSchema, name := "", short := "", desc := "", epilog := "") {
+*def prog(schema: mut CliSchema, name := "", short := "", desc := "", epilog := "") {
     schema.name = name;
     schema.desc = desc;
     schema.epilog = epilog;
@@ -43,7 +46,7 @@ def prog(schema: mut CliSchema, name := "", short := "", desc := "", epilog := "
     schema.named'push(CliParam{"help", short=`h`, desc="show this help message and exit"});
 }
 
-def param(
+*def param(
     schema: mut CliSchema,
     name := "",
     short := Char{},
@@ -160,7 +163,7 @@ struct ParsingError {
     print("\n");
 }
 
-def prs(
+*def parse(
     schema: CliSchema, rawArgs := [Global~CmdArgs]
 ) -> Array~CliArg | ParsingError {
     stream : Array~CliArg;
