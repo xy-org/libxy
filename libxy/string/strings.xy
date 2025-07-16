@@ -86,7 +86,11 @@ def str~[StrCtor{prefix="", interpolation=false}] (
     return Str{s.addr + start, end - start};
 }
 
+;; Return true if string is empty
 *def empty(s: Str) s.len == 0;
+
+;; Retrun true if string is not empty
+*def any(s: Str) s.len != 0;
 
 *def cmp(str1: Str, str2: Str) -> Int {
     if (str1.len > str2.len) {

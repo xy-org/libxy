@@ -28,7 +28,7 @@ def ensureCapacity(
     }
 }
 
-*def push(
+*def append(
     arr: mut Array,
     elem: pseudo Any,
     elemMem: Ptr = elem'addrof,
@@ -40,6 +40,13 @@ def ensureCapacity(
     arr.mem[arr.len * elemSize +: elemSize] = elemMem;
     arr.len++;
 }
+
+*def push(
+    arr: mut Array,
+    elem: pseudo Any,
+    elemMem: Ptr = elem'addrof,
+    elemSize := sizeof(elem)
+) append(arr, elem, elemMem, elemSize);
 
 
 

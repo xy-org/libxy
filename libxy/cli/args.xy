@@ -78,105 +78,84 @@ def command(
 }
 
 *def append(fstr: mut Fstr, schema: CliSchema) {
-    if (schema.short.len > 0) {
-        fstr'append(schema.name);
-        fstr'append(" - ");
-        fstr'append(schema.short);
-        fstr'append("\n\n");
+    if (schema.short'any) {
+        fstr @= { schema.name, schema.short, "\n\n" };
     }
 
-    fstr'append("Usage: ");
-    fstr'append(schema.name);
+    fstr @= { "Usage: ", schema.name };
 
-    for (arg in schema.named) {
-        fstr'append(" ");
-        if (arg.nargs.start == 0) {
-            fstr'append("[");
+    for (param in schema.named) {
+        fstr @= " ";
+        if (param.nargs.start == 0) {
+            fstr @= "[";
         }
-        if (arg.short != Char{}) {
-            fstr'append("-");
-            fstr'append(arg.short);
+        if (param.short != Char{}) {
+            fstr @= { "-", param.short };
         } else {
-            fstr'append("--");
-            fstr'append(arg.name);
+            fstr @= { "--", param.name };
         }
-        if (arg.arg.len > 0) {
-            fstr'append(" <");
-            fstr'append(arg.arg);
-            fstr'append(">");
+        if (param.arg'any) {
+            fstr @= { " <", param.arg, ">" };
         }
-        if (arg.nargs.start == 0) {
-            fstr'append("]");
+        if (param.nargs.start == 0) {
+            fstr @= "]";
         }
     }
-    for (arg in schema.positional) {
-        fstr'append(" ");
-        if (arg.nargs.start == 0) {
-            fstr'append("[");
+    for (param in schema.positional) {
+        fstr @= " ";
+        if (param.nargs.start == 0) {
+            fstr @= "[";
         }
-        fstr'append("<");
-        fstr'append(arg.name);
-        fstr'append(">");
-        if (arg.nargs.start == 0) {
-            fstr'append("]");
+        fstr @= { "<", param.name, ">" };
+        if (param.nargs.start == 0) {
+            fstr @= "]";
         }
     }
-    fstr'append("\n");
+    fstr @= "\n";
 
     if (schema.desc.len > 0) {
-        fstr'append("\n");
-        fstr'append(schema.desc);
-        fstr'append("\n");
+        fstr @= { "\n", schema.desc, "\n" };
     }
 
     ;; print positional
     if (schema.positional'len > 0) {
-        fstr'append("\nPositional Arguments:\n");
+        fstr @= "\nPositional Arguments:\n";
     }
-    for (arg in schema.positional) {
-        fstr'append("  ");
-        if (arg.arg.len > 0) {
-            fstr'append("<");
-            fstr'append(arg.name);
-            fstr'append(">");
+    for (param in schema.positional) {
+        fstr @= "  ";
+        if (param.arg.len > 0) {
+            fstr @= { "<", param.name, ">" };
         }
-        if (arg.desc.len > 0) {
-            fstr'append(" - ");
-            fstr'append(arg.desc);
+        if (param.desc.len > 0) {
+            fstr @= { " - ", param.desc };
         }
-        fstr'append("\n");
+        fstr @= "\n";
     }
 
     ;; print named a.k.a. options
     if (schema.named'len > 0) {
-        fstr'append("\nOptions:\n");
+        fstr @= "\nOptions:\n";
     }
-    for (arg in schema.named) {
-        fstr'append("  ");
-        if (arg.short != Char{}) {
-            fstr'append("-");
-            fstr'append(arg.short);
-            if (arg.name.len > 0) {
-                fstr'append(", ");
+    for (param in schema.named) {
+        fstr @= "  ";
+        if (param.short != Char{}) {
+            fstr @= { "-", param.short };
+            if (param.name'any) {
+                fstr @= ", ";
             }
         }
-        if (arg.name.len > 0) {
-            fstr'append("--");
-            fstr'append(arg.name);
+        if (param.name'any) {
+            fstr @= { "--", param.name };
         }
-        if (arg.arg.len > 0) {
-            fstr'append(" <");
-            fstr'append(arg.arg);
-            fstr'append(">");
+        if (param.arg.len > 0) {
+            fstr @= { " <", param.arg, ">" };
         }
-        fstr'append("\n");
+        fstr @= "\n";
     }
 
     ;; epilog if any
     if (schema.epilog.len > 0) {
-        fstr'append("\n");
-        fstr'append(schema.epilog);
-        fstr'append("\n");
+        fstr @= { "\n", schema.epilog, "\n" };
     }
 }
 
@@ -235,11 +214,11 @@ struct ParsingError {
             }
 
             if (schema.named[paramIdx].arg'empty) {
-                stream'push(CliArg{
+                stream @= CliArg {
                     name=schema.named[paramIdx].name,
                     value=""~MemExt,
                     # dataIdx=schema.named[paramIdx].dataIdx,
-                });
+                };
                 nargsNamed[paramIdx]++;
             } else {
                 namedParamIdx = paramIdx;
