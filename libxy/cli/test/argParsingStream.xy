@@ -3,8 +3,7 @@ import xytest;
 import libxy.(array, cli, string, slice);
 
 *def helpMsg1~Test() {
-    schema : mut = CliSchema{
-    };
+    schema : mut = CliSchema{};
     schema'prog(
         "ProgramName",
         desc="What the program does",
@@ -32,9 +31,10 @@ import libxy.(array, cli, string, slice);
 }
 
 *def helpMsg2~Test() {
-    schema: CliSchema;
-    schema'prog("xytest", desc="Discover and Run Tests");
-    schema'param("dir", .positional);
+    schema := CliSchema {
+        'prog("xytest", desc="Discover and Run Tests"),
+        'param("dir", .positional),
+    };
 
     (equal) f"{schema}", """
     Usage: xytest [--help] <dir>
@@ -50,8 +50,9 @@ import libxy.(array, cli, string, slice);
 }
 
 *def autoHelp~Test() {
-    schema : CliSchema;
-    schema'param("filename", .positional);
+    schema := CliSchema {
+        'param("filename", .positional),
+    };
 
     cliArgs := @{c"./a.out", c"--help"};
     err := | schema'parse(
@@ -62,10 +63,10 @@ import libxy.(array, cli, string, slice);
 }
 
 *def parsingOnePosArg~Test() {
-    schema : mut = CliSchema{
+    schema := CliSchema {
+        'prog("ProgramName"),
+        'param("filename", .positional),
     };
-    schema'prog("ProgramName");
-    schema'param("filename", .positional);
 
     cliArgs := @{c"./a.out", c"myfile.txt"};
     parsed := schema'parse(rawArgs=CmdArgs{cliArgs'len'to(Int), cliArgs'addrof});
@@ -76,11 +77,11 @@ import libxy.(array, cli, string, slice);
 }
 
 *def parsingTwoPositional~Test() {
-    schema : mut = CliSchema{
+    schema := CliSchema {
+        'prog("ProgramName"),
+        'param("fileA", .positional),
+        'param("fileB", .positional),
     };
-    schema'prog("ProgramName");
-    schema'param("fileA", .positional);
-    schema'param("fileB", .positional);
 
     cliArgs := @{c"./a.out", c"file1.txt", c"file2.txt"};
     parsed := schema'parse(rawArgs=CmdArgs{cliArgs'len'to(Int), cliArgs'addrof});
@@ -92,16 +93,13 @@ import libxy.(array, cli, string, slice);
     (equal) parsed[1].value, "file2.txt";
 }
 
-def lsSchema() -> CliSchema {
-    schema : mut = CliSchema{
-    };
-    schema'prog("ls");
-    schema'param("long", `l`, arg="");
-    schema'param("all", `a`, arg="");
-    schema'param("reverse", `r`, arg="");
-    schema'param("files", .positional, nargs=0:, .greedy);
-    return schema;
-}
+def lsSchema() = CliSchema {
+    'prog("ls"),
+    'param("long", `l`, arg=""),
+    'param("all", `a`, arg=""),
+    'param("reverse", `r`, arg=""),
+    'param("files", .positional, nargs=0:, .greedy),
+};
 
 *def parsingLs1~Test() {
     schema := 'lsSchema;
@@ -170,19 +168,16 @@ def lsSchema() -> CliSchema {
     (equal) parsed[2].value, "-ar";
 }
 
--def gccLikeSchema() -> CliSchema {
-    ;; Note: all the idiosyncrasies of gcc cannot be exactly represented
-    ;; -W<warnings> or -L<dir> cannot be represented
+-def gccLikeSchema() = CliSchema {
+    #;; Note: not all of gcc idiosyncrasies can be exactly represented
+    #;; -W<warnings> or -L<dir> cannot be represented
 
-    schema: CliSchema;
-    schema'config(prefixLong="-", prefixShort="-");
-    schema'param("filename", .positional, nargs=1:2);
-    schema'param("compile-only", short=`c`, arg="");
-    schema'param("output", short=`o`, arg="file");
-    schema'param("warning", short=`W`, arg="warning");
-
-    return schema;
-}
+    'config(prefixLong="-", prefixShort="-"),
+    'param("filename", .positional, nargs=1:2),
+    'param("compile-only", short=`c`, arg=""),
+    'param("output", short=`o`, arg="file"),
+    'param("warning", short=`W`, arg="warning"),
+};
 
 *def parsingGccLike1~Test() {
     schema := 'gccLikeSchema;
@@ -226,16 +221,13 @@ def lsSchema() -> CliSchema {
 #    (equal) parsed[2].value, "master";
 #}
 
--def ffmpegSchema() -> CliSchema {
-    schema: CliSchema;
-    schema'config(prefixLong="-", prefixShort="-");
-    schema'param("input", `i`, nargs=1:);
-    schema'param("output", .positional);
-    schema'param("map", nargs=0:);
-    schema'param("-c:a");
-
-    return schema;
-}
+-def ffmpegSchema() = CliSchema {
+    'config(prefixLong="-", prefixShort="-"),
+    'param("input", `i`, nargs=1:),
+    'param("output", .positional),
+    'param("map", nargs=0:),
+    'param("-c:a"),
+};
 
 def parsingFfmpeg~Test() {
     #testParsing(
@@ -282,10 +274,10 @@ def parsingFfmpeg~Test() {
 #}
 
 *def parsingOnePosArgErr~Test() {
-    schema : mut = CliSchema{
+    schema := CliSchema {
+        'prog("ProgramName"),
+        'param("filename", .positional),
     };
-    schema'prog("ProgramName");
-    schema'param("filename", .positional);
 
     cliArgs := @{c"./a.out"};
 
