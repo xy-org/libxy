@@ -36,6 +36,10 @@ import libxy.(string, flag, error);
 ;; Struct representing a file handle.
 *struct File {
     fd: Int = -1;
+
+    ;; Whether or not the file descriptor is blocking
+    ;; Note - getting/setting this field require a syscall
+    blocking : pseudo = BlockingField{};
 }
 
 ;; Open a file
@@ -85,6 +89,16 @@ inlinec"""
     return File{fd};
 }
 
+;; Dup {file} i.e. make a shollow copy of the file descriptor
+;; No actual bytes get copied on the filesystem
+*def copy(file: File) -> File | SystemError {
+    newFd : Int = c.dup(file.fd);
+    if (newFd < 0) {
+        error SystemError{c.errno};
+    }
+    return File{newFd};
+}
+
 *def write(file: File, str: Str) -> void | SystemError {
     total : mut Size;
     do {
@@ -122,13 +136,42 @@ inlinec"""
         fstr'ensureCap(4098z);
         res = c.read(file.fd, fstr.mem.addr + fstr.len, fstr'capacity);
         if (inlinec"{res} < 0") {
-            eno : Int = c.errno;
-            if (inlinec"{eno} == EAGAIN || {eno} == EWOULDBLOCK") break;
-            error SystemError{c.errno};
+            errno : Int = c.errno;
+            if (inlinec"{errno} == EAGAIN || {errno} == EWOULDBLOCK") break;
+            error SystemError{errno};
         }
 
         fstr.len += Size{inlinec"{res}"};
     } while (inlinec"{res} > 0");
+}
+
+-struct BlockingField{}
+
+*def get(file: File, :BlockingField) -> Bool | SystemError {
+    flags: Int = c.fcntl(file.fd, c.F_GETFL);
+    if (flags < 0) {
+        error SystemError{c.errno};
+    }
+
+    return inlinec"({flags} & O_NONBLOCK) == 0";
+}
+
+*def set(file: File, :BlockingField, toggle: Bool) -> void | SystemError {
+    flags: mut Int = c.fcntl(file.fd, c.F_GETFL);
+    if (flags < 0) {
+        error SystemError{c.errno};
+    }
+
+    if (toggle) {
+        inlinec"{flags} &= ~O_NONBLOCK";
+    } else {
+        inlinec"{flags} |= O_NONBLOCK";
+    }
+
+    err : Int = c.fcntl(file.fd, c.F_SETFL, flags);
+    if (err < 0) {
+         error SystemError{c.errno};
+    }
 }
 
 *def dtor(f: File) {

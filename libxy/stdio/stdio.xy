@@ -3,10 +3,13 @@ import libxy.string;
 import libxy.error;
 import libxy.fs;
 
-stdout := File{fd=1};
-stderr := File{fd=2};
+struct StdIo {
+    stdin  := File{fd=0};
+    stdout := File{fd=1};
+    stderr := File{fd=2};
+}
 
 ;; Prints `msg` to standard output
-*def print(msg: Str) -> void {
-    stdout'write(msg);
+*def print(msg: Str, file := [Global~StdIo].stdout) -> void {
+    file'write(msg);
 }

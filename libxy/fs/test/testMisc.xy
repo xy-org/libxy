@@ -1,0 +1,7 @@
+*def blocking~Test() {
+    file := openTmp();
+    (assert) file.blocking;
+
+    file.blocking = false;
+    (assert) !file.blocking;
+}
