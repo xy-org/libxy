@@ -1,5 +1,5 @@
 import xytest;
-import libxy.(string, log, fs, error);
+import libxy.(string, log, fs);
 
 *def logginDefaultConfig~Test() {
     tmpFile := openTmp();
