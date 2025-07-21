@@ -2,15 +2,15 @@ import libxy.fs;
 import xy.ctti;
 import libxy.memory;
 
-*def readFile~Test() {
+*def reading~Test() {
     file := open('fileof, .readOnly);
-    #content := file'read(.text);
-    #checkContent(content);
+    content := f"{file}";
+    checkContent(content);
 }
 
 def checkContent(content: Str) {
-    #(assert) content'len > 100;
-    #(assert) content'startswith("import");
+    (assert) content'len > 100;
+    (assert) content'startswith("import");
 }
 
 #def mmapFile~Test() {
@@ -22,7 +22,7 @@ def checkContent(content: Str) {
 #
 #def readByChunks~Test() {
 #    file := open('fileof, .read);
-#    
+#
 #    buffer: Memory;
 #    buffer'realloc(64);; intentionally allocate a small buffer
 #
