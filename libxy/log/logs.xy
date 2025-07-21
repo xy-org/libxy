@@ -1,0 +1,67 @@
+import libxy.(string, fs, error);
+
+*logLevelFatal   := 30;
+*logLevelError   := 20;
+*logLevelWarn    := 10;
+*logLevelInfo    := 0;
+*logLevelVerbose := -10;
+*logLevelDebug   := -20;
+*logLevelTrace   := -30;
+
+;; Disable and compile out messages with level lower than that one
+*minLogLevel := logLevelTrace;
+
+*defaultLogLevel := logLevelInfo;
+
+*struct Log {
+    ;; The higher the more importaint the log message
+    level: Int = logLevelInfo;
+
+    file: File = File{1};
+    fileOwned: Bool;
+}
+
+*def dtor(log: mut Log) {
+    if (!log.fileOwned) {
+        log.file.fd = -1;
+    }
+}
+
+*def fatal(^msg: Str, log := [Global~Log]) =
+    log(log, logLevelFatal, msg);
+
+*def err(^msg: Str, log := [Global~Log]) =
+    log(log, logLevelError, msg);
+
+*def warn(^msg: Str, log := [Global~Log]) =
+    log(log, logLevelWarn, msg);
+
+*def info(^msg: Str, log := [Global~Log]) =
+    log(log, logLevelInfo, msg);
+
+*def verbose(^msg: Str, log := [Global~Log]) =
+    log(log, logLevelVerbose, msg);
+
+*def v(^msg: Str, log := [Global~Log]) =
+    log(log, logLevelVerbose, msg);
+
+*def vv(^msg: Str, log := [Global~Log]) =
+    log(log, logLevelVerbose - 1, msg);
+
+*def vvv(^msg: Str, log := [Global~Log]) =
+    log(log, logLevelVerbose - 2, msg);
+
+*def debug(^msg: Str, log := [Global~Log]) =
+    log(log, logLevelDebug, msg);
+
+
+def log(log: Log, level: Int, ^msg: Str) =
+if (log.level <= level) {
+    log'doLog(level, msg);
+};
+
+# TODO make this private
+def doLog(log: Log, level: Int, msg: Str) {
+    log.file'write(msg);
+    log.file'write("\n");
+}

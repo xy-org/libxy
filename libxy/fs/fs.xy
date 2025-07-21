@@ -64,6 +64,27 @@ import libxy.(string, flag, error);
     return File{fd};
 }
 
+
+;; Create and open a temporary file for reading and writing.
+;; When closed the file will auto delete
+*def openTmp() -> File | SystemError {
+    fd : Int;
+
+inlinec"""
+#ifdef O_TMPFILE
+    {fd} = open(\"/tmp\", O_TMPFILE | O_RDWR, S_IRUSR | S_IWUSR);
+#else
+    char _l_var_template_[] = \"/tmp/tmp.XXXXXX\";
+    {fd} = mkstemp(_l_var_template_);
+    if ({fd} >= 0) unlink(_l_var_template_);
+#endif";
+
+    if (fd < 0) {
+        error SystemError{c.errno};
+    }
+    return File{fd};
+}
+
 *def write(file: File, str: Str) -> void | SystemError {
     total : mut Size;
     do {
@@ -78,6 +99,13 @@ import libxy.(string, flag, error);
     } while (total < str.len);
 }
 
+*def seek(file: File, offset: (Int, Size)) -> void | SystemError {
+    res: c.off_t = c.lseek(file.fd, offset, c.SEEK_SET);
+    if (inlinec"{res} == (off_t) -1") {
+        error SystemError{c.errno};
+    }
+}
+
 *def close(file: File) -> void | SystemError {
     if (file.fd >= 0) {
         res: Int = c.close(file.fd);
@@ -85,6 +113,22 @@ import libxy.(string, flag, error);
             error SystemError{c.errno};
         }
     }
+}
+
+;; Read from {file} into {fstr} untile EoF, EAGAIN, EWOULDBLOCK
+*def append(fstr: mut Fstr, file: File) -> void {
+    res : c.ssize_t;
+    do {
+        fstr'ensureCap(4098z);
+        res = c.read(file.fd, fstr.mem.addr + fstr.len, fstr'capacity);
+        if (inlinec"{res} < 0") {
+            eno : Int = c.errno;
+            if (inlinec"{eno} == EAGAIN || {eno} == EWOULDBLOCK") break;
+            error SystemError{c.errno};
+        }
+
+        fstr.len += Size{inlinec"{res}"};
+    } while (inlinec"{res} > 0");
 }
 
 *def dtor(f: File) {

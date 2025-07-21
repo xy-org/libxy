@@ -1,0 +1,50 @@
+import xytest;
+import libxy.(string, log, fs, error);
+
+*def logginDefaultConfig~Test() {
+    tmpFile := openTmp();
+    [Global~Log] = Log {
+        file=tmpFile,
+    };
+
+
+    (info) "Info Msg";
+    (err) "Err Msg";
+    (verbose) "Verbose Msg";
+
+    tmpFile'seek(0);
+    (equal) f"{tmpFile}", "Info Msg\nErr Msg\n";
+}
+
+*def simpleLogging~Test() {
+    tmpFile := openTmp();
+    [Global~Log] = Log {
+        level=logLevelVerbose,
+        file=tmpFile,
+    };
+
+    (v) "Verbose Msg1";
+    (v) "Verbose Msg2";
+
+    tmpFile'seek(0);
+    (equal) f"{tmpFile}", "Verbose Msg1\nVerbose Msg2\n";
+}
+
+struct Marker {
+    touched : Bool;
+}
+
+def append(fstr: mut Fstr, m: mut Marker) {
+    m.touched = true;
+}
+
+*def msgIsLazy~Test() {
+    [Global~Log] = Log {
+        file=openTmp(),
+    };
+
+    m : mut Marker;
+    (debug) f"marker={m}";
+
+    (assert) !m.touched;
+}
