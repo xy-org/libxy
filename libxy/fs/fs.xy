@@ -130,7 +130,7 @@ inlinec"""
 }
 
 ;; Read from {file} into {fstr} untile EoF, EAGAIN, EWOULDBLOCK
-*def append(fstr: mut Fstr, file: File) -> void {
+*def read(file: File, fstr: mut Fstr) -> void | SystemError {
     res : c.ssize_t;
     do {
         fstr'ensureCap(4098z);
@@ -144,6 +144,9 @@ inlinec"""
         fstr.len += Size{inlinec"{res}"};
     } while (inlinec"{res} > 0");
 }
+
+;; ...
+*def append(fstr: mut Fstr, file: File) = file'read(fstr);
 
 -struct BlockingField{}
 
