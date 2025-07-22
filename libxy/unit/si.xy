@@ -82,6 +82,12 @@ struct kat~[TagCtor{label="units"}] {}
 ;; Nano seconds
 struct ns~[TagCtor{label="units"}] {}
 
+;; Milli seconds
+struct ms~[TagCtor{label="units"}] {}
+
+;; Micro seconds
+struct us~[TagCtor{label="units"}] {}
+
 # Other common units
 
 struct m2~[TagCtor{label="units"}] {}

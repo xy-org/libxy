@@ -27,8 +27,33 @@ def timestamp() -> Timestamp {
     ts: inlinec"struct timespec";
     err : Int = inlinec"clock_gettime(CLOCK_REALTIME, &{ts})";
     if (err != 0) {
-        error SystemError{c.errno}; 
+        error SystemError{c.errno};
     }
     nsec: Ulong~ns = inlinec"(uintmax_t){ts}.tv_sec * 1000000000 + (uintmax_t){ts}.tv_nsec";
     return Timestamp{nsec};
 }
+
+;; Suspend current thread for {duration}
+;; The unit of time is determined based on {duration}..unit
+*def sleep(duration: (Int, Long)) =
+    sleep(duration'to(Long), duration..(units, UnknownDurationUnit));
+
+*def sleep(duration: Long, :ns) {
+    ts: inlinec"struct timespec";
+    inlinec"""
+        {ts}.tv_sec = {duration} / 1000000000;
+        {ts}.tv_nsec = {duration} % 1000000000;
+    ";
+
+    c.nanosleep(ts'addrof, c.NULL);; Ignore result intentionally
+}
+
+*def sleep(duration: Long, :us) = sleep(duration * 1000l, ns);
+
+*def sleep(duration: Long, :ms) = sleep(duration * 1000_000l, ns);
+
+*def sleep(duration: Long, :s) = sleep(duration * 1000_000_000l, ns);
+
+-struct UnknownDurationUnit {}
+*def sleep(duration: Long, :UnknownDurationUnit) =
+    break "Unknown sleep duration unit. Tag duration with the required unit";
