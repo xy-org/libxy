@@ -16,11 +16,11 @@ import libxy.flag;
 
     cursor: CursorControl;
     clear: ClearMode;
-    erase: EraseMode;
     screenBuffer: ScreenBufferControl;
 
-    bracketedPasteEnum : Byte;; > 0 for turn on; < 0 for turn off;
-    bracketedpaste : pseudo = BracketedPaste{};
+    ;; If turned on, text pasted into the terminal will be surrounded by
+    ;; \033[200~ and \033[201~
+    bracketedPaste : bracketedPasteMode;
 
     ;; Select Graphic Rendition section
 
@@ -56,24 +56,27 @@ struct CursorControl {
 }
 
 struct ScreenBufferControl {
-    alternate := false;; enable alternate screen buffer
+    alternative := false;; enable alternative screen buffer
     normal := false;; restore normal screen buffer
 }
 
 struct ClearMode {
+    ;; Clear in Screen
     toEndOfScreen := false;
     toBeginningOfScreen := false;
     screen := false;
     screenAndScrollback := false;
-}
 
-struct EraseMode {
+    ;; Clear in Line
     toEndOfLine := false;
     toBeginningOfLine := false;
     line := false;
 }
 
-struct BracketedPaste {}
+struct bracketedPasteMode {
+    on: Bool;
+    off: Bool;
+}
 
 ;; Info about a color on the terminals
 *struct Color {
@@ -140,6 +143,15 @@ struct IndexColor8Bit {}
 
 *def append(fstr: mut Fstr, esc: Esc, enabled: Bool = true) {
     if (!enabled) return;
+
+    esc'appendSgr(fstr);
+    esc'appendCursorControl(fstr);
+    esc'appendClearMode(fstr);
+    esc'appendScreenBuffer(fstr);
+    esc'appendPasteMode(fstr);
+}
+
+-def appendSgr(esc: Esc, fstr: mut Fstr) {
     if (esc.sgrFlags == 0 && esc.bg.mode.none && esc.fg.mode.none) return;
 
     fstr'append("\033[");
@@ -191,4 +203,79 @@ struct IndexColor8Bit {}
 
     fstr'backtrack(1u);; the trailing ';'
     fstr'append("m");
+}
+
+-def abs(i: Int) if (i >= 0) i else -i;
+
+-def appendCursorControl(esc: Esc, fstr: mut Fstr) {
+    if (esc.cursor.up != 0) {
+        fstr @= {
+            "\033[", esc.cursor.up'abs,
+            if (esc.cursor.up > 0) "A" else "B",
+        };
+    }
+    if (esc.cursor.left != 0) {
+        fstr @= {
+            "\033[", esc.cursor.left'abs,
+            if (esc.cursor.left > 0) "D" else "C",
+        };
+    }
+
+    if (esc.cursor.x > 0 && esc.cursor.y > 0) {
+        fstr @= { "\033[", esc.cursor.y, ";", esc.cursor.x, "H" };
+    } elif (esc.cursor.x > 0) {
+        fstr @= { "\033[", esc.cursor.x, "G" };
+    } elif (esc.cursor.y > 0) {
+        # TODO now what ? I
+    }
+
+    if (esc.cursor.save) {
+        fstr @= "\0337";
+    }
+    if (esc.cursor.restore) {
+        fstr @= "\0338";
+    }
+}
+
+-def appendClearMode(esc: Esc, fstr: mut Fstr) {
+    if (esc.clear.toEndOfScreen) {
+        fstr @= "\033[0J";
+    }
+    if (esc.clear.toBeginningOfScreen) {
+        fstr @= "\033[1J";
+    }
+    if (esc.clear.screen) {
+        fstr @= "\033[2J";
+    }
+    if (esc.clear.screenAndScrollback) {
+        fstr @= "\033[3J";
+    }
+
+    if (esc.clear.toEndOfLine) {
+        fstr @= "\033[0K";
+    }
+    if (esc.clear.toBeginningOfLine) {
+        fstr @= "\033[1K";
+    }
+    if (esc.clear.line) {
+        fstr @= "\033[2K";
+    }
+}
+
+-def appendScreenBuffer(esc: Esc, fstr: mut Fstr) {
+    if (esc.screenBuffer.alternative) {
+        fstr @= "\033[?1049h";
+    }
+    if (esc.screenBuffer.normal) {
+        fstr @= "\033[?1049l";
+    }
+}
+
+-def appendPasteMode(esc: Esc, fstr: mut Fstr) {
+    if (esc.bracketedPaste.on) {
+        fstr @= "\033[?2004h";
+    }
+    if (esc.bracketedPaste.on) {
+        fstr @= "\033[?2004l";
+    }
 }

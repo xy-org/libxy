@@ -12,6 +12,10 @@ import libxy.flag;
     (assert) f"{Esc{.bold, fg=Color{.green}}}" == "\033[1;32m";
 }
 
+*def alternativeBuffer~Test() {
+    (assert) f"{Esc{.screenBuffer.alternative}}" == "\033[?1049h";
+}
+
 # TODO;
 # *def movingCursor~Test() {
 # }
