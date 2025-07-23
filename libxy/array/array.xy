@@ -48,10 +48,15 @@ def ensureCapacity(
     elemSize := sizeof(elem)
 ) append(arr, elem, elemMem, elemSize);
 
-
+*def pop(arr: mut Array) {
+    # TODO call dtor;
+    if (arr.len > 0) {
+        arr.len--;
+    }
+}
 
 *def get(
-    arr: Array, i: (Size, Int),
+    arr: Array, i: (Size, Int, Uint),
     elemSize : Size = sizeof(arr..elemType)
 ) -> arr[ Ptr~[^arr..elemType] ]
 >> i'to(Size) < arr'len
