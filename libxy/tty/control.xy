@@ -1,6 +1,6 @@
 ;; Attributes
 
-import posix~[Clib{headers=@{"unistd.h", "termios.h"}}] in c;
+import posix~[Clib{headers=@{"unistd.h", "termios.h", "sys/ioctl.h"}}] in c;
 import libxy.(fs, error);
 
 *struct TtyAttrs {
@@ -25,6 +25,20 @@ import libxy.(fs, error);
     if (res < 0) {
         error SystemError{c.errno};
     }
+}
+
+*struct TtySize {
+    width: Uint;
+    height: Uint;
+}
+
+*def ttySize(f: File) -> TtySize | SystemError {
+    winsize: inlinec"struct winsize";
+    err: Int = c.ioctl(f.fd, c.TIOCGWINSZ, winsize'addrof);
+    if (err < 0) {
+        error SystemError{c.errno};
+    }
+    return TtySize{ inlinec"{winsize}.ws_col", inlinec"{winsize}.ws_row" };
 }
 
 -struct RawAttr {}
