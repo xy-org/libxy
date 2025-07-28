@@ -39,9 +39,44 @@ import xytest;
     expr := @{`A`, `Б`, `く`, `Δ`};
     i : Int;
     for (c in str'chars) {
-        (assert) expr[i] == c;
+        (equal) expr[i], c;
         i++;
     }
     charLen := i;
-    (assert) charLen == 4;
+    (equal) charLen, 4;
+}
+
+*def iteratingWords~Test() {
+    testSplitIter("word1 word2\nword3", @{"word1", "word2", "word3"});
+}
+
+*def splitting~Test() {
+    i : Size;
+    for (word in ""'split) {
+        i++;
+    }
+    (equal) i, 0z;
+
+    for (word in "   "'split) {
+        i++;
+    }
+    (equal) i, 0z;
+
+    for (word in "\{\n}?"'split) {
+        i++;
+    }
+    (equal) i, 2z;
+}
+
+-def testSplitIter(
+    str: Str, exp: pseudo @Str[],
+    expAddr : Ptr~Str = exp'addrof, expLen : Size = exp'len
+) -> void {
+    i : Size;
+    for (word in str'split) {
+        (equal) [expAddr + i], word;
+        i++;
+    }
+    wordLen := i;
+    (equal) wordLen, expLen;
 }

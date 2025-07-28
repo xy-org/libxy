@@ -136,7 +136,7 @@ def nullTerminated(str: Str, :MemExt) false;
 }
 
 struct CharIter {
-    i: Size;; byte-offset of the code pointer after {char} in string
+    i: Size;; byte-offset of the code point after {char} in string
     char: Char;; character at that offset
 }
 
@@ -198,4 +198,47 @@ def decode(s: Str, i: mut Size) -> Char {
     }
 
     return cp'to(Char);
+}
+
+
+;; Split by (white)space characters
+*def split~IterCtor(str: Str) -> str[ SplitIter ] {
+    si: mut = SplitIter{.valid};
+    next(str, si);
+    return si;
+}
+
+*def valid(str: Str, iter: SplitIter) = iter.valid;
+
+*def get(str: Str, iter: SplitIter) = iter.word;
+
+*def next(str: Str, iter: mut SplitIter) {
+    istart := do -> (istart: Size) {
+        istart = iter.ichar.i;
+        next(str, iter.ichar);
+        if (!valid(str, iter.ichar)) {
+            !.iter.valid;
+            return;
+        }
+    } while (str[iter.ichar]'space);
+
+    iend := do -> (iend: Size) {
+        iend = iter.ichar.i;
+        next(str, iter.ichar);
+        if (!valid(str, iter.ichar)) {
+            break;
+        }
+    } while (!str[iter.ichar]'space);
+
+    iter.word = Str~MemExt{str.addr + istart, iend - istart};
+}
+
+struct SplitIter {
+    ichar: CharIter;
+    word: Str~MemExt;
+    valid: Bool;
+}
+
+*def space(ch: Char) -> Bool {
+    return ch == `\n` || ch == ` `;
 }
