@@ -9,7 +9,7 @@ import libxy.memory;
 }
 
 def checkContent(content: Str) {
-    (assert) content'len > 100;
+    (assert) content.size > 100;
     (assert) content'startswith("import");
 }
 

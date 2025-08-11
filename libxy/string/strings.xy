@@ -22,7 +22,7 @@ struct MemStatic {}
 ;; A UTF-8 encoded string
 *struct Str~[memory :struct = MemManaged] {
     addr: Ptr~Byte;
-    len: Size;
+    size: Size;; The byte-length of the string as encoding in UTF-8
 }
 
 *def dtor(str: Str) dtor(str, str..memory);
@@ -40,11 +40,8 @@ def str~[StrCtor{prefix="", interpolation=false}] (
     addr: Ptr, size: Size
 ) Str~MemStatic{addr, size};
 
-;; The byte-length of the string as encoding in UTF-8
-*def len(s: Str) s.len;
-
 *def get(s: Str, i: Size) -> Byte
->> i < s'len
+>> i < s.size
 {
     return [(s.addr)~[to=Byte] + i];
 }
@@ -54,12 +51,12 @@ def str~[StrCtor{prefix="", interpolation=false}] (
 *def count(s: Str) -> Size {
     res : Size;
     i : Size;
-    while (i < s.len) {
+    while (i < s.size) {
         leadingOnes := s[i]'bits'countLeadingOnes;
         res++;
         i++;
         if (leadingOnes >= 2 && leadingOnes <= 4) {
-            contBytes := min((leadingOnes - 1)'to(Size), s.len - i);
+            contBytes := min((leadingOnes - 1)'to(Size), s.size - i);
             for (_ in 0:contBytes) {
                 contOnes := s[i]'bits'countLeadingOnes;
                 if (contOnes != 1 && contOnes <= 4) {
@@ -81,39 +78,39 @@ def str~[StrCtor{prefix="", interpolation=false}] (
 *def get(s: Str, int: (IntInterval, SizeInterval)) -> Str~MemExt
 >> int.start >= 0 && int.start <= int.end
 {
-    start := min(int.start'to(Size), s.len);
-    end := min(int.end'to(Size), s.len);
+    start := min(int.start'to(Size), s.size);
+    end := min(int.end'to(Size), s.size);
     return Str{s.addr + start, end - start};
 }
 
 ;; Return true if string is empty
-*def empty(s: Str) s.len == 0;
+*def empty(s: Str) s.size == 0;
 
 ;; Retrun true if string is not empty
-*def any(s: Str) s.len != 0;
+*def any(s: Str) s.size != 0;
 
 *def cmp(str1: Str, str2: Str) -> Int {
-    if (str1.len > str2.len) {
+    if (str1.size > str2.size) {
         return 1;
-    } elif (str1.len < str2.len) {
+    } elif (str1.size < str2.size) {
         return -1;
     }
-    return c.strncmp(str1.addr~[c.char], str2.addr~[c.char], str1.len);
+    return c.strncmp(str1.addr~[c.char], str2.addr~[c.char], str1.size);
 }
 
 *def startswith(str: Str, prefix: Str) -> Bool {
-    if (prefix.len > str.len) {
+    if (prefix.size > str.size) {
         return false;
     }
-    strncmpRes: Int = c.strncmp(str.addr~[c.char], prefix.addr~[c.char], prefix.len);
+    strncmpRes: Int = c.strncmp(str.addr~[c.char], prefix.addr~[c.char], prefix.size);
     return strncmpRes == 0;
 }
 
 *def endswith(str: Str, suffix: Str) -> Bool {
-    if (suffix.len > str.len) {
+    if (suffix.size > str.size) {
         return false;
     }
-    strncmpRes: Int = c.strncmp(str.addr~[c.char] + (str.len - suffix.len), suffix.addr~[c.char], suffix.len);
+    strncmpRes: Int = c.strncmp(str.addr~[c.char] + (str.size - suffix.size), suffix.addr~[c.char], suffix.size);
     return strncmpRes == 0;
 }
 
@@ -129,10 +126,10 @@ def nullTerminated(str: Str, :MemExt) false;
 
 *def copy(str: Str) -> Str {
     newmem : Memory;
-    newmem'realloc(str.len + 1);
-    c.memcpy(newmem.addr, str.addr, str.len);
-    [newmem.addr + str.len] = 0;; add terminating \0
-    return Str{addr=newmem.addr, len=str.len};
+    newmem'realloc(str.size + 1);
+    c.memcpy(newmem.addr, str.addr, str.size);
+    [newmem.addr + str.size] = 0;; add terminating \0
+    return Str{addr=newmem.addr, size=str.size};
 }
 
 struct CharIter {
@@ -158,7 +155,7 @@ struct CharIter {
 }
 
 def decode(s: Str, i: mut Size) -> Char {
-    if (i >= s.len) {
+    if (i >= s.size) {
         return (-1)'to(Char);
     }
 
@@ -169,7 +166,7 @@ def decode(s: Str, i: mut Size) -> Char {
 
     if (leadingOnes >= 2 && leadingOnes <= 4) {
         cp'bits = 0xFF'bits'shiftr(leadingOnes+1) && leadingByte'bits'to(Bits32);
-        contBytes := min((leadingOnes - 1)'to(Size), s.len - i);
+        contBytes := min((leadingOnes - 1)'to(Size), s.size - i);
         for (_ in 0:contBytes) {
             contOnes := s[i]'bits'countLeadingOnes;
             if (contOnes == 1) {

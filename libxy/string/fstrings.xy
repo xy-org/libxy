@@ -33,7 +33,7 @@ def ensureCap(builder: mut Fstr, requiredCap: Size) {
 }
 
 *def append(builder: mut Fstr, str: Str) {
-    builder'append(str.addr, str.len);
+    builder'append(str.addr, str.size);
 }
 
 *def append(builder: mut Fstr, str: Fstr) {

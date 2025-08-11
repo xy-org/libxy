@@ -13,7 +13,7 @@ pathSeparator := `/`;
     ;; ascii code-point is required for performance reasons.
     separator: Byte = pathSeparator'to(Byte)
 ) -> path[ SizeInterval ] {
-    dirLen : mut = path'len;
+    dirLen : mut = path.size;
 
     # strip trailing /
     while (dirLen >= 2 && path[dirLen-1] == separator) dirLen--;

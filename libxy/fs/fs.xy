@@ -104,13 +104,13 @@ inlinec"""
     do {
         # TODO use c.ssize_t
         written : c.ssize_t = c.write(
-            file.fd, str.addr + total, str.len - total
+            file.fd, str.addr + total, str.size - total
         );
         if (inlinec"{written} < 0") {
             error SystemError{c.errno};
         }
         inlinec"{total} += {written}";
-    } while (total < str.len);
+    } while (total < str.size);
 }
 
 *def seek(file: File, offset: (Int, Size)) -> void | SystemError {

@@ -113,7 +113,7 @@ def command(
     }
     fstr @= "\n";
 
-    if (schema.desc.len > 0) {
+    if (schema.desc.size > 0) {
         fstr @= { "\n", schema.desc, "\n" };
     }
 
@@ -123,10 +123,10 @@ def command(
     }
     for (param in schema.positional) {
         fstr @= "  ";
-        if (param.arg.len > 0) {
+        if (param.arg.size > 0) {
             fstr @= { "<", param.name, ">" };
         }
-        if (param.desc.len > 0) {
+        if (param.desc.size > 0) {
             fstr @= { " - ", param.desc };
         }
         fstr @= "\n";
@@ -147,14 +147,14 @@ def command(
         if (param.name'any) {
             fstr @= { "--", param.name };
         }
-        if (param.arg.len > 0) {
+        if (param.arg.size > 0) {
             fstr @= { " <", param.arg, ">" };
         }
         fstr @= "\n";
     }
 
     ;; epilog if any
-    if (schema.epilog.len > 0) {
+    if (schema.epilog.size > 0) {
         fstr @= { "\n", schema.epilog, "\n" };
     }
 }
@@ -163,7 +163,7 @@ struct ParsingError {
     msg: Str;
 }
 
-*def to(pe: ParsingError, :Bool) pe.msg.len > 0;
+*def to(pe: ParsingError, :Bool) pe.msg.size > 0;
 
 *def unhandled(pe: ParsingError) {
     print(pe.msg);
