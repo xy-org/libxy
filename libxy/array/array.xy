@@ -81,7 +81,7 @@ struct ArrayIter {
 *def get(
     arr: Array, iter: ArrayIter, elemSize : Size = sizeof(arr..elemType)
 ) -> arr[ Ptr~[^arr..elemType] ] {
-    return arr.mem'at(iter.idx * elemSize);
+    return arr.mem.addr + iter.idx * elemSize;
 }
 
 *def fill(arr: mut Array, n: Size, value: Any = (arr..elemType){}) =

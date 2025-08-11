@@ -36,12 +36,6 @@ struct MemStatic {}
     mem.size = 0;
 }
 
-*def at(mem: Memory, idx: Size) -> Ptr~Byte
->> idx < mem.size
-{
-    return mem.addr + idx;
-}
-
 *def set(mem: Memory, interval: SizeInterval, ptr: Ptr)
 # >> (
 #     (ptr + interval'len) <= (mem + interval.start) |
