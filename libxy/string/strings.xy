@@ -6,20 +6,16 @@ def cstr~[StrCtor{prefix="c", interpolation=false}] (
 )
     addr~[c.char];
 
-;; Tag for strings that are managed by the Str struct itself.
-;; Have trailing zero byte.
-struct MemManaged {}
-
-;; Tag for strings that are not managed by the Str struct itself.
-;; No assumptions about the existence of a trailing zero byte.
-struct MemExt {}
-
-;; Tag for strings that are are allocated in static memory and need no free.
-;; Have trailing zero byte.
-struct MemStatic {}
-
-
 ;; A UTF-8 encoded string
+;;
+;; Strings tagged with {MemManaged} have memory managed by {Str} itself
+;; and have a trailing zero byte.
+;;
+;; Strings tagged with {MemExt} have memory not managed by {Str}
+;; and no assumptions about the existence of a trailing zero byte.
+;;
+;; Strings tagged with {MemStatic} are are allocated in static memory,
+;; and have a trailing zero byte.
 *struct Str~[memory :struct = MemManaged] {
     addr: Ptr~Byte;
     size: Size;; The byte-length of the string as encoding in UTF-8

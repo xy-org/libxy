@@ -7,6 +7,17 @@ struct Memory {
     size: Size;
 }
 
+;; Tag for a managed region block that needs to be deallocated using {free()}
+struct MemManaged {}
+
+;; Tag for a memory region that is externally managed. The question of how to
+;; deallocate the memory is left to the user of the tag.
+struct MemExt {}
+
+;; Tag for a memory region that is part of the static memory and doesn't
+;; require deallocation
+struct MemStatic {}
+
 *def realloc(mem: mut Memory, size: Size) -> void | SystemError {
     newMem : Ptr~Byte = c.realloc(mem.addr, size);
     if (newMem == Ptr{}) {
