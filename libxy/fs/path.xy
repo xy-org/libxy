@@ -41,7 +41,7 @@ def path~[StrCtor{prefix="path", interpolation=true, to=Str}](addr: Ptr, len: Si
 
 *def append(path: mut PathStr, str: Str) {
     if (str'startswith("/")) {
-        path.fstr.len = 0;
+        path.fstr.fill = 0;
     }
     path.fstr'append(str);
 }

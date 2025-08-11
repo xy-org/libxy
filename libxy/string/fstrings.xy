@@ -2,7 +2,7 @@ import xy.ctti;
 
 *struct Fstr~[xy_dtor=true] {
     mem: Memory;
-    len: Size;
+    fill: Size;
 }
 
 *def dtor(builder: mut Fstr) {
@@ -16,7 +16,7 @@ import xy.ctti;
 }
 
 def ensureCap(builder: mut Fstr, requiredCap: Size) {
-    minSize := builder.len + requiredCap;
+    minSize := builder.fill + requiredCap;
     if (builder.mem.size < minSize) {
         newSize : mut = 2 * builder.mem.size;
         if (newSize < minSize) {
@@ -28,8 +28,8 @@ def ensureCap(builder: mut Fstr, requiredCap: Size) {
 
 *def append(builder: mut Fstr, addr: Ptr, size: Size) {
     builder'ensureCap(size);
-    c.memcpy(builder.mem.addr + builder.len, addr, size);
-    builder.len += size;
+    c.memcpy(builder.mem.addr + builder.fill, addr, size);
+    builder.fill += size;
 }
 
 *def append(builder: mut Fstr, str: Str) {
@@ -37,11 +37,11 @@ def ensureCap(builder: mut Fstr, requiredCap: Size) {
 }
 
 *def append(builder: mut Fstr, str: Fstr) {
-    builder'append(str.mem.addr, str.len);
+    builder'append(str.mem.addr, str.fill);
 }
 
 ;; Number of available bytes in builder
-def capacity(fstr: Fstr) fstr.mem.size - fstr.len;
+def capacity(fstr: Fstr) fstr.mem.size - fstr.fill;
 
 def printfFmt(:Byte) inlinec"\"%\"PRId8";
 def printfFmt(:Ubyte) inlinec"\"%\"PRIu8";
@@ -70,12 +70,12 @@ def printfFmt(:Size) inlinec"\"%zu\"";
 
     do {
         capacity := builder'capacity();
-        added : Int = c.snprintf(builder.mem.addr~[c.char] + builder.len, capacity, num'printfFmt, num);
+        added : Int = c.snprintf(builder.mem.addr~[c.char] + builder.fill, capacity, num'printfFmt, num);
         if (added >= 0) {
             if (added'to(Size) >= capacity) {
                 builder'ensureCap(added'to(Size) + 1);
             } else {
-                builder.len += added'to(Size);
+                builder.fill += added'to(Size);
                 break;
             }
         } else {
@@ -106,26 +106,26 @@ def unsigned(a: Size) a;
 #        rem = rem / base;
 #
 #        #if (digit <= 9) {
-#        #    [builder.mem.addr + builder.len] = (`0` + digit)'to(Byte);
+#        #    [builder.mem.addr + builder.fill] = (`0` + digit)'to(Byte);
 #        #} else {
-#        #    [builder.mem.addr + builder.len] = (`A` + digit)'to(Byte);
+#        #    [builder.mem.addr + builder.fill] = (`A` + digit)'to(Byte);
 #        #}
-#        #builder.len++;
+#        #builder.fill++;
 #    } while (rem != 0);
 #}
 
 ;; ...
 *def append(builder: mut Fstr, num: Float, precision:=6) {
     builder'ensureCap(20z);
-    added : Int = c.sprintf(builder.mem.addr~[c.char] + builder.len, c"%.*f", precision, num);
-    builder.len += added'to(Size);
+    added : Int = c.sprintf(builder.mem.addr~[c.char] + builder.fill, c"%.*f", precision, num);
+    builder.fill += added'to(Size);
 }
 
 ;; ...
 *def append(builder: mut Fstr, num: Double, precision:=6) {
     builder'ensureCap(20z);
-    added : Int = c.sprintf(builder.mem.addr~[c.char] + builder.len, c"%.*f", precision, num);
-    builder.len += added'to(Size);
+    added : Int = c.sprintf(builder.mem.addr~[c.char] + builder.fill, c"%.*f", precision, num);
+    builder.fill += added'to(Size);
 }
 
 ;; ...
@@ -141,7 +141,7 @@ def unsigned(a: Size) a;
 }
 
 *def backtrack(builder: mut Fstr, num: Uint) {
-    builder.len -= num'to(Size);
+    builder.fill -= num'to(Size);
 }
 
 ;; Encode {char} to utf-8 and append to str. Invalid chars are ignored.
@@ -149,23 +149,23 @@ def unsigned(a: Size) a;
     builder'ensureCap(4z);
     nchar := char'to(Uint);
     if (nchar <= 0x7F) {
-        [builder.mem.addr+builder.len] = nchar'to(Byte);
-        builder.len += 1;
+        [builder.mem.addr+builder.fill] = nchar'to(Byte);
+        builder.fill += 1;
     } elif (nchar <= 0x07FF) {
-        [builder.mem.addr+builder.len+0] = (0xC0'bits || nchar'bits'shiftr(6))'to(Bits8)'to(Byte);
-        [builder.mem.addr+builder.len+1] = (0x80'bits || (0x3F'bits && nchar'bits))'to(Bits8)'to(Byte);
-        builder.len += 2;
+        [builder.mem.addr+builder.fill+0] = (0xC0'bits || nchar'bits'shiftr(6))'to(Bits8)'to(Byte);
+        [builder.mem.addr+builder.fill+1] = (0x80'bits || (0x3F'bits && nchar'bits))'to(Bits8)'to(Byte);
+        builder.fill += 2;
     } elif (nchar <= 0xFFFF) {
-        [builder.mem.addr+builder.len+0] = (0xE0'bits || nchar'bits'shiftr(12))'to(Bits8)'to(Byte);
-        [builder.mem.addr+builder.len+1] = (0x80'bits || (0x3F'bits && nchar'bits'shiftr(6)))'to(Bits8)'to(Byte);
-        [builder.mem.addr+builder.len+2] = (0x80'bits || (0x3F'bits && nchar'bits))'to(Bits8)'to(Byte);
-        builder.len += 3;
+        [builder.mem.addr+builder.fill+0] = (0xE0'bits || nchar'bits'shiftr(12))'to(Bits8)'to(Byte);
+        [builder.mem.addr+builder.fill+1] = (0x80'bits || (0x3F'bits && nchar'bits'shiftr(6)))'to(Bits8)'to(Byte);
+        [builder.mem.addr+builder.fill+2] = (0x80'bits || (0x3F'bits && nchar'bits))'to(Bits8)'to(Byte);
+        builder.fill += 3;
     } elif (nchar <= 0x10FFFF) {
-        [builder.mem.addr+builder.len+0] = (0xF0'bits || nchar'bits'shiftr(18))'to(Bits8)'to(Byte);
-        [builder.mem.addr+builder.len+1] = (0x80'bits || (0x3F'bits && nchar'bits'shiftr(12)))'to(Bits8)'to(Byte);
-        [builder.mem.addr+builder.len+2] = (0x80'bits || (0x3F'bits && nchar'bits'shiftr(6)))'to(Bits8)'to(Byte);
-        [builder.mem.addr+builder.len+3] = (0x80'bits || (0x3F'bits && nchar'bits))'to(Bits8)'to(Byte);
-        builder.len += 4;
+        [builder.mem.addr+builder.fill+0] = (0xF0'bits || nchar'bits'shiftr(18))'to(Bits8)'to(Byte);
+        [builder.mem.addr+builder.fill+1] = (0x80'bits || (0x3F'bits && nchar'bits'shiftr(12)))'to(Bits8)'to(Byte);
+        [builder.mem.addr+builder.fill+2] = (0x80'bits || (0x3F'bits && nchar'bits'shiftr(6)))'to(Bits8)'to(Byte);
+        [builder.mem.addr+builder.fill+3] = (0x80'bits || (0x3F'bits && nchar'bits))'to(Bits8)'to(Byte);
+        builder.fill += 4;
     }
     ;; Else invalid char. Just ignore.
 }
@@ -173,8 +173,8 @@ def unsigned(a: Size) a;
 *def to(builder: mut Fstr, :Str) -> Str {
     builder'ensureCap(1z);
     ;; not really needed but better safe than sorry
-    [builder.mem.addr~[c.char] + builder.len] = 0;
-    res := Str{builder.mem.addr, builder.len};
+    [builder.mem.addr~[c.char] + builder.fill] = 0;
+    res := Str{builder.mem.addr, builder.fill};
     builder.mem =< Memory{};
     return res;
 }

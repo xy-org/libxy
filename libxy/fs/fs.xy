@@ -134,14 +134,14 @@ inlinec"""
     res : c.ssize_t;
     do {
         fstr'ensureCap(4098z);
-        res = c.read(file.fd, fstr.mem.addr + fstr.len, fstr'capacity);
+        res = c.read(file.fd, fstr.mem.addr + fstr.fill, fstr'capacity);
         if (inlinec"{res} < 0") {
             errno : Int = c.errno;
             if (inlinec"{errno} == EAGAIN || {errno} == EWOULDBLOCK") break;
             error SystemError{errno};
         }
 
-        fstr.len += Size{inlinec"{res}"};
+        fstr.fill += Size{inlinec"{res}"};
     } while (inlinec"{res} > 0");
 }
 
