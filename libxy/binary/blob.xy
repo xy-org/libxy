@@ -1,0 +1,71 @@
+import libxy.(memory, string, bitwise);
+
+import posix~[Clib{}] in c;
+
+;; Blob - a binary string. The intended purpose of this struct is to be used
+;; as-is without modifying it.
+;;
+;; When tagged with {MemManaged}, the memory is managed by {Blob} itself
+;;
+;; When tagged with {MemExt}, the memory is managed by something else
+;;
+;; When tagged with {MemStatic}, the memory needs no deallocation
+*struct Blob~[memory :struct = MemManaged] {
+    addr: Ptr~Byte;
+    size: Size;
+}
+
+*def bstr~[StrCtor{prefix="b"}](addr: Ptr~Byte, size: Size) =
+    Blob~MemStatic{addr, size};
+
+*def dtor(blob: mut Blob) = dtor(blob, blob..memory);
+
+*def cmp(lhs: Blob, rhs: Blob) -> Int {
+    if (lhs.size > rhs.size) {
+        return 1;
+    } elif (lhs.size < rhs.size) {
+        return -1;
+    }
+    return c.memcmp(lhs.addr~[c.char], rhs.addr~[c.char], lhs.size);
+}
+
+*def append(fstr: mut Fstr, blob: Blob, prefix:="\\x", sep:="") -> void | SystemError {
+    for (i in :blob.size) {
+        byte := [blob.addr + i];
+        fstr'append(prefix);
+        for (j in :2) {
+            nibble := byte'nibbles[1 - j];
+            if (nibble <= 9) {
+                fstr'append((`0`'to(Byte) + nibble)'to(Char));
+            } else {
+                fstr'append((`a`'to(Byte) + nibble - 10b)'to(Char));
+            }
+        }
+        if (sep.size > 0 && i < blob.size-1) {
+            fstr'append(sep);
+        }
+    }
+}
+
+*def append(fstr: mut Fstr, blob: Blob, ascii: Bool) -> void | SystemError {
+    if (!ascii) {
+        fstr'append(blob);
+    }
+
+    for (i in :blob.size) {
+        byte := [blob.addr + i];
+        printableAscii := byte >= 32b && byte <= 126b;
+        if (printableAscii) {
+            fstr'append(byte'to(Char));
+        } else {
+            fstr'append(`.`);
+        }
+    }
+}
+
+def dtor(blob: mut Blob, :MemManaged) {
+    free(blob.addr, blob.size);
+}
+
+def dtor(blob: mut Blob, :MemStatic) {}
+def dtor(blob: mut Blob, :MemExt) {}

@@ -1,0 +1,14 @@
+import xytest;
+
+*def makingBuf~Test() {
+    blob := bf"abc={1b}{2b}";
+    (equal) blob, b"abc=\x01\x02";
+}
+
+*def multiByte~Test() {
+    blobBe := bf"num={0x12345678}";
+    (equal) blobBe, b"num=\x12\x34\x56\x78";
+
+    blobLe := bf"num={0x12345678, Endian.little}";
+    (equal) blobLe, b"num=\x78\x56\x34\x12";
+}

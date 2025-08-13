@@ -1,0 +1,74 @@
+import xy.ctti;
+import libxy.(slice, error);
+
+;; Buf - a binary f-string i.e. a binary string that can be modified
+*struct Buf {
+    mem: Memory;
+    fill: Size;
+}
+
+*def bfstr~[StrCtor{prefix="bf", .interpolation, to=Blob}](
+    addr: pseudo Ptr~Byte, size: Size
+) -> Buf {
+    res: Buf;
+    res.mem'realloc(2*size);; Just a heuristic. But we have to start somewhere
+    return res;
+}
+
+*def to(buf: mut Buf, :Blob) -> Blob {
+    return Blob{buf.mem.addr =>, buf.fill =>};
+    buf.mem.size = 0;
+}
+
+*def append(buf: mut Buf, addr: Ptr~Byte, size: Size) -> void {
+    buf'ensureCap(size);
+    buf.mem[buf.fill +: size] = addr;
+    buf.fill += size;
+}
+
+*def append(
+    buf: mut Buf,
+    num: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong),
+    endian := Endian{},
+) -> void | SystemError {
+    buf'ensureCap(num'sizeof);
+    converted := num'to(endian);
+    buf.mem[buf.fill +: num'sizeof] = converted'addrof;
+    buf.fill += num'sizeof;
+}
+
+def ensureCap(buf: mut Buf, required: Size) -> void | SystemError {
+    if (buf.mem.size - buf.fill < required) {
+        newSize := max(required, 2 * buf.mem.size);
+        buf.mem'realloc(newSize);
+    }
+}
+
+*struct Endian {
+    val: Byte;
+
+    big:    pseudo = Endian{0b};
+    little: pseudo = Endian{1b};
+    host:   pseudo = Endian{-1b};
+
+    native: pseudo = Endian{-1b};; Synonym for {host}
+    network: pseudo = Endian{-1b};; Synonym for {big}
+}
+
+*def get(endian: Endian, test: Endian) endian.val == test.val;
+*def set(endian: mut Endian, new: Endian, set:Bool) {
+    endian.val = if (set) new.val else endian.val;
+}
+
+-littleEndianHost := true; # TODO Get that from somewhere
+
+;; Change endianness of a number
+*def to(
+    num: (Short, Ushort, Int, Uint, Long, Ulong),
+    endian: Endian
+) = if ((littleEndianHost && endian.big) || (!littleEndianHost && endian.little)) num'bytes'reverse'to(%num) else num;
+
+;; Just to keep things consistent
+*def to(num: (Byte, Ubyte), endian: Endian) = num;
+
+*def dtor(buf: mut Buf) buf.mem'free();
