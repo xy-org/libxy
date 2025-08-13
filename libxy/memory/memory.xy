@@ -18,6 +18,14 @@ struct MemExt {}
 ;; require deallocation
 struct MemStatic {}
 
+*def malloc(size: Size) -> Memory | SystemError {
+    addr: Ptr~Byte = c.malloc(size);
+    if (addr == Ptr{}) {
+        error SystemError{c.ENOMEM};
+    }
+    return Memory{addr, size};
+}
+
 *def realloc(mem: mut Memory, size: Size) -> void | SystemError {
     newMem : Ptr~Byte = c.realloc(mem.addr, size);
     if (newMem == Ptr{}) {
@@ -34,6 +42,11 @@ struct MemStatic {}
     c.free(mem.addr);
     mem.addr = Ptr{};
     mem.size = 0;
+}
+
+*def free(addr: mut Ptr~Byte, size: Size) {
+    c.free(addr);
+    addr = Ptr{};
 }
 
 *def set(mem: Memory, interval: SizeInterval, ptr: Ptr)
