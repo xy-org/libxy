@@ -1,0 +1,25 @@
+import libxy.memory;
+
+
+*def readingBuf~Test() {
+    "{byte: Byte}{int: Int}{rest: Blob~MemExt}" = b"\x11\x22\x33\x44\x55\x66";
+    (equal) byte, 0x11()b;
+    (equal) int, 0x22334455;
+    (equal) rest, b"\x66";
+
+    le := Endian.little;
+    "{i16: Short, le}{i32: Int, le}" = b"\x11\x22\x33\x44\x55\x66";
+    (equal) i16, 0x2211s;
+    (equal) i32, 0x66554433;
+
+    le"{short: Short}{num: Int}" = b"\x11\x22\x33\x44\x55\x66";
+    (equal) short, 0x2211s;
+    (equal) num, 0x66554433;
+}
+
+*def readingBits~Test() {
+    "{b8: Bits8}{b16: Bits16}{b32: Bits32}" = b"\xF0\x11\x22\x33\x44\x55\x66";
+    (equal) b8'to(Byte), 0xF0()b;
+    (equal) b16'to(Short), 0x1122s;
+    (equal) b32'to(Int), 0x33445566;
+}

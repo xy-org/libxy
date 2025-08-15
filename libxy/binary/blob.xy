@@ -18,6 +18,10 @@ import posix~[Clib{}] in c;
 *def bstr~[StrCtor{prefix="b"}](addr: Ptr~Byte, size: Size) =
     Blob~MemStatic{addr, size};
 
+*def bunstr~[UnstrCtor{prefix=""}](:Blob)   = UnstrIter{};
+*def bunstrBe~[UnstrCtor{prefix="be"}](:Blob) = UnstrIter{};
+*def bunstrLe~[UnstrCtor{prefix="le"}](:Blob) = UnstrIter{endian=Endian.little};
+
 *def dtor(blob: mut Blob) = dtor(blob, blob..memory);
 
 *def cmp(lhs: Blob, rhs: Blob) -> Int {
@@ -62,6 +66,70 @@ import posix~[Clib{}] in c;
         }
     }
 }
+
+;;
+;; Unstr functionality
+;;
+
+struct UnstrIter {
+    offset: Size;
+    endian: Endian;
+}
+
+*def read(
+    blob: Blob, iter: mut UnstrIter,
+    num: mut (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong),
+    endian : Endian = Endian{iter.endian.val} # TODO why no just endian := iter.endian ???
+)
+>> (iter.offset <= blob.size) && (blob.size - iter.offset) >= num'sizeof
+{
+    c.memcpy(num'addrof, blob.addr + iter.offset, num'sizeof);
+    iter.offset += num'sizeof;
+    num = num'to(endian);
+}
+
+*def read(
+    blob: Blob, iter: mut UnstrIter,
+    bits: mut (Bits8, Bits16, Bits32, Bits64),
+)
+
+>> (iter.offset <= blob.size) && (blob.size - iter.offset) >= bits'sizeof
+{
+    c.memcpy(bits'addrof, blob.addr + iter.offset, bits'sizeof);
+    iter.offset += bits'sizeof;
+    bits = bits'to(Endian.big);
+}
+
+;; I hate this func. There should be a better more expressive way to do that.
+-def to(bits: Bits8, endian: Endian) = bits;
+-def to(bits: Bits16, endian: Endian) = bits'to(Ushort)'to(endian)'bits;
+-def to(bits: Bits32, endian: Endian) = bits'to(Uint)'to(endian)'bits;
+-def to(bits: Bits64, endian: Endian) = bits'to(Ulong)'to(endian)'bits;
+
+*def read(
+    blob: Blob, iter: mut UnstrIter, other: mut Blob,
+) = read(blob, iter, other, other..memory);
+
+*def read(
+    blob: Blob, iter: mut UnstrIter, other: mut Blob, :MemExt
+) {
+    if (iter.offset < blob.size) {
+        other.addr = blob.addr + iter.offset;
+        other.size = blob.size - iter.offset;
+    } else {
+        other.addr = Ptr{};
+        other.size = 0;
+    }
+    iter.offset += other.size;
+}
+
+*def read(
+    blob: Blob, offset: mut UnstrIter, other: mut Blob, :MemStatic
+) break "Cannot read into a blob with static memory";
+
+*def read(
+    blob: Blob, offset: mut UnstrIter, other: mut Blob, :MemManaged
+) break "Cannot read into a blob with managed memory. Read into Blob~MemExt and then copy";
 
 def dtor(blob: mut Blob, :MemManaged) {
     free(blob.addr, blob.size);

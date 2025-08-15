@@ -37,6 +37,31 @@ import libxy.(slice, error);
     buf.fill += num'sizeof;
 }
 
+;; Append {bits} to the binary string. Always use big-endian.
+*def append(buf: mut Buf, bits: Bits8)  = buf'append(bits'to(Ubyte));
+*def append(buf: mut Buf, bits: Bits16) = buf'append(bits'to(Ushort));
+*def append(buf: mut Buf, bits: Bits32) = buf'append(bits'to(Uint));
+*def append(buf: mut Buf, bits: Bits64) = buf'append(bits'to(Ulong));
+
+
+;; Append {str} to the buffer
+*def append(buf: mut Buf, str: Str, nullTerminate := false) {
+    buf'ensureCap(str.size + nullTerminate'to(%str.size));
+    buf.mem[buf.fill +: str.size] = str.addr;
+    buf.fill += str.size;
+    if (nullTerminate) {
+        buf.mem.addr[buf.fill] = 0;
+        buf.fill++;
+    }
+}
+
+;; Append {blob} to the buffer
+*def append(buf: mut Buf, blob: Blob) {
+    buf'ensureCap(blob.size);
+    buf.mem[buf.fill +: blob.size] = blob.addr;
+    buf.fill += blob.size;
+}
+
 def ensureCap(buf: mut Buf, required: Size) -> void | SystemError {
     if (buf.mem.size - buf.fill < required) {
         newSize := max(required, 2 * buf.mem.size);
