@@ -1,0 +1,222 @@
+;; Heterogenious threads, message passing, and sandboxing
+
+;; Implementation details:
+;;  * Spawns use the multi-threading/multi-processing capabilities of the OS.
+;;  * Spawns mix threads and processing depending on required sandboxing and
+;;    other factors.
+;;  * Generating a trully (no repeating/reusing) unique id for a spawn is
+;;    difficult considering the lack of shared memory (due to sandboxing).
+;;    Forking a process whose only job is to generate ids is possible but would
+;;    increase complexity drastically. And remember we need these Ids just to
+;;    guard agains stale Sids. So we do a "stochastic" approach - using
+;;    random data to uniquely identify a process. The probability of generating
+;;    the same ids should be sufficiently low (probability <= 1/2^64).
+;;    The downside is relying on the OS for entropy.
+
+import posix~[Clib{headers=@{"sys/socket.h", "sys/types.h", "fcntl.h", "unistd.h"}}] in c;
+import libxy.(fs, binary, error, array);
+
+;; Represent the id (name) of a spawn
+;; Use one of the spawn funcs to create a Sid instance.
+;; Creating one by hand is not really possible.
+;;
+;; Sids are not recycled (reused) except in the extreme case of spawning
+;; billions of times. Even in that case the system will do everything in its
+;; power not to reuse Sids. Keep however in mind that when a spawn dies its Sid
+;; may eventually get recycled so take care not to keep stale sids around.
+*struct Sid {
+    ;; Used to identify the spawn in the local spawn system
+    slotId: Uint;
+
+    ;; Used to establish connection to external spawns
+    ;; And guard against stale Sids
+    secret: Uint;
+}
+
+*def cmpEq(s1: Sid, s2: Sid) s1.slotId == s2.slotId && s1.secret == s2.secret;
+*def cmpNe(s1: Sid, s2: Sid) s1.slotId != s2.slotId || s1.secret != s2.secret;
+
+;; Don't use directly
+struct SpawnSystem {
+    spawns: Array~Descriptor;
+
+    q: Array~Envelope;
+    select: Select;
+    qIdx: Uint;
+
+    mySecret: Uint;
+    parentSecret: Uint;
+}
+
+struct Descriptor {
+    channel: File;
+    secret: Uint;
+    tid: c.pthread_t;
+}
+
+;; A structure representing a general message
+;; The interpretation of the fields is left to the application
+*struct Msg {
+    id: Int;
+    flags: Bits16;
+    header: Blob;
+    payload: Blob;
+}
+
+;; A message together with sender/receiver and other bookkeeping info
+*struct Envelope {
+    msg: Msg;
+    from: Sid;
+    comm: Bool;; A normal (in-band) message sent from a spawn
+}
+
+*def spawn(func: ()->void) = [Global~SpawnSystem]'ispawn(func);
+
+*def ispawn(sys: mut SpawnSystem, func: ()->void) -> Sid | SystemError {
+    commSockets: @Int[2];
+    err: mut Int = c.socketpair(c.AF_UNIX, c.SOCK_STREAM, 0, commSockets'addrof);
+    if (err) {
+        error SystemError{c.errno};
+    }
+    #setNonblocking(commSockets[0]);
+    #setNonblocking(commSockets[1]);
+
+    secret := sys.mySecret + sys.spawns'len'to(Uint); # TODO generate
+
+    childPid: c.pid_t = c.fork();
+    if (childPid) {
+        ;; Parent
+        sid := Sid{slotId=sys.spawns'len'to(Uint), =secret};
+        sys.spawns @= Descriptor{
+            =secret, channel=File{commSockets[0]}
+        };
+        c.close(commSockets[1]);
+        return sid;
+    } else {
+        ;; Child
+        [Global~SpawnSystem].spawns'clear();
+        [Global~SpawnSystem].mySecret = secret;
+        [Global~SpawnSystem].parentSecret = sys.mySecret;
+        c.close(commSockets[0]);
+        [func]();
+        c.exit(0);
+    }
+}
+
+-def setNonblocking(fd: Int) -> void | SystemError {
+    flags: mut Int = c.fcntl(fd, c.F_GETFL, 0);
+    if (flags < 0) {
+        error SystemError{c.errno};
+    }
+
+    rt: mut Int = c.fcntl(fd, c.F_SETFL, inlinec"{flags} | O_NONBLOCK");
+    if (rt < 0) {
+        error SystemError{c.errno};
+    }
+}
+
+*def send(spawn: Sid, msg: mut Msg) = [Global~SpawnSystem]'send(spawn, msg);
+
+*def send(sys: SpawnSystem, sid: Sid, msg: mut Msg) -> void
+# >> steal(msg)
+{
+    if (sid.slotId >= sys.spawns'len) {
+        ;; ignore stale sids
+        return;
+    }
+
+    desc := sys.spawns[sid.slotId];
+    if (sid.secret != desc.secret) {
+        ;; ignore stale sids
+        return;
+    }
+
+    bin := bf"{msg.id}{0s}{msg.flags}{msg.header.size'to(Ulong)}{msg.payload.size'to(Ulong)}";
+    c.write(desc.channel.fd, bin.addr, bin.size);
+    if (msg.header.size > 0) {
+        c.write(desc.channel.fd, msg.header.addr, msg.header.size);
+    }
+    if (msg.payload.size > 0) {
+        c.write(desc.channel.fd, msg.payload.addr, msg.payload.size);
+    }
+
+    desc =>; # XXX
+}
+
+;; Receive a message
+*def receive() = [Global~SpawnSystem]'receive();
+
+*def receive(sys: mut SpawnSystem) -> Envelope {
+    res: Envelope;
+
+    if (sys.qIdx < sys.q'len) {
+        res =< sys.q[sys.qIdx];
+        sys.qIdx++;
+        return res;
+    }
+
+    sys'pumpQ();
+    return receive(sys);
+}
+
+;; Receive messages from {sid} only
+*def receive(sid: Sid) = [Global~SpawnSystem]'receive(sid);
+
+*def receive(sys: mut SpawnSystem, sid: Sid) -> Envelope {
+    for (i in sys.qIdx:sys.q'len) {
+        if (sys.q[i].from == sid) {
+            return sys.q[i] =>;
+        }
+    }
+
+    sys'pumpQ();
+
+    return receive(sys, sid);
+}
+
+-def pumpQ(sys: mut SpawnSystem) {
+    sys.qIdx = 0;
+    sys.q'clear();
+    nevents := sys.select'select();
+
+    ;; first we handle write events to keep sockets utilized & free some mem
+    for (i in :nevents) {
+        if (sys.select[i].canWrite) {
+            # TODO
+            slotId := sys.select[i].slotId;
+            sys'tryWrite(slotId);
+        }
+    }
+
+    ;; and then the read
+    for (i in :nevents) {
+        if (sys.select[i].canRead) {
+            # TODO
+            slotId := sys.select[i].slotId;
+            sys'tryRead(slotId);
+        }
+    }
+}
+
+-def tryWrite(sys: mut SpawnSystem, slotId: Uint) {
+    # noop b/c of the blocking nature
+}
+
+-def tryRead(sys: mut SpawnSystem, slotId: Uint) {
+    desc := sys.spawns[slotId];
+
+    header := bf"{desc.channel, 24z}";
+    "{id: Int}{linkFlags: Bits16}{msgFlags: Bits16}{headerSize: Ulong}{payloadSize: Ulong}" = header;
+
+    env: Envelope;
+    env.comm = true;
+
+    if (headerSize > 0) {
+        env.msg.header =< bf"{desc.channel, headerSize'to(Size)}";
+    }
+    if (payloadSize > 0) {
+        env.msg.payload =< bf"{desc.channel, payloadSize'to(Size)}";
+    }
+
+    sys.q'append(env =>);
+}

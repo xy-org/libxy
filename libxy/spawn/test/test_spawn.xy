@@ -1,0 +1,13 @@
+import xytest;
+import libxy.(spawn, time, unit);
+
+def func1() {
+    #env := receive();
+    #env.sender'send(Msg{env.msg.id + 1});
+}
+
+*def spawing~Test() {
+    sid := spawn($func1());
+    sid'send(Msg{5});
+    # receive();
+}

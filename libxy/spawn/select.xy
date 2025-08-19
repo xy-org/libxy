@@ -1,0 +1,17 @@
+-struct Select {
+
+}
+
+-struct Event {
+    canRead: Bool;
+    canWrite: Bool;
+    slotId: Uint;
+}
+
+-def select(sel: mut Select) -> Uint {
+    return 0;
+}
+
+-def get(sel: Select, nIdx: Uint) -> Event {
+    return Event{};
+}
