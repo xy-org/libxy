@@ -13,10 +13,6 @@ import libxy.(unit, memory, slice, error);
 
 *def len(a: Array) = a.len;
 
-def max(a: Size, b: Size) -> Size {
-    return if (a >= b) a else b;
-}
-
 def ensureCapacity(
     arr: mut Array,
     requiredCap: Size,
@@ -88,3 +84,9 @@ struct ArrayIter {
 for (i in :n) {
     arr'push(value);
 };
+
+;; Clear the array
+*def clear(arr: mut Array) {
+    # TODO call dtors
+    arr.len = 0;
+}
