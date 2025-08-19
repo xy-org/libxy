@@ -1,7 +1,7 @@
 ;; FileSystem and Blocking File IO functionality
 
 import posix~[Clib{headers=@{"unistd.h", "fcntl.h"}}] in c;
-import libxy.(string, flag, error);
+import libxy.(string, binary, flag, error);
 
 ;; Flags governing how a file is to be opened
 *struct OpenFlags {
@@ -147,6 +147,26 @@ inlinec"""
 
 ;; ...
 *def append(fstr: mut Fstr, file: File) = file'read(fstr);
+
+;; Read from {file} exactly {nbyte} bytes into {buf}
+;; {file} must be either blocking or have atleast {nbytes} available for read
+*def read(file: File, buf: mut Buf, nbyte: Size) -> void | SystemError {
+    res : c.ssize_t;
+    remaining: mut Size = nbyte;
+    buf'ensureCap(nbyte);
+    do {
+        res = c.read(file.fd, buf.mem.addr + buf.fill, remaining);
+        if (inlinec"{res} < 0") {
+            error SystemError{c.errno};
+        }
+
+        buf.fill += Size{inlinec"{res}"};
+        remaining -= Size{inlinec"{res}"};
+    } while (remaining > 0);
+}
+
+;; ...
+*def append(buf: mut Buf, file: File, nbyte: Size) = file'read(buf, nbyte);
 
 -struct BlockingField{}
 
