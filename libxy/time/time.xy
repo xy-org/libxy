@@ -24,7 +24,7 @@ struct Timestamp {
 ;; timestamp that is earlier in time. Use the returned value as a rough
 ;; estimation of the current time. Let the nanosecond stuff not fool you.
 def timestamp() -> Timestamp {
-    ts: inlinec"struct timespec";
+    ts: c."struct timespec";
     err : Int = inlinec"clock_gettime(CLOCK_REALTIME, &{ts})";
     if (err != 0) {
         error SystemError{c.errno};
@@ -39,7 +39,7 @@ def timestamp() -> Timestamp {
     sleep(duration'to(Long), duration..(units, UnknownDurationUnit));
 
 *def sleep(duration: Long, :ns) {
-    ts: inlinec"struct timespec";
+    ts: c."struct timespec";
     inlinec"""
         {ts}.tv_sec = {duration} / 1000000000;
         {ts}.tv_nsec = {duration} % 1000000000;

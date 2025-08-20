@@ -8,10 +8,10 @@ import libc~[Clib{headers=@{"errno.h", "time.h"}}] in c;
 ;; system is suspended. The returned value makes sense only when compared to
 ;; another value returned by this function.
 *def time() -> Long~ns {
-    ts: inlinec"struct timespec";
+    ts: c."struct timespec";
     err : Int = inlinec"clock_gettime(CLOCK_MONOTONIC, &{ts})";
     if (err != 0) {
-        error SystemError{c.errno}; 
+        error SystemError{c.errno};
     }
     return inlinec"(intmax_t){ts}.tv_sec * 1000000000 + {ts}.tv_nsec";
 }

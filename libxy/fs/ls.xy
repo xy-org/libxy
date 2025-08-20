@@ -83,7 +83,7 @@ struct Listing {
         return;
     }
 
-    pDirent: mut Ptr~[inlinec"struct dirent"] = c.readdir(d.pDir);
+    pDirent: mut Ptr~[c."struct dirent"] = c.readdir(d.pDir);
     if (pDirent != Ptr{}) {
         if (!loadNodeInfo(d, pDirent) ) {
             ;; skip current file and more to the next one
@@ -97,7 +97,7 @@ struct Listing {
 ;; Return false if {dirent} needs to be skipped
 def loadNodeInfo(
     d: mut Listing,
-    dirent: Ptr~[inlinec"struct dirent"]
+    dirent: Ptr~[c."struct dirent"]
 ) -> Bool {
     name := Str~MemExt{
         Ptr~Byte{inlinec"{dirent}->d_name"},
@@ -127,7 +127,7 @@ def loadNodeInfo(
 
     if (!d.callStat) return true;
 
-    sb : inlinec"struct stat";
+    sb : c."struct stat";
     statRet : Int = c.fstatat(
         d.dirfd, inlinec"{dirent}->d_name", &sb,
         inlinec"AT_SYMLINK_NOFOLLOW"
