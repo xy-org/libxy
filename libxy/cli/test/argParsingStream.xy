@@ -169,8 +169,8 @@ def lsSchema() = CliSchema {
 }
 
 -def gccLikeSchema() = CliSchema {
-    #;; Note: not all of gcc idiosyncrasies can be exactly represented
-    #;; -W<warnings> or -L<dir> cannot be represented
+    ;; Note: not all of gcc idiosyncrasies can be exactly represented
+    ;; -W<warnings> or -L<dir> cannot be represented
 
     'config(prefixLong="-", prefixShort="-"),
     'param("filename", .positional, nargs=1:2),
