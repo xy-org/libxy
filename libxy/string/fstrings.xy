@@ -36,9 +36,8 @@ def ensureCap(builder: mut Fstr, requiredCap: Size) {
     builder'append(str.addr, str.size);
 }
 
-*def append(builder: mut Fstr, str: Fstr) {
+*def append(builder: mut Fstr, str: Fstr) =
     builder'append(str.mem.addr, str.fill);
-}
 
 ;; Number of available bytes in builder
 def capacity(fstr: Fstr) fstr.mem.size - fstr.fill;

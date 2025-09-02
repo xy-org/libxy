@@ -100,6 +100,7 @@ struct Descriptor {
         c.close(commSockets[0]);
         [func]();
         c.exit(0);
+        return Sid{};; Unreachable
     }
 }
 

@@ -1,0 +1,30 @@
+import xytest;
+import libxy.memory;
+
+;; simple memory allocation sanity test
+*def consistency~Test() {
+    pool: @Memory[100];
+    for (i in :pool'len) {
+        reqSize : Size = 10;; # TODO replace this by rng
+        pool[i] = malloc(reqSize);
+    }
+
+    for (i in :100) {
+        reqSize : Size = 10;; TODO replace this by rng
+        mem: mut = malloc(reqSize);
+        for (j in :pool'len) {
+            (assert) mem.addr < pool[j].addr ||
+                     mem.addr >= (pool[j].addr + pool[j].size);
+        }
+        mem'free();
+    }
+}
+
+*def allocRandomSize~Test() {
+    for (i in :100) {
+        reqSize : Size = 10;; # TODO replace this by rng
+        mem : mut = malloc(reqSize);
+        (assert) reqSize == mem.size;
+        mem'free();
+    }
+}

@@ -2,6 +2,11 @@ import libc~[Clib{headers=@{"stdlib.h", "string.h"}}] in c;
 import libxy.slice;
 import libxy.error;
 
+;; Pair a pointer to some memory with its size.
+;;
+;; The interpretation of that memory, how it is allocated, how it is to be
+;; disposed, an so on is left open. There is no dtor as we don't know how the
+;; memory has been allocated.
 struct Memory {
     addr: Ptr~Byte;
     size: Size;

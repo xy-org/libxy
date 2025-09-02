@@ -1,0 +1,35 @@
+import libxy.crypto.rand;
+import libxy.binary;
+import xytest;
+
+*def sanity~Test() {
+    rng := [Global~PlatformRng];
+    history: @Uint[32];
+    for (i in :history'len) {
+        history[i] = rng'gen(Uint);
+        for (j in :i) {
+            (assert) history[i] != history[j];
+        }
+    }
+}
+
+*def primTypes~Test() {
+    rng := [Global~PlatformRng];
+    a : Byte = rng'gen(Byte);
+    b : Ubyte = rng'gen(Ubyte);
+    c : Short = rng'gen(Short);
+    d : Ushort = rng'gen(Ushort);
+    e : Int = rng'gen(Int);
+    f : Long = rng'gen(Long);
+    g : Ulong = rng'gen(Ulong);
+}
+
+*def readingIntoBuf~Test() {
+    rng := [Global~PlatformRng];
+    buf := bf"{rng, 12z}";
+    (assert) buf.size == 12z;
+    # TODO
+    "{n1: Uint}{n2: Uint}{n3: Uint}" = buf;
+    #(assert) n1 != n2;
+    #(assert) n1 != n3;
+}

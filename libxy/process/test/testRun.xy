@@ -8,5 +8,5 @@ import xytest;
     args : Array~Str;
     args'push("Echoing from test");
     p := run("echo", args);
-    p'wait();
+    _ = p'wait();
 }

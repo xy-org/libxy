@@ -16,8 +16,9 @@ import libxy.(slice, error);
 }
 
 *def to(buf: mut Buf, :Blob) -> Blob {
-    return Blob{buf.mem.addr =>, buf.fill =>};
+    res := Blob{buf.mem.addr =>, buf.fill =>};
     buf.mem.size = 0;
+    return res;
 }
 
 *def append(buf: mut Buf, addr: Ptr~Byte, size: Size) -> void {

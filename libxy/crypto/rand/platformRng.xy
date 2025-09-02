@@ -1,0 +1,42 @@
+import xy.ctti;
+import libxy.binary;
+import libc~[Clib{headers=@{"stdlib.h"}}] in c;
+
+;; Generate cryptographically strong random numbers
+;;
+;; This family of functions generate random number using the RNG capabilities
+;; of the underlying OS/platform.
+;;
+;; In theory the OS should be the best source of randomness as userspace
+;; processes don't have an easy and reliable source of entropy.
+;;
+;; The major disadvantage of these functions is speed. Also they cannot be
+;; seeded. They are best used to seed other RNGs, generate cookies, keys, etc.
+;;
+;; Have a look at libyx.prng if you don't require cryptographically strong
+;; randomness (cases include simulations, hashes, etc.)
+*struct PlatformRng {}
+
+*def gen(rng: pseudo PlatformRng, :Uint) = Uint{c.arc4random()};
+
+*def gen(rng: PlatformRng, :Byte  ) = rng'gen(Uint)'to(Byte);
+*def gen(rng: PlatformRng, :Ubyte ) = rng'gen(Uint)'to(Ubyte);
+*def gen(rng: PlatformRng, :Short ) = rng'gen(Uint)'to(Short);
+*def gen(rng: PlatformRng, :Ushort) = rng'gen(Uint)'to(Ushort);
+*def gen(rng: PlatformRng, :Int   ) = rng'gen(Uint)'to(Int);
+
+*def gen(rng: PlatformRng, :Ulong) -> (res: Ulong) {
+    rng'gen(res'addrof, res'sizeof);
+}
+
+*def gen(rng: PlatformRng, :Long) = rng'gen(Ulong)'to(Long);
+
+*def gen(rng: pseudo PlatformRng, buf: Ptr, size: Size) -> void {
+    c.arc4random_buf(buf, size);
+}
+
+*def append(buf: mut Buf, rng: PlatformRng, size: Size) -> void {
+    buf'ensureCap(size);
+    rng'gen(buf.mem.addr + buf.fill, size);
+    buf.fill += size;
+}
