@@ -6,7 +6,7 @@ import xytest;
     rng := [Global~PlatformRng];
     history: @Uint[32];
     for (i in :history'len) {
-        history[i] = rng'gen(Uint);
+        history[i] = rng[Uint];
         for (j in :i) {
             (assert) history[i] != history[j];
         }
@@ -15,21 +15,20 @@ import xytest;
 
 *def primTypes~Test() {
     rng := [Global~PlatformRng];
-    a : Byte = rng'gen(Byte);
-    b : Ubyte = rng'gen(Ubyte);
-    c : Short = rng'gen(Short);
-    d : Ushort = rng'gen(Ushort);
-    e : Int = rng'gen(Int);
-    f : Long = rng'gen(Long);
-    g : Ulong = rng'gen(Ulong);
+    a : Byte = rng[Byte];
+    b : Ubyte = rng[Ubyte];
+    c : Short = rng[Short];
+    d : Ushort = rng[Ushort];
+    e : Int = rng[Int];
+    f : Long = rng[Long];
+    g : Ulong = rng[Ulong];
 }
 
 *def readingIntoBuf~Test() {
     rng := [Global~PlatformRng];
     buf := bf"{rng, 12z}";
     (assert) buf.size == 12z;
-    # TODO
     "{n1: Uint}{n2: Uint}{n3: Uint}" = buf;
-    #(assert) n1 != n2;
-    #(assert) n1 != n3;
+    (assert) n1 != n2;
+    (assert) n1 != n3;
 }

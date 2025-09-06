@@ -17,26 +17,26 @@ import libc~[Clib{headers=@{"stdlib.h"}}] in c;
 ;; randomness (cases include simulations, hashes, etc.)
 *struct PlatformRng {}
 
-*def gen(rng: pseudo PlatformRng, :Uint) = Uint{c.arc4random()};
+*def get(rng: pseudo PlatformRng, :Uint) = Uint{c.arc4random()};
 
-*def gen(rng: PlatformRng, :Byte  ) = rng'gen(Uint)'to(Byte);
-*def gen(rng: PlatformRng, :Ubyte ) = rng'gen(Uint)'to(Ubyte);
-*def gen(rng: PlatformRng, :Short ) = rng'gen(Uint)'to(Short);
-*def gen(rng: PlatformRng, :Ushort) = rng'gen(Uint)'to(Ushort);
-*def gen(rng: PlatformRng, :Int   ) = rng'gen(Uint)'to(Int);
+*def get(rng: PlatformRng, :Byte  ) = rng'get(Uint)'to(Byte);
+*def get(rng: PlatformRng, :Ubyte ) = rng'get(Uint)'to(Ubyte);
+*def get(rng: PlatformRng, :Short ) = rng'get(Uint)'to(Short);
+*def get(rng: PlatformRng, :Ushort) = rng'get(Uint)'to(Ushort);
+*def get(rng: PlatformRng, :Int   ) = rng'get(Uint)'to(Int);
 
-*def gen(rng: PlatformRng, :Ulong) -> (res: Ulong) {
-    rng'gen(res'addrof, res'sizeof);
+*def get(rng: PlatformRng, :Ulong) -> (res: Ulong) {
+    rng'generate(res'addrof, res'sizeof);
 }
 
-*def gen(rng: PlatformRng, :Long) = rng'gen(Ulong)'to(Long);
+*def get(rng: PlatformRng, :Long) = rng'get(Ulong)'to(Long);
 
-*def gen(rng: pseudo PlatformRng, buf: Ptr, size: Size) -> void {
+*def generate(rng: pseudo PlatformRng, buf: Ptr, size: Size) -> void {
     c.arc4random_buf(buf, size);
 }
 
 *def append(buf: mut Buf, rng: PlatformRng, size: Size) -> void {
     buf'ensureCap(size);
-    rng'gen(buf.mem.addr + buf.fill, size);
+    rng'generate(buf.mem.addr + buf.fill, size);
     buf.fill += size;
 }
