@@ -34,11 +34,13 @@ def set(b: mut Bits16, i: Int, val: Bool) =
 def set(b: mut Bits8, i: Int, val: Bool) =
     b = b && !(1ub'to(Bits8) \shiftl i) || (val'to(Ubyte)'to(Bits8) \shiftl i);
 
-;; Empty struct used to provide syntax like num'bits or num'bits[i] = bit 
+;; Empty struct used to provide syntax like num'bits or num'bits[i] = bit
 struct Bits {}
 
 ;; Return an index to the bits in {a}
-def bits(a: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong)) -> a[ Bits ] {
+def bits(
+    a: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong, Float, Double)
+) -> a[ Bits ] {
     return Bits{};
 }
 
@@ -47,9 +49,9 @@ def get(a: (Byte, Ubyte), b: pseudo Bits) = a'to(Bits8);
 
 def get(a: (Short, Ushort), b: pseudo Bits) = a'to(Bits16);
 
-def get(a: (Int, Uint), b: pseudo Bits) = a'to(Bits32);
+def get(a: (Int, Uint, Float), b: pseudo Bits) = a'to(Bits32);
 
-def get(a: (Long, Ulong), b: pseudo Bits) = a'to(Bits64);
+def get(a: (Long, Ulong, Double), b: pseudo Bits) = a'to(Bits64);
 
 ;; Set the {i}th bit of {num} to {on}
 ;; Called for expressions like num'bits[i] = on;
@@ -68,9 +70,9 @@ def set(num: mut (Byte, Ubyte), :Bits, bits: Bits8) num = bits'to(%num);
 
 def set(num: mut (Short, Ushort), :Bits, bits: Bits16) num = bits'to(%num);
 
-def set(num: mut (Int, Uint), :Bits, bits: Bits32) num = bits'to(%num);
+def set(num: mut (Int, Uint, Float), :Bits, bits: Bits32) num = bits'to(%num);
 
-def set(num: mut (Long, Ulong), :Bits, bits: Bits64) num = bits'to(%num);
+def set(num: mut (Long, Ulong, Double), :Bits, bits: Bits64) num = bits'to(%num);
 
 ;; Count leading zeros
 def countLeadingZeros(bits: (Bits8, Bits16, Bits32)) -> Int {

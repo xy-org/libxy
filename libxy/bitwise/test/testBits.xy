@@ -10,6 +10,13 @@ import libxy.bitwise;
     (assert)  num'bits[13];
 }
 
+*def gettingBitsFloatingPoint~Test() {
+    float := 3.14;
+    double := 1.61803d;
+    (assert) float'bits == 0x4048F5C3'to(Bits32);
+    (assert) double'bits == 0x3FF9E3736CDF266Cul'to(Bits64);
+}
+
 *def gettingBitsOoB~Test() {
     num := 011001010100101(2);
     (assert)  num'bits[0 + 32];

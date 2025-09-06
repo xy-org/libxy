@@ -6,6 +6,13 @@
     (assert) num'bytes[3] == 0x00()b;
 }
 
+*def gettingBytesFloatingPoint~Test() {
+    float := 3.14;
+    double := 1.61803d;
+    (assert) float'bytes[0] == 0xC3()b;
+    (assert) double'bytes[1] == 0x26()b;
+}
+
 *def settingBytes~Test() {
     num : Int;
     num'bytes[0] = 0xFA()b;

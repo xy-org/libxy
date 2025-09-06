@@ -16,15 +16,15 @@ def len(b: Nibbles16) 16;
 ;; Convert from nibbles back to a number
 def to(b: Nibbles2,  t: pseudo (Byte, Ubyte))  b.bits'to(%t);
 def to(b: Nibbles4,  t: pseudo (Short, Ushort)) b.bits'to(%t);
-def to(b: Nibbles8,  t: pseudo (Int, Uint)    ) b.bits'to(%t);
-def to(b: Nibbles16, t: pseudo (Long, Ulong)  ) b.bits'to(%t);
+def to(b: Nibbles8,  t: pseudo (Int, Uint, Float)) b.bits'to(%t);
+def to(b: Nibbles16, t: pseudo (Long, Ulong, Double)) b.bits'to(%t);
 
 ;; Compare for (in)equality
 def cmp(a: (Nibbles2, Nibbles4, Nibbles8, Nibbles16), b: %a) =
     cmp(a.bits, b.bits);
 
 def nibbles(
-    num: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong)
+    num: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong, Float, Double)
 ) -> num[ Nibbles ] {
     return Nibbles{};
 }
@@ -32,17 +32,17 @@ def nibbles(
 ;; Get nibbles of a number
 def get(num: (Byte, Ubyte),   :Nibbles) = Nibbles2{num'bits};
 def get(num: (Short, Ushort), :Nibbles) = Nibbles4{num'bits};
-def get(num: (Int, Uint),     :Nibbles) = Nibbles8{num'bits};
-def get(num: (Long, Ulong),   :Nibbles) = Nibbles16{num'bits};
+def get(num: (Int, Uint, Float),     :Nibbles) = Nibbles8{num'bits};
+def get(num: (Long, Ulong, Double),   :Nibbles) = Nibbles16{num'bits};
 
 ;; Set nibbles of a number
 def set(num: mut (Byte, Ubyte),   :Nibbles, nibbles: Nibbles2)
     num'bits = nibbles.bits;
 def set(num: mut (Short, Ushort), :Nibbles, nibbles: Nibbles4)
     num'bits = nibbles.bits;
-def set(num: mut (Int, Uint),     :Nibbles, nibbles: Nibbles8)
+def set(num: mut (Int, Uint, Float), :Nibbles, nibbles: Nibbles8)
     num'bits = nibbles.bits;
-def set(num: mut (Long, Ulong),   :Nibbles, nibbles: Nibbles16)
+def set(num: mut (Long, Ulong, Double), :Nibbles, nibbles: Nibbles16)
     num'bits = nibbles.bits;
 
 ;; Get the {i}th nibble of {nibbles}
@@ -54,7 +54,7 @@ def get(nibbles: (Nibbles2, Nibbles4, Nibbles8, Nibbles16), i: Int) =
 ;; Set the {i}th nibble of {num}
 ;; Called for expressions like num'nibbles[i] = nibble;
 def set(
-    num: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong),
+    num: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong, Float, Double),
     :Nibbles, i: Int, nibble: Byte
 ) num'bits = num'bits && !(0xF'bits'to(%num'bits)'shiftl(i*4)) || (nibble'bits'to(%num'bits) && 0xF'bits'to(%num'bits))'shiftl(i*4);
 

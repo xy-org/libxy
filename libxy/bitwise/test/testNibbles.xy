@@ -10,6 +10,13 @@
     (assert) num'nibbles[7] == 0x0;
 }
 
+*def gettingNibbleFloatingPoint~Test() {
+    float := 3.14;; 0x4048F5C3
+    double := 1.61803d;; 0x3FF9E3736CDF266C
+    (assert) float'nibbles[0] == 0x3;
+    (assert) double'nibbles[10] == 0x3;
+}
+
 *def settingNibbles~Test() {
     num : Int;
     num'nibbles[0] = 0xA()b;

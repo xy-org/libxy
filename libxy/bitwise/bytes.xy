@@ -13,14 +13,14 @@ def len(b: Bytes8) 8;
 
 ;; Convert from bytes back to a number
 def to(b: Bytes2, t: pseudo (Short, Ushort)) b.bits'to(%t);
-def to(b: Bytes4, t: pseudo (Int, Uint)    ) b.bits'to(%t);
-def to(b: Bytes8, t: pseudo (Long, Ulong)  ) b.bits'to(%t);
+def to(b: Bytes4, t: pseudo (Int, Uint, Float)    ) b.bits'to(%t);
+def to(b: Bytes8, t: pseudo (Long, Ulong, Double)  ) b.bits'to(%t);
 
 ;; Compare for (in)equality
 def cmp(a: (Bytes2, Bytes4, Bytes8), b: %a) = cmp(a.bits, b.bits);
 
 def bytes(
-    num: (Bits16, Bits32, Bits64, Short, Ushort, Int, Uint, Long, Ulong)
+    num: (Bits16, Bits32, Bits64, Short, Ushort, Int, Uint, Long, Ulong, Float, Double)
 ) -> num[ Bytes ] {
     return Bytes{};
 }
@@ -30,13 +30,13 @@ def get(bits: Bits16, :Bytes) = Bytes2{bits};
 def get(bits: Bits32, :Bytes) = Bytes4{bits};
 def get(bits: Bits64, :Bytes) = Bytes8{bits};
 def get(num: (Short, Ushort), :Bytes) = Bytes2{num'bits};
-def get(num: (Int, Uint),     :Bytes) = Bytes4{num'bits};
-def get(num: (Long, Ulong),   :Bytes) = Bytes8{num'bits};
+def get(num: (Int, Uint, Float),     :Bytes) = Bytes4{num'bits};
+def get(num: (Long, Ulong, Double),   :Bytes) = Bytes8{num'bits};
 
 ;; Set bytes of a number
 def set(num: mut (Short, Ushort), :Bytes, bytes: Bytes2) num'bits = bytes.bits;
-def set(num: mut (Int, Uint),     :Bytes, bytes: Bytes4) num'bits = bytes.bits;
-def set(num: mut (Long, Ulong),   :Bytes, bytes: Bytes8) num'bits = bytes.bits;
+def set(num: mut (Int, Uint, Float),     :Bytes, bytes: Bytes4) num'bits = bytes.bits;
+def set(num: mut (Long, Ulong, Double),   :Bytes, bytes: Bytes8) num'bits = bytes.bits;
 
 ;; Get the {i}th byte of {bytes}
 ;; Called for expressions like num'bytes[i]
@@ -46,7 +46,7 @@ def get(bytes: (Bytes2, Bytes4, Bytes8), i: Int) =
 ;; Set the {i}th byte of {num}
 ;; Called for expressions like num'bytes[i] = byte;
 def set(
-    num: (Short, Ushort, Int, Uint, Long, Ulong),
+    num: (Short, Ushort, Int, Uint, Long, Ulong, Float, Double),
     :Bytes, i: Int, byte: Byte
 ) num'bits = num'bits && !(0xFF'bits'to(%num'bits)'shiftl(i*8)) || byte'bits'to(%num'bits)'shiftl(i*8);
 
