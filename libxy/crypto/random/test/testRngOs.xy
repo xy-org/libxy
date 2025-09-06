@@ -1,4 +1,4 @@
-import libxy.crypto.rand;
+import libxy.crypto.random;
 import libxy.binary;
 import xytest;
 
