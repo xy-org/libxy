@@ -41,3 +41,23 @@
 *def slice(step : Size, end := Size'max, start := 0) = SizeSlice{start, end, step};
 
 *def len(interval: SizeInterval) = interval.end - interval.start;
+
+;; A range [{start}, {end})
+*struct FloatRange {
+    start: Float;
+    end: Float;
+}
+
+*def slice(start: Float) = FloatRange{start, Float'inf};
+*def slice(end: Float, start := 0.0) = FloatRange{start, end};
+
+;; A range [{start}, {end})
+*struct DoubleRange {
+    start: Double;
+    end: Double;
+}
+
+*def slice(start: Double) = DoubleRange{start, Double'inf};
+*def slice(end: Double, start := 0.0d) = DoubleRange{start, end};
+
+*def len(range: (FloatRange, DoubleRange)) = range.end - range.start;
