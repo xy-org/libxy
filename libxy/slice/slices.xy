@@ -21,7 +21,9 @@
 *def slice(end: Int, start := 0) = IntInterval{start, end};
 *def slice(step: Int, end := Int'max, start := 0) = IntSlice{start, end, step};
 
-*def len(interval: IntInterval) = interval.end - interval.start;
+*def len(range: IntInterval) =
+    if (range.end > range.start) range.end'to(Uint) - range.start'to(Uint) - 1
+    else 0u;
 
 ;; A simplified interval with start and end of sizes
 *struct SizeInterval {

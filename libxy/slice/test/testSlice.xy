@@ -1,0 +1,15 @@
+import libxy.(slice, string);
+import xytest;
+
+*def len~Test() {
+    (equal) (0:0)'len, 0;
+    (equal) (0:1)'len, 0;; Remeber range is half open [0:1)
+    (equal) (0:-1)'len, 0;
+
+    (equal) ( 0:Int'max )'len, Int'max'to(Uint) - 1;
+    (equal) ( -1:Int'max )'len, Int'max'to(Uint);
+    (equal) ( -10:Int'max )'len, Int'max'to(Uint) + 9;
+    (equal) ( Int'min:0 )'len, Int'min'to(Uint) - 1;
+    (equal) ( Int'min:1 )'len, Int'min'to(Uint);
+    (equal) ( Int'min:Int'max )'len, Uint'max - 1;
+}

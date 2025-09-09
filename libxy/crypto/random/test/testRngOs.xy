@@ -124,3 +124,28 @@ import xytest;
         (assert) rand < range.end;
     }
 }
+
+*def generatingIntsInvalidRange~Test() {
+    rng: PlatformRng;
+
+    (assert) rng'random(0:0) == 0;
+    (assert) rng'random(0:-1) == 0;
+    (assert) rng'random(0:Int'min) == 0;
+    (assert) rng'random(Int'max : Int'min) == Int'max;
+}
+
+*def generatingIntsLargeRange~Test() {
+    rng: PlatformRng;
+
+    for (i in :10) {
+        (assert) rng'random(0:Int'max) >= 0;
+        (assert) rng'random(0:Int'max) < Int'max;
+    }
+
+    a := rng'random(Int'min : Int'max);
+    b := rng'random(Int'min : Int'max);
+    c := rng'random(Int'min : Int'max);
+
+    (assert) a != b;
+    (assert) b != c;
+}

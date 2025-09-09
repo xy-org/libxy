@@ -71,11 +71,10 @@ import libc~[Clib{headers=@{"stdlib.h", "math.h"}}] in c;
     ;; Daniel Lemire, "Fast Random Integer Generation in an Interval".
     ;; Also inspired by freebsd-src/lib/libc/gen/arc4random_uniform.c
 
-	if (range'len <= 1) return 0;
+    upperBound := range'len;
+	if (upperBound <= 1) return range.start;
 
-    upperBound := range'len'to(Uint);
 	product : mut = upperBound'to(Ulong) * rng'random(Uint)'to(Ulong);
-
 	if (product'to(Uint) < upperBound) {
 		threshold := -upperBound \mod upperBound;
 		while (product'to(Uint) < threshold) {
