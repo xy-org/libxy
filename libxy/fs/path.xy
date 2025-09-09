@@ -12,7 +12,7 @@ pathSeparator := `/`;
     ;; Separator symbol to tokenize {path} by.
     ;; ascii code-point is required for performance reasons.
     separator: Byte = pathSeparator'to(Byte)
-) -> path[ SizeInterval ] {
+) -> path[ RangeSize ] {
     dirLen : mut = path.size;
 
     # strip trailing /

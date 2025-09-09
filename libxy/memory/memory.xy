@@ -54,7 +54,7 @@ struct MemStatic {}
     addr = Ptr{};
 }
 
-*def set(mem: Memory, interval: SizeInterval, ptr: Ptr)
+*def set(mem: Memory, interval: RangeSize, ptr: Ptr)
 # >> (
 #     (ptr + interval'len) <= (mem + interval.start) |
 #     (mem + interval.end) <= ptr

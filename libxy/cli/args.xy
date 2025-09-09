@@ -23,7 +23,7 @@ import libxy.(string, stdio, array, slice, memory);
     desc: Str~MemStatic;
     arg: Str~MemStatic;
     short: Char;
-    nargs: IntInterval;
+    nargs: RangeInt;
     positional: Bool;
     greedy: Bool;
     command: Bool;
@@ -56,7 +56,7 @@ import libxy.(string, stdio, array, slice, memory);
     desc := "",
     arg := "value",
     positional := false,
-    nargs : IntInterval = if (positional) 1:2 else 0:1,
+    nargs : RangeInt = if (positional) 1:2 else 0:1,
     greedy := false,
     command := false,
 ) {
