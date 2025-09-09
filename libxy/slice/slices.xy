@@ -101,25 +101,25 @@
     end := (%step)'max, start := 0'to(%end)
 ) = sliceType(start){start, end, step};
 
-*def rangeType(:Byte)   = RangeByte;
-*def rangeType(:Ubyte)  = RangeUbyte;
-*def rangeType(:Short)  = RangeShort;
-*def rangeType(:Ushort) = RangeUshort;
-*def rangeType(:Int)    = RangeInt;
-*def rangeType(:Uint)   = RangeUint;
-*def rangeType(:Long)   = RangeLong;
-*def rangeType(:Ulong)  = RangeUlong;
-*def rangeType(:Size)   = RangeSize;
+-def rangeType(:Byte)   = RangeByte;
+-def rangeType(:Ubyte)  = RangeUbyte;
+-def rangeType(:Short)  = RangeShort;
+-def rangeType(:Ushort) = RangeUshort;
+-def rangeType(:Int)    = RangeInt;
+-def rangeType(:Uint)   = RangeUint;
+-def rangeType(:Long)   = RangeLong;
+-def rangeType(:Ulong)  = RangeUlong;
+-def rangeType(:Size)   = RangeSize;
 
-*def sliceType(:Byte)   = SliceByte;
-*def sliceType(:Ubyte)  = SliceUbyte;
-*def sliceType(:Short)  = SliceShort;
-*def sliceType(:Ushort) = SliceUshort;
-*def sliceType(:Int)    = SliceInt;
-*def sliceType(:Uint)   = SliceUint;
-*def sliceType(:Long)   = SliceLong;
-*def sliceType(:Ulong)  = SliceUlong;
-*def sliceType(:Size)   = SliceSize;
+-def sliceType(:Byte)   = SliceByte;
+-def sliceType(:Ubyte)  = SliceUbyte;
+-def sliceType(:Short)  = SliceShort;
+-def sliceType(:Ushort) = SliceUshort;
+-def sliceType(:Int)    = SliceInt;
+-def sliceType(:Uint)   = SliceUint;
+-def sliceType(:Long)   = SliceLong;
+-def sliceType(:Ulong)  = SliceUlong;
+-def sliceType(:Size)   = SliceSize;
 
 *def len(
     range: (RangeUbyte, RangeUshort, RangeUint, RangeUlong, RangeSize)
@@ -133,10 +133,10 @@
     if (range.end > range.start) range.end'unsign - range.start'unsign
     else 0'to(%range.end'unsign);
 
-*def unsign(a: Byte) a'to(Ubyte);
-*def unsign(a: Short) a'to(Ushort);
-*def unsign(a: Int) a'to(Uint);
-*def unsign(a: Long) a'to(Ulong);
+-def unsign(a: Byte) a'to(Ubyte);
+-def unsign(a: Short) a'to(Ushort);
+-def unsign(a: Int) a'to(Uint);
+-def unsign(a: Long) a'to(Ulong);
 
 ;; Construct a slice
 *def slice(start: Float) = RangeFloat{start, Float'inf};

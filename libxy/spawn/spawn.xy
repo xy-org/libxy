@@ -18,7 +18,7 @@ import libxy.(fs, binary, error, array);
 
 ;; Represent the id (name) of a spawn
 ;; Use one of the spawn funcs to create a Sid instance.
-;; Creating one by hand is not really possible.
+;; Creating one by hand dosn't really make sense.
 ;;
 ;; Sids are not recycled (reused) except in the extreme case of spawning
 ;; billions of times. Even in that case the system will do everything in its
