@@ -46,7 +46,7 @@ import libxy.(string, stdio, array, slice, memory);
     schema.desc = desc;
     schema.epilog = epilog;
     schema.short = short;
-    schema.named'push(CliParam{"help", desc="show this help message and exit"});
+    schema.named'append(CliParam{"help", desc="show this help message and exit"});
 }
 
 *def param(
@@ -63,9 +63,9 @@ import libxy.(string, stdio, array, slice, memory);
     field := CliParam{=name, =short, =desc, =arg, =nargs, =greedy, =command};
 
     if (positional) {
-        schema.positional'push(field);
+        schema.positional'append(field);
     } else {
-        schema.named'push(field);
+        schema.named'append(field);
     }
 }
 
@@ -236,7 +236,7 @@ struct ParsingError {
                 }
 
                 if (schema.named[paramIdx].arg'empty) {
-                    stream'push(CliArg{
+                    stream'append(CliArg{
                         name=schema.named[paramIdx].name,
                         value=""~MemExt,
                         # dataIdx=schema.named[paramIdx].dataIdx,
@@ -248,7 +248,7 @@ struct ParsingError {
             }
         } elif (namedParamIdx >= 0) {
             ;; value of named
-            stream'push(CliArg{
+            stream'append(CliArg{
                 name=schema.named[namedParamIdx].name,
                 value=arg,
                 # dataIdx=schema.named[namedParamIdx].dataIdx,
@@ -265,7 +265,7 @@ struct ParsingError {
                 error ParsingError{f"Unrecognized positional argument '{arg}'"};
             }
 
-            stream'push(CliArg{
+            stream'append(CliArg{
                 name=schema.positional[posParamIdx].name,
                 value=arg,
                 # dataIdx=schema.positional[posParamIdx].dataIdx,

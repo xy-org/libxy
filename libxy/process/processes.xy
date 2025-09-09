@@ -16,12 +16,12 @@ struct Process {
         ;; child process
         # TODO prealloc args'len + 2 elems in argv
         argv : Array~Ptr~[c.char];
-        argv'push(path.addr);
+        argv'append(path.addr);
         for (arg in args) {
-            argv'push(arg.addr);
+            argv'append(arg.addr);
         }
         null := Ptr{};
-        argv'push(null);
+        argv'append(null);
 
         err: Int = c.execvp(path.addr~[c.char], argv.mem.addr~Ptr~[c.char]);
 

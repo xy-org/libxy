@@ -1,0 +1,48 @@
+import libxy.(array, string);
+import xytest;
+
+
+*def normalUsage~Test() {
+    arr: Array~Int;
+
+    for (i in :100) {
+        arr'append(i);
+    }
+    (equal) arr'len, 100;
+
+    for (i in :100) {
+        (equal) arr[i], i;
+    }
+    (equal) arr'len, 100;
+
+    arr'clear;
+    (equal) arr'len, 0;
+
+    for (i in :200) {
+        val := i * 2;
+        arr'append(val);
+        (equal) arr[i], i * 2;
+    }
+    (equal) arr'len, 200;
+}
+
+struct WithDtor {
+    ptr: Ptr;
+}
+
+struct DtorCounter {
+    count: Uint;
+}
+
+def dtor(s: WithDtor) {
+    [Global~DtorCounter].count++;
+}
+
+#*def dtorsAreCalled~Test() {
+#    arr: Array~WithDtor;
+#    for (i in :10) {
+#        arr @= WithDtor{Ptr{}};
+#    }
+#
+#    (equal) [Global~DtorCounter].count, 10;
+#}

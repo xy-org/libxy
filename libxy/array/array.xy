@@ -1,7 +1,7 @@
 import xy.ctti;
 import libxy.(unit, memory, slice, error);
 
-;; A dynamic array. Can grow and shrink as you push and pop elements.
+;; A dynamic array. Can grow and shrink as you append and pop elements.
 *struct Array~[elemType: struct, xy_dtor=true] {
     mem: Memory;
     len: Size~Count;
@@ -36,13 +36,6 @@ def ensureCapacity(
     arr.mem[arr.len * elemSize +: elemSize] = elemMem;
     arr.len++;
 }
-
-*def push(
-    arr: mut Array,
-    elem: pseudo Any,
-    elemMem: Ptr = elem'addrof,
-    elemSize := sizeof(elem)
-) append(arr, elem, elemMem, elemSize);
 
 *def pop(arr: mut Array) {
     # TODO call dtor;
@@ -81,9 +74,9 @@ struct ArrayIter {
 }
 
 *def fill(arr: mut Array, n: Size, value: Any = (arr..elemType){}) =
-for (i in :n) {
-    arr'push(value);
-};
+    for (i in :n) {
+        arr'append(value);
+    };
 
 ;; Clear the array
 *def clear(arr: mut Array) {

@@ -6,7 +6,7 @@ import xytest;
 
 *def runningLs~Test() {
     args : Array~Str;
-    args'push("Echoing from test");
+    args'append("Echoing from test");
     p := run("echo", args);
     _ = p'wait();
 }
