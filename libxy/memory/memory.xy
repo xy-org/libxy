@@ -62,3 +62,5 @@ struct MemStatic {}
 {
     c.memcpy(mem.addr + interval.start, ptr, interval'len);
 }
+
+#*def set(mem: Memory, interval: RangeSize, ptr: Ptr) break "sdfsdf";

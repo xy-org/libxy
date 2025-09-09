@@ -4,10 +4,52 @@
 
 *def slice() = AllSlice{};
 
-;; Range is an half-open interval [start, end}
+;; Range is an half-open interval [start, end}. A step of 1 is implied
+*struct RangeByte {
+    start: Byte;
+    end: Byte;
+}
+
+;; ...
+*struct RangeUbyte {
+    start: Ubyte;
+    end: Ubyte;
+}
+
+;; ...
+*struct RangeShort {
+    start: Short;
+    end: Short;
+}
+
+;; ...
+*struct RangeUshort {
+    start: Ushort;
+    end: Ushort;
+}
+
+;; ...
 *struct RangeInt {
     start: Int;
     end: Int;
+}
+
+;; ...
+*struct RangeUint {
+    start: Uint;
+    end: Uint;
+}
+
+;; ...
+*struct RangeLong {
+    start: Long;
+    end: Long;
+}
+
+;; ...
+*struct RangeUlong {
+    start: Ulong;
+    end: Ulong;
 }
 
 ;; ...
@@ -16,7 +58,7 @@
     end: Size;
 }
 
-;; ...
+;; Range is an half-open interval [start, end}.
 *struct RangeFloat {
     start: Float;
     end: Float;
@@ -45,28 +87,62 @@
 # I don't see the point of floating-point slices
 
 ;; Construct a slice
-*def slice(start: Int) = RangeInt{start, Int'max};
-*def slice(end: Int, start := 0) = RangeInt{start, end};
-*def slice(step: Int, end := Int'max, start := 0) = SliceInt{start, end, step};
+*def slice(
+    start: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong, Size)
+) = rangeType(start){start, (%start)'max};
 
-*def slice(start : Size) = RangeSize{start, Size'max};
-*def slice(end : Size, start: Size = 0) = RangeSize{start, end};
-*def slice(step : Size, end := Size'max, start := 0) = RangeSize{start, end, step};
+*def slice(
+    end: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong, Size),
+    start := 0'to(%end)
+) = rangeType(start){start, end};
 
-*def slice(start : Long) = RangeLong{start, Long'max};
-*def slice(end : Long, start: Long = 0) = RangeLong{start, end};
-*def slice(step : Long, end := Long'max, start := 0) = RangeLong{start, end, step};
+*def slice(
+    step: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong, Size),
+    end := (%step)'max, start := 0'to(%end)
+) = sliceType(start){start, end, step};
 
+*def rangeType(:Byte)   = RangeByte;
+*def rangeType(:Ubyte)  = RangeUbyte;
+*def rangeType(:Short)  = RangeShort;
+*def rangeType(:Ushort) = RangeUshort;
+*def rangeType(:Int)    = RangeInt;
+*def rangeType(:Uint)   = RangeUint;
+*def rangeType(:Long)   = RangeLong;
+*def rangeType(:Ulong)  = RangeUlong;
+*def rangeType(:Size)   = RangeSize;
+
+*def sliceType(:Byte)   = SliceByte;
+*def sliceType(:Ubyte)  = SliceUbyte;
+*def sliceType(:Short)  = SliceShort;
+*def sliceType(:Ushort) = SliceUshort;
+*def sliceType(:Int)    = SliceInt;
+*def sliceType(:Uint)   = SliceUint;
+*def sliceType(:Long)   = SliceLong;
+*def sliceType(:Ulong)  = SliceUlong;
+*def sliceType(:Size)   = SliceSize;
+
+*def len(
+    range: (RangeUbyte, RangeUshort, RangeUint, RangeUlong, RangeSize)
+) =
+    if (range.end > range.start) range.end - range.start
+    else 0'to(%range.end);
+
+*def len(
+    range: (RangeByte, RangeShort, RangeInt, RangeLong)
+) =
+    if (range.end > range.start) range.end'unsign - range.start'unsign
+    else 0'to(%range.end'unsign);
+
+*def unsign(a: Byte) a'to(Ubyte);
+*def unsign(a: Short) a'to(Ushort);
+*def unsign(a: Int) a'to(Uint);
+*def unsign(a: Long) a'to(Ulong);
+
+;; Construct a slice
 *def slice(start: Float) = RangeFloat{start, Float'inf};
 *def slice(end: Float, start := 0.0) = RangeFloat{start, end};
 
 *def slice(start: Double) = RangeDouble{start, Double'inf};
 *def slice(end: Double, start := 0.0d) = RangeDouble{start, end};
-
-*def len(range: RangeInt) =
-    if (range.end > range.start) range.end'to(Uint) - range.start'to(Uint) - 1
-    else 0u;
-
-*def len(interval: RangeSize) = interval.end - interval.start;
 
 *def len(range: (RangeFloat, RangeDouble)) = range.end - range.start;
