@@ -38,11 +38,11 @@ def dtor(s: WithDtor) {
     [Global~DtorCounter].count++;
 }
 
-#*def dtorsAreCalled~Test() {
-#    arr: Array~WithDtor;
-#    for (i in :10) {
-#        arr @= WithDtor{Ptr{}};
-#    }
-#
-#    (equal) [Global~DtorCounter].count, 10;
-#}
+*def dtorsAreCalled~Test() {
+    arr: Array~WithDtor;
+    for (i in :10) {
+        arr @= WithDtor{Ptr{}};
+    }
+    arr'clear();
+    (equal) [Global~DtorCounter].count, 10;
+}

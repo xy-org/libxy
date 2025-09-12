@@ -79,7 +79,9 @@ struct ArrayIter {
     };
 
 ;; Clear the array
-*def clear(arr: mut Array) {
-    # TODO call dtors
+*def clear(arr: mut Array) = -> void {
+    for (i in :arr'len) {
+        arr[i] =< void;
+    }
     arr.len = 0;
-}
+};

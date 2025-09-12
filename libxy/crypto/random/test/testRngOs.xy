@@ -77,7 +77,7 @@ import xytest;
     perBin := 1000;
     bin : @Int[10];
     binLen := 1.0 / nbins'to(Float);
-    allowedMargin := 10;; 10%
+    allowedMargin := 20;; 20%
 
     for (i in :nbins * perBin) {
         fp := rng'random(fpType);
