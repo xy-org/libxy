@@ -76,7 +76,7 @@ def str~[StrCtor{prefix="", interpolation=false}] (
 {
     start := min(int.start'to(Size), s.size);
     end := min(int.end'to(Size), s.size);
-    return Str{s.addr + start, end - start};
+    return Str~MemExt{s.addr + start, end - start};
 }
 
 ;; Return true if string is empty
@@ -115,7 +115,7 @@ def ensureNullTerminated(str: Str, :MemManaged) str;
 def ensureNullTerminated(str: Str, :MemStatic) str;
 def ensureNullTerminated(str: Str, :MemExt) str'copy();
 
-*def nullTerminated(str: Str) nullTerminated(str, str..memory);
+*def nullTerminated(str: Str) nullTerminated(str, str..(memory, MemExt));
 def nullTerminated(str: Str, :MemManaged) true;
 def nullTerminated(str: Str, :MemStatic) true;
 def nullTerminated(str: Str, :MemExt) false;

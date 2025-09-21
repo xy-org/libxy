@@ -7,9 +7,12 @@ import libxy.(unit, memory, slice, error);
     len: Size~Count;
 }
 
-*def dtor(arr: mut Array) {
+*def dtor(arr: mut Array) = -> void {
+    for (i in :arr'len) {
+        arr[i] =< void;
+    }
     arr.mem'free();
-}
+};
 
 *def len(a: Array) = a.len;
 
@@ -25,16 +28,20 @@ def ensureCapacity(
 }
 
 *def append(
-    arr: mut Array,
+    arr: Array,
     elem: pseudo Any,
-    elemMem: Ptr = elem'addrof,
-    elemSize := sizeof(elem)
-)
-# >> compatible(arr..elemType, %elem, arr, elem)
-{
+) = -> void {
+    arr'pushBack = elem;
+};
+
+-def pushBack(
+    arr: mut Array,
+    elemSize : Size = sizeof(arr..elemType),
+) -> arr[ Ptr~[^arr..elemType] ] {
+    pos := arr.len;
     arr'ensureCapacity(arr.len + 1, elemSize=elemSize);
-    arr.mem[arr.len * elemSize +: elemSize] = elemMem;
     arr.len++;
+    return (arr.mem.addr + pos * elemSize)~[void];
 }
 
 *def pop(arr: mut Array) {
@@ -50,7 +57,7 @@ def ensureCapacity(
 ) -> arr[ Ptr~[^arr..elemType] ]
 >> i'to(Size) < arr'len
 {
-    return arr.mem.addr + i'to(Size) * elemSize;
+    return (arr.mem.addr + i'to(Size) * elemSize)~void;
 }
 
 struct ArrayIter {
@@ -70,7 +77,7 @@ struct ArrayIter {
 *def get(
     arr: Array, iter: ArrayIter, elemSize : Size = sizeof(arr..elemType)
 ) -> arr[ Ptr~[^arr..elemType] ] {
-    return arr.mem.addr + iter.idx * elemSize;
+    return (arr.mem.addr + iter.idx * elemSize)~void;
 }
 
 *def fill(arr: mut Array, n: Size, value: Any = (arr..elemType){}) =
