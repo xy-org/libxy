@@ -24,7 +24,7 @@ import libxy.memory;
 
 ;; Info about a node on a filesystem
 *struct Node {
-    name: Str;
+    name: Str~MemManaged;
     type: NodeType;
     size: Size;
     atime: Timestamp;

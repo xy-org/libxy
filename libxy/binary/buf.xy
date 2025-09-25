@@ -57,7 +57,7 @@ import libxy.(slice, error);
 }
 
 ;; Append {blob} to the buffer
-*def append(buf: mut Buf, blob: Blob) {
+*def append(buf: mut Buf, blob: Blob~void) {
     buf'ensureCap(blob.size);
     buf.mem[buf.fill +: blob.size] = blob.addr;
     buf.fill += blob.size;

@@ -1,13 +1,13 @@
 ;; == Application specific data == ;;
 
 ;; Concatenate and print files
-struct ProgramArgs {
-    ;; path to files
-    files : Array~Str;
-
-    ;; Display line count
-    lineCount: Bool;
-}
+#struct ProgramArgs {
+#    ;; path to files
+#    files : Array~Str;
+#
+#    ;; Display line count
+#    lineCount: Bool;
+#}
 
 # *def parseToStruct~Test() {
 #     cliArgs := @{c"./a.out", c"--line-count", "file1.txt", "file2.txt"};

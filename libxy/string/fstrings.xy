@@ -169,7 +169,7 @@ def unsigned(a: Size) a;
     ;; Else invalid char. Just ignore.
 }
 
-*def to(builder: mut Fstr, :Str) -> Str {
+*def to(builder: mut Fstr, :Str) -> Str~MemManaged {
     builder'ensureCap(1z);
     ;; not really needed but better safe than sorry
     [builder.mem.addr~[c.char] + builder.fill] = 0;

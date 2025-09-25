@@ -10,7 +10,7 @@ import posix~[Clib{}] in c;
 ;; When tagged with {MemExt}, the memory is managed by something else
 ;;
 ;; When tagged with {MemStatic}, the memory needs no deallocation
-*struct Blob~[memory :struct = MemManaged] {
+*struct Blob~[memory := MemManaged] {
     addr: Ptr~Byte;
     size: Size;
 }
@@ -18,13 +18,13 @@ import posix~[Clib{}] in c;
 *def bstr~[StrCtor{prefix="b"}](addr: Ptr~Byte, size: Size) =
     Blob~MemStatic{addr, size};
 
-*def bunstr~[UnstrCtor{prefix=""}](:Blob)   = UnstrIter{};
-*def bunstrBe~[UnstrCtor{prefix="be"}](:Blob) = UnstrIter{};
-*def bunstrLe~[UnstrCtor{prefix="le"}](:Blob) = UnstrIter{endian=Endian.little};
+*def bunstr~[UnstrCtor{prefix=""}](:Blob~void)   = UnstrIter{};
+*def bunstrBe~[UnstrCtor{prefix="be"}](:Blob~void) = UnstrIter{};
+*def bunstrLe~[UnstrCtor{prefix="le"}](:Blob~void) = UnstrIter{endian=Endian.little};
 
-*def dtor(blob: mut Blob) = dtor(blob, blob..memory);
+*def dtor(blob: mut Blob~void) = dtor(blob, blob..memory);
 
-*def cmp(lhs: Blob, rhs: Blob) -> Int {
+*def cmp(lhs: Blob~void, rhs: Blob~void) -> Int {
     if (lhs.size > rhs.size) {
         return 1;
     } elif (lhs.size < rhs.size) {
@@ -33,7 +33,7 @@ import posix~[Clib{}] in c;
     return c.memcmp(lhs.addr~[c.char], rhs.addr~[c.char], lhs.size);
 }
 
-*def append(fstr: mut Fstr, blob: Blob, prefix:="\\x", sep:="") -> void | SystemError {
+*def append(fstr: mut Fstr, blob: Blob~void, prefix:="\\x", sep:="") -> void | SystemError {
     for (i in :blob.size) {
         byte := [blob.addr + i];
         fstr'append(prefix);
@@ -51,7 +51,7 @@ import posix~[Clib{}] in c;
     }
 }
 
-*def append(fstr: mut Fstr, blob: Blob, ascii: Bool) -> void | SystemError {
+*def append(fstr: mut Fstr, blob: Blob~void, ascii: Bool) -> void | SystemError {
     if (!ascii) {
         fstr'append(blob);
     }
@@ -77,7 +77,7 @@ struct UnstrIter {
 }
 
 *def read(
-    blob: Blob, iter: mut UnstrIter,
+    blob: Blob~void, iter: mut UnstrIter,
     num: mut (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong),
     endian : Endian = Endian{iter.endian.val} # TODO why no just endian := iter.endian ???
 )
@@ -89,7 +89,7 @@ struct UnstrIter {
 }
 
 *def read(
-    blob: Blob, iter: mut UnstrIter,
+    blob: Blob~void, iter: mut UnstrIter,
     bits: mut (Bits8, Bits16, Bits32, Bits64),
 )
 
@@ -107,11 +107,11 @@ struct UnstrIter {
 -def to(bits: Bits64, endian: Endian) = bits'to(Ulong)'to(endian)'bits;
 
 *def read(
-    blob: Blob, iter: mut UnstrIter, other: mut Blob,
+    blob: Blob~void, iter: mut UnstrIter, other: mut Blob~void,
 ) = read(blob, iter, other, other..memory);
 
 *def read(
-    blob: Blob, iter: mut UnstrIter, other: mut Blob, :MemExt
+    blob: Blob~void, iter: mut UnstrIter, other: mut Blob~void, :MemExt
 ) {
     if (iter.offset < blob.size) {
         other.addr = blob.addr + iter.offset;
@@ -124,16 +124,16 @@ struct UnstrIter {
 }
 
 *def read(
-    blob: Blob, offset: mut UnstrIter, other: mut Blob, :MemStatic
+    blob: Blob~void, offset: mut UnstrIter, other: mut Blob~void, :MemStatic
 ) break "Cannot read into a blob with static memory";
 
 *def read(
-    blob: Blob, offset: mut UnstrIter, other: mut Blob, :MemManaged
+    blob: Blob~void, offset: mut UnstrIter, other: mut Blob~void, :MemManaged
 ) break "Cannot read into a blob with managed memory. Read into Blob~MemExt and then copy";
 
-def dtor(blob: mut Blob, :MemManaged) {
+def dtor(blob: mut Blob~void, :MemManaged) {
     free(blob.addr, blob.size);
 }
 
-def dtor(blob: mut Blob, :MemStatic) {}
-def dtor(blob: mut Blob, :MemExt) {}
+def dtor(blob: mut Blob~void, :MemStatic) {}
+def dtor(blob: mut Blob~void, :MemExt) {}

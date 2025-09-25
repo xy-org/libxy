@@ -160,7 +160,7 @@ def command(
 }
 
 struct ParsingError {
-    msg: Str;
+    msg: Str~MemManaged;
 }
 
 *def to(pe: ParsingError, :Bool) pe.msg.size > 0;
