@@ -29,34 +29,40 @@ import xytest;
 #}
 
 *def interpolatingInt~Test() {
-    (assert) f"{1b}" == "1";
-    (assert) f"{12ub}" == "12";
-    (assert) f"{123s}" == "123";
-    (assert) f"{4us}" == "4";
-    (assert) f"{12345}" == "12345";
-    (assert) f"{6u}" == "6";
-    (assert) f"{-1234567l}" == "-1234567";
-    (assert) f"{8ul}" == "8";
-    (assert) f"{369z}" == "369";
+    (equal) f"{1b}", "1";
+    (equal) f"{12ub}", "12";
+    (equal) f"{123s}", "123";
+    (equal) f"{4us}", "4";
+    (equal) f"{12345}", "12345";
+    (equal) f"{6u}", "6";
+    (equal) f"{-1234567l}", "-1234567";
+    (equal) f"{8ul}", "8";
+    (equal) f"{369z}", "369";
 }
 
 *def interpolatingIntExplicitBase~Test() {
-    num := 789024328ul;
-    (assert) f"{num, base=10}" == "789024328";
-    #(assert) f"{num, base=16}" == "2f078e48";
-    #(assert) f"{num, base=8}" == "5701707110";
-    #(assert) f"{num, base=2}" == "101111000001111000111001001000";
-    #(assert) f"{num, base=27}" == "20qifo7";
-    #(assert) f"{48461859, base=36}" == "super";
+    (equal) f"{789024328ul, base=10}", "789024328";
+    (equal) f"{789024328ul, base=16}", "2F078E48";
+    (equal) f"{789024328ul, base=8}", "5701707110";
+    (equal) f"{789024328ul, base=2}", "101111000001111000111001001000";
+    (equal) f"{789024328ul, base=27}", "20QIFO7";
+    (equal) f"{48461859, base=36}", "SUPER";
 }
 
-#*def plusSign~Test() {
-#    num := 500l;
-#    (assert) f"{num, plusSign=`+`}" == "+500";
-#    (assert) f"{num, plusSign=` `}" == " 500";
-#    (assert) f"{-num, plusSign=`+`}" == "-500";
-#    (assert) f"{num, width=5, .left, plusSign=`＋`}" == "＋500 ";
-#}
+*def interpolatingBits~Test() {
+    (equal) f"{0xFE()b'to(Bits8)}", "0xFE";
+    (equal) f"{0x1234s'to(Bits16)}", "0x1234";
+    (equal) f"{0x123456'to(Bits32)}", "0x00123456";
+    (equal) f"{0x123456ABCDEFul'to(Bits64)}", "0x0000123456ABCDEF";
+}
+
+*def plusSign~Test() {
+    (equal) f"{500, plusSign=`+`}", "+500";
+    (equal) f"{500, plusSign=` `}", " 500";
+    (equal) f"{-500, plusSign=`+`}", "-500";
+    (equal) f"{0, plusSign=`+`, minusSign=`-`}", "+0";
+    (equal) f"{0, plusSign=`+`, minusSign=`-`, zeroSign=Char{}}", "0";
+}
 
 *def interpolatingFloat~Test() {
     (assert) f"{4125.6, precision=1}" == "4125.6";
@@ -73,18 +79,6 @@ import xytest;
 #    num := 3.14;
 #    (assert) f"{num, .scientific}" == "3.140000e+00";
 #    (assert) f"{num, .scientific, precision=2}" == "3.14e+00";
-#}
-#
-#*def width~Test() {
-#    num := 500;
-#    (assert) f"{num, width=5}" == "  500";
-#    (assert) f"{-num, width=5}" == " -500";
-#    (assert) f"{num, width=5, .left}" == "500  ";
-#    (assert) f"{num, width=5, .center}" == " 500 ";
-#    (assert) f"{-num, width=5, .center}" == "-500 ";
-#    (assert) f"{num, width=1}" == "500";
-#    (assert) f"{num, width=0}" == "500";
-#    (assert) f"{num, width=-5}" == "500";
 #}
 #
 #*def fill~Test() {

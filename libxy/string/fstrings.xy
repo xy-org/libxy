@@ -1,4 +1,5 @@
 import xy.ctti;
+import libxy.bitwise;
 
 *struct Fstr~[xy_dtor=true] {
     mem: Memory;
@@ -54,33 +55,65 @@ def printfFmt(:Size) inlinec"\"%zu\"";
 
 ;; Stringify and append {num}
 *def append(
-    builder: mut Fstr,
+    fstr: mut Fstr,
     num: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong, Size),
-    base := 10
+    base := 10,
+    minusSign := `-`, plusSign := Char{}, zeroSign := plusSign,
 )
 >> base >= 2 && base <= 36
 {
-    #if (num < 0) {
-    #    builder'append(`-`);
-    #    builder'appendUnsigned((-num)'unsigned, base=base'to(Ubyte), ...);
-    #} else {
-    #    builder'appendUnsigned(num'unsigned, base=base'to(Ubyte), ...);
-    #}
-
-    do {
-        capacity := builder'capacity();
-        added : Int = c.snprintf(builder.mem.addr~[c.char] + builder.fill, capacity, num'printfFmt, num);
-        if (added >= 0) {
-            if (added'to(Size) >= capacity) {
-                builder'ensureCap(added'to(Size) + 1);
-            } else {
-                builder.fill += added'to(Size);
-                break;
-            }
-        } else {
-            break;  # I think it is safe to ignore this kind of error
+    if (num > 0) {
+        if (plusSign != Char{}) {
+            fstr'append(plusSign);
         }
-    } while(true);
+        fstr'appendDigits(num, base);
+    } elif (num < 0) {
+        if (minusSign != Char{}) {
+            fstr'append(minusSign);
+        }
+        fstr'appendDigits((-num)'unsigned, base);
+    } else {
+        if (zeroSign != Char{}) {
+            fstr'append(zeroSign);
+        }
+        fstr'append(`0`);
+    }
+}
+
+-def appendDigits(
+    fstr: mut Fstr,
+    num:(Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong, Size),
+    base: Int,
+) {
+    number : mut = num;
+    numDigits := do -> (i : Size) {
+        i++;
+        number /= base'to(%number);
+    } while (number != 0);
+
+    fstr'ensureCap(numDigits);
+    number = num;
+    for (i in :numDigits) {
+        digit := number \mod base'to(%number);
+        digitSymbol := if (digit <= 9) `0` + digit else `A` + digit - 10;
+        fstr.mem.addr[fstr.fill + numDigits - i - 1] = digitSymbol'to(Byte);
+        number /= base'to(%number);
+    }
+    fstr.fill += numDigits;
+}
+
+;; Stringify and append {bits}
+*def append(fstr: mut Fstr, bits: (Bits8, Bits16, Bits32, Bits64)) {
+    fstr'ensureCap(2 + bits'sizeof * 2);
+    fstr'append("0x");
+    letters := c"0123456789ABCDEF";
+    num : mut = bits'unsigned'nibbles'reverse.bits'unsigned;
+    for (i in :(bits'sizeof*2)) {
+        oct := num \mod 16'to(%num);
+        num = num / 16;
+        fstr.mem.addr[fstr.fill + i] = letters[oct];
+    }
+    fstr.fill += bits'sizeof*2;
 }
 
 def unsigned(a: Byte) a'to(Ubyte);
@@ -92,6 +125,10 @@ def unsigned(a: Ushort) a;
 def unsigned(a: Uint) a;
 def unsigned(a: Ulong) a;
 def unsigned(a: Size) a;
+def unsigned(a: Bits8) a'to(Ubyte);
+def unsigned(a: Bits16) a'to(Ushort);
+def unsigned(a: Bits32) a'to(Uint);
+def unsigned(a: Bits64) a'to(Ulong);
 
 #def appendUnsigned(
 #    fstr: mut Fstr,
