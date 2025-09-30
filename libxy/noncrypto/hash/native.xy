@@ -1,0 +1,16 @@
+import libxy.noncrypto.hash.rapid;
+import libxy.(string, binary);
+
+NativeHashBits := Bits64;
+
+;; Fastest & Best hash available for the platform.
+struct NativeHash {
+    seed : NativeHashBits;; You can specify this to add some extra entropy
+}
+
+*def hash(str: Str, hash: NativeHash) = hash(str.addr, str.size, hash);
+
+*def hash(blob: Blob, hash: NativeHash) = hash(blob.addr, blob.size, hash);
+
+*def hash(data: Ptr~Byte, len: Size, hash: NativeHash) =
+    hash(data, len, RapidHash64{hash.seed});

@@ -1,0 +1,24 @@
+import xytest;
+import libxy.(string, binary, bitwise);
+import libxy.noncrypto.hash.rapid;
+
+*def sanity~Test() {
+    # Test vectors from
+    #     https://github.com/fwojcik/smhasher3/blob/main/hashes/rapidhash.cpp
+
+    # TODO >> arch is little endian
+
+    (equal) hash("", RapidHash64{})'to(Ulong), 0x93228a4de0eec5a2ul;
+
+    (equal) hash("a", RapidHash64{1ul'bits})'to(Ulong), 0x0dc3b86c0704cea4ul;
+
+    (equal) hash("abc", RapidHash64{2ul'bits})'to(Ulong), 0x93dc6a6329f8ddbaul;
+
+    (equal) hash("message digest", RapidHash64{3ul'bits})'to(Ulong), 0x0031cdc21324150ful;
+
+    (equal) hash("abcdefghijklmnopqrstuvwxyz", RapidHash64{4ul'bits})'to(Ulong), 0xd7523bef5b2a3fbdul;
+
+    (equal) hash("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", RapidHash64{5ul'bits})'to(Ulong), 0x416757764b7bd75bul;
+
+    (equal) hash("12345678901234567890123456789012345678901234567890123456789012345678901234567890", RapidHash64{6ul'bits})'to(Ulong), 0xa2db61f63e5a8f20ul;
+}
