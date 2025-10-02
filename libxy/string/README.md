@@ -47,3 +47,4 @@ Could have been better designed but considering the incremental way it was devel
 
 https://www.unicode.org/reports/
 https://www.compart.com/en/unicode/
+https://cldr.unicode.org/translation/number-currency-formats/number-and-currency-patterns

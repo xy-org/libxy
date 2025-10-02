@@ -33,8 +33,51 @@ def ensureCap(builder: mut Fstr, requiredCap: Size) {
     builder.fill += size;
 }
 
-*def append(builder: mut Fstr, str: Str) {
-    builder'append(str.addr, str.size);
+*def append(
+    builder: mut Fstr, str: Str,
+    width := Int'max, minWidth := width, maxWidth := width,
+    fill := ` `, left := false, center := false,
+    clip: Str = "...",
+)
+>> !(left && center)
+>> if (minWidth != Int'max) maxWidth >= minWidth else true
+{
+    strCount := str'count;
+    minSize := if (minWidth != Int'max) max(minWidth, 0)'to(Size) else 0z;
+    maxSize := max(maxWidth, 0)'to(Size);
+
+    if (strCount < minSize) {
+        # we have to pad
+        padBefore: Size;
+        padAfter: Size;
+        if (strCount < minSize) {
+            if (left) {
+                padAfter = minSize - strCount;
+            } elif (center) {
+                padCount := minSize - strCount;
+                padBefore = padCount / 2;
+                ;; if {padCount} is not even pad extra after the string
+                padAfter = (padCount + 1) / 2;
+            } else {
+                padBefore = minSize - strCount;
+            }
+        }
+
+        builder'append(fill, repeat=padBefore'to(Uint));
+        builder'append(str.addr, str.size);
+        builder'append(fill, repeat=padAfter'to(Uint));
+    } elif (strCount > maxSize) {
+        # we have to clip
+        clipSize := clip'count;
+        charsToAdd := if (maxSize >= clipSize) maxSize - clipSize else 0z;
+        for (_ in :charsToAdd, char in str'chars) {
+            builder'append(char);
+        }
+        builder'append(clip.addr, clip.size);
+    } else {
+        # just right
+        builder'append(str.addr, str.size);
+    }
 }
 
 *def append(builder: mut Fstr, str: Fstr) =
@@ -42,16 +85,6 @@ def ensureCap(builder: mut Fstr, requiredCap: Size) {
 
 ;; Number of available bytes in builder
 def capacity(fstr: Fstr) fstr.mem.size - fstr.fill;
-
-def printfFmt(:Byte) inlinec"\"%\"PRId8";
-def printfFmt(:Ubyte) inlinec"\"%\"PRIu8";
-def printfFmt(:Short) inlinec"\"%\"PRId16";
-def printfFmt(:Ushort) inlinec"\"%\"PRIu16";
-def printfFmt(:Int) inlinec"\"%\"PRId32";
-def printfFmt(:Uint) inlinec"\"%\"PRIu32";
-def printfFmt(:Long) inlinec"\"%\"PRId64";
-def printfFmt(:Ulong) inlinec"\"%\"PRIu64";
-def printfFmt(:Size) inlinec"\"%zu\"";
 
 ;; Stringify and append {num}
 *def append(
@@ -130,38 +163,49 @@ def unsigned(a: Bits16) a'to(Ushort);
 def unsigned(a: Bits32) a'to(Uint);
 def unsigned(a: Bits64) a'to(Ulong);
 
-#def appendUnsigned(
-#    fstr: mut Fstr,
-#    num: (Ubyte, Ushort, Uint, Ulong, Size),
-#    base : Ubyte
-#) {
-#    fstr'ensureCap(num'sizeof * 8);; Worst-case number of symbols
-#    rem : mut = num;
-#    do {
-#        digit := rem \mod base;
-#        rem = rem / base;
-#
-#        #if (digit <= 9) {
-#        #    [builder.mem.addr + builder.fill] = (`0` + digit)'to(Byte);
-#        #} else {
-#        #    [builder.mem.addr + builder.fill] = (`A` + digit)'to(Byte);
-#        #}
-#        #builder.fill++;
-#    } while (rem != 0);
-#}
-
 ;; ...
-*def append(builder: mut Fstr, num: Float, precision:=6) {
-    builder'ensureCap(20z);
-    added : Int = c.sprintf(builder.mem.addr~[c.char] + builder.fill, c"%.*f", precision, num);
-    builder.fill += added'to(Size);
-}
+*def append(
+    fstr: mut Fstr,
+    num: (Float, Double),
+    precision := -1,
+    scientific := false,
+) {
+    fstr'ensureCap(20z);
+    for (_ in :2) {
+        capacity := fstr'capacity;
 
-;; ...
-*def append(builder: mut Fstr, num: Double, precision:=6) {
-    builder'ensureCap(20z);
-    added : Int = c.sprintf(builder.mem.addr~[c.char] + builder.fill, c"%.*f", precision, num);
-    builder.fill += added'to(Size);
+        fmt := if (precision >= 0 && scientific) "%.*e"
+             elif (precision >= 0) "%.*f"
+             elif (scientific) "%e"
+             else "%g";
+
+        added := -> (added: Int) {
+            if (precision >= 0) {
+                added = c.snprintf(
+                    fstr.mem.addr~[c.char] + fstr.fill, capacity,
+                   fmt.addr~[to=c.char], precision, num
+                );
+            } else {
+                added = c.snprintf(
+                    fstr.mem.addr~[c.char] + fstr.fill, capacity,
+                    fmt.addr~[to=c.char], num
+                );
+            }
+        };
+
+
+        if (added >= 0) {
+            if (added'to(%capacity) > capacity) {
+                fstr'ensureCap(added'to(%capacity) + 1);
+            } else {
+                fstr.fill += added'to(%capacity);
+                break;
+            }
+        } else {
+            ;; NOTE! Silently ignore this error
+            break;
+        }
+    }
 }
 
 ;; ...
@@ -204,6 +248,29 @@ def unsigned(a: Bits64) a'to(Ulong);
         builder.fill += 4;
     }
     ;; Else invalid char. Just ignore.
+}
+
+;; ...
+*def append(fstr: mut Fstr, char: Char, repeat: Uint) {
+    if (repeat > 0) {
+        addedBytes := -> (added: Size) {
+            added = fstr.fill;
+            fstr'append(char);
+            added = fstr.fill - added;
+        };
+
+        required : mut = repeat'to(Size) - 1;
+        available : mut = 1z;
+        fstr'ensureCap(addedBytes * required);
+        src := fstr.mem.addr + fstr.fill - addedBytes;
+        while (required > 0) {
+            toTransfer := min(required, available);
+            c.memcpy(fstr.mem.addr + fstr.fill, src, toTransfer * addedBytes);
+            fstr.fill += toTransfer * addedBytes;
+            available += toTransfer;
+            required -= toTransfer;
+        }
+    }
 }
 
 *def to(builder: mut Fstr, :Str) -> Str~MemManaged {

@@ -65,54 +65,60 @@ import xytest;
 }
 
 *def interpolatingFloat~Test() {
-    (assert) f"{4125.6, precision=1}" == "4125.6";
-    #(assert) f"{4125.6d}" == "4125.6";
-    #(assert) f"{3.0}" == "3.0";
-    #(assert) f"{3.0d}" == "3.0";
-    #(assert) f"{float'inf}" == "inf";
-    #(assert) f"{-float'inf}" == "inf";
-    #(assert) f"{float'nan(.quiet)}" == "nan";
-    #(assert) f"{double'nan(quiet=False)}" == "nan";
+    (equal) f"{4125.6, precision=1}", "4125.6";
+    (equal) f"{4125.6d}", "4125.6";
+    (equal) f"{3.0}", "3";
+    (equal) f"{3.0d, precision=1}", "3.0";
+    (equal) f"{2.9, precision=0}", "3";
+    (equal) f"{3.14, precision=-1}", "3.14";
+
+    (equal) f"{Float'inf}", "inf";
+    (equal) f"{Double'inf}", "inf";
+    (equal) f"{-Double'inf}", "-inf";
+    (equal) f"{Float'nan}", "nan";
+    (equal) f"{-Double'nan}", "nan";
 }
 
-#*def scientificNotation~Test() {
-#    num := 3.14;
-#    (assert) f"{num, .scientific}" == "3.140000e+00";
-#    (assert) f"{num, .scientific, precision=2}" == "3.14e+00";
-#}
-#
-#*def fill~Test() {
-#    num := 128s;
-#    str := "String";
-#    (assert) f"{num, width=5, fill=`*`}" == "**128";
-#    (assert) f"{str, width=10, fill=`.`}" == "..String..";
-#    (assert) f"{num, width=7, fill=`ə`, .center}" == "əə128əə";
-#    (assert) f"{"!", width=3, fill=`😊`}" == "😊😊!";
-#}
-#
-#*def group~Test() {
-#    num := 12345;
-#    fnum := 12345.6789;
-#    (assert) f"{num, group=`_`}" == "12_345";
-#    (assert) f"{fnum, group=`_`}" == "12_345.6789";
-#    (assert) f"{fnum, group=`_`, precision=0}" == "12_345";
-#    (assert) f"{fnum, group=`,`, precision=2}" == "12,345.67";
-#}
-#
-#*def clip~Test() {
-#    str := "Very long string";
-#    (assert) f"{str, width=10}" == "Very long string";
-#    (assert) f"{str, width=str'len, clip="..."}" == "Very long string";
-#    (assert) f"{str, width=str'len-1, clip="..."}" == "Very long st...";
-#    (assert) f"{str, width=5, clip="⚠⚠⚠"}" == "Ve⚠⚠⚠";
-#    (assert) f"{str, width=2, clip="..."}" == "..";
-#}
-#
-#*def precision~Test() {
-#    num := 4125.6;
-#    (assert) f"{num, precision=2}" == "4125.60";
-#    (assert) f"{num, precision=1}" == "4125.6";
-#    (assert) f"{num, precision=0}" == "4125";
-#    (assert) f"{num, precision=-1}" == "4125";
-#}
-#
+*def scientificNotation~Test() {
+    num := 3.14;
+    (assert) f"{num, .scientific}" == "3.140000e+00";
+    (assert) f"{num, .scientific, precision=2}" == "3.14e+00";
+}
+
+*def minWidth~Test() {
+    str := "String";
+    (equal) f"{str, minWidth=10, fill=`*`}", "****String";
+    (assert) f"{str, minWidth=10, fill=`*`, .left}" == "String****";
+    (assert) f"{str, minWidth=10, fill=`*`, .center}" == "**String**";
+    (assert) f"{str, minWidth=11, fill=`*`, .center}" == "**String***";
+
+    (assert) f"{"128", minWidth=7, fill=`ə`, .center}" == "əə128əə";
+    (assert) f"{"!", minWidth=3, fill=`😊`}" == "😊😊!";
+}
+
+*def maxWidthAndClipping~Test() {
+    str := "Very long string";
+    (equal) f"{str, maxWidth=10}", "Very lo...";
+    (equal) f"{str, maxWidth=str'count'to(Int)}", "Very long string";
+    (equal) f"{str, maxWidth=str'count'to(Int)-1}", "Very long st...";
+    (equal) f"{str, maxWidth=5, clip="⚠⚠⚠"}", "Ve⚠⚠⚠";
+    (equal) f"{str, maxWidth=2, clip="..."}", "...";
+    (equal) f"{str, maxWidth=0, clip="..."}", "...";
+}
+
+*def widthAndClipping~Test() {
+    str := "1234";
+    (equal) f"{str, width=0, clip="?"}", "?";
+    (equal) f"{str, width=0, clip="?"}", "?";
+    (equal) f"{str, width=1, clip="?"}", "?";
+    (equal) f"{str, width=2, clip="?"}", "1?";
+    (equal) f"{str, width=3, clip="?"}", "12?";
+    (equal) f"{str, width=4, clip="?"}", "1234";
+    (equal) f"{str, width=6, clip="?", fill=`*`}", "**1234";
+}
+
+*def repeatingChars~Test() {
+    (equal) f"{`A`, repeat=10u}", "AAAAAAAAAA";
+    (equal) f"{`😊`, repeat=7u}", "😊😊😊😊😊😊😊";
+    (equal) f"{`!`, repeat=0u}", "";
+}
