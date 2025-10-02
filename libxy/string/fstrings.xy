@@ -91,24 +91,15 @@ def capacity(fstr: Fstr) fstr.mem.size - fstr.fill;
     fstr: mut Fstr,
     num: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong, Size),
     base := 10,
-    minusSign := `-`, plusSign := Char{}, zeroSign := plusSign,
 )
 >> base >= 2 && base <= 36
 {
     if (num > 0) {
-        if (plusSign != Char{}) {
-            fstr'append(plusSign);
-        }
         fstr'appendDigits(num, base);
     } elif (num < 0) {
-        if (minusSign != Char{}) {
-            fstr'append(minusSign);
-        }
+        fstr'append(`-`);
         fstr'appendDigits((-num)'unsigned, base);
     } else {
-        if (zeroSign != Char{}) {
-            fstr'append(zeroSign);
-        }
         fstr'append(`0`);
     }
 }

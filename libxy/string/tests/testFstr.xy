@@ -56,14 +56,6 @@ import xytest;
     (equal) f"{0x123456ABCDEFul'to(Bits64)}", "0x0000123456ABCDEF";
 }
 
-*def plusSign~Test() {
-    (equal) f"{500, plusSign=`+`}", "+500";
-    (equal) f"{500, plusSign=` `}", " 500";
-    (equal) f"{-500, plusSign=`+`}", "-500";
-    (equal) f"{0, plusSign=`+`, minusSign=`-`}", "+0";
-    (equal) f"{0, plusSign=`+`, minusSign=`-`, zeroSign=Char{}}", "0";
-}
-
 *def interpolatingFloat~Test() {
     (equal) f"{4125.6, precision=1}", "4125.6";
     (equal) f"{4125.6d}", "4125.6";
