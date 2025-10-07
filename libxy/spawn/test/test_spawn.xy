@@ -7,7 +7,7 @@ def func1() {
 }
 
 *def spawing~Test() {
-    sid := spawn($func1());
+    sid := spawn($func1()'toCallback);
     sid'send(Msg{5});
     # receive();
 }

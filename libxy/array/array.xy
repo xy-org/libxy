@@ -52,7 +52,7 @@ def ensureCapacity(
 }
 
 *def get(
-    arr: Array, i: (Size, Int, Uint),
+    arr: Array, i: (Size, Int, Uint, Long, Ulong),
     elemSize : Size = sizeof(arr..elemType)
 ) -> arr[ Ptr~[^arr..elemType] ]
 >> i'to(Size) < arr'len
@@ -92,3 +92,23 @@ struct ArrayIter {
     }
     arr.len = 0;
 };
+
+*def sort(
+    arr: mut Array, decreasing := false,
+) = sort(arr, ^$cmp(arr..elemType, arr..elemType), =decreasing);
+
+*def sort(arr: mut Array, cmp : FuncDef, decreasing := false) = -> void {
+    for (i in 1z:arr'len) {
+        elem: arr..elemType;
+        elem =< arr[i];
+        j : mut = i;
+        while (j > 0 && lessThan(elem, arr[j-1], cmp, decreasing)) {
+            arr[j] =< arr[j-1];
+            j--;
+        }
+        arr[j] =< elem;
+    }
+};
+
+-def lessThan(a: Any, b: Any, cmp: FuncDef, decreasing: Bool) =
+    (decreasing && [cmp](a, b) > 0) || (decreasing'not && [cmp](a, b) < 0);

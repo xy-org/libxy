@@ -46,3 +46,46 @@ def dtor(s: WithDtor) {
     arr'clear();
     (equal) [Global~DtorCounter].count, 10;
 }
+
+*def sortingEasy~Test() {
+    n := 10;
+    arr : Array~Int;
+    for (i in :n) {
+        arr @= n - i - 1;
+    }
+
+    arr'sort;
+    for (i in :n) {
+        (equal) arr[i], i;
+    }
+
+    arr'sort(.decreasing);
+    for (i in :n) {
+        (equal) arr[i], n - i - 1;
+    }
+}
+
+struct Pair {
+    key: Int;
+    value: Int;
+}
+
+def cmp(p1: Pair, p2: Pair) = cmp(p1.key, p2.key);
+
+*def stability~Test() {
+    n := 100;
+    max := 10;
+    arr: Array~Pair;
+    for (i in :n) {
+        arr @= Pair{key=i \mod max, value=i};
+    }
+
+    arr'sort;
+
+    for (i in 1z:arr'len) {
+        (assert) arr[i-1].key <= arr[i].key;
+        if (arr[i-1].key == arr[i].key) {
+            (assert) arr[i-1].value < arr[i].value;
+        }
+    }
+}
