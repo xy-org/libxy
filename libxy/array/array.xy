@@ -1,5 +1,6 @@
 import xy.ctti;
 import libxy.(unit, memory, slice, error);
+import libc~[Clib{}] in c;
 
 ;; A dynamic array. Can grow and shrink as you append and pop elements.
 *struct Array~[elemType: struct, xy_dtor=true] {
@@ -97,16 +98,70 @@ struct ArrayIter {
     arr: mut Array, decreasing := false,
 ) = sort(arr, ^$cmp(arr..elemType, arr..elemType), =decreasing);
 
+def merge(arr: mut Array, r1: RangeSize, r2: RangeSize, cmp: FuncDef, decreasing: Bool) = -> void {
+    merged: Array~[arr..elemType];
+    i : mut = r1.start;
+    j : mut = r2.start;
+    while (i < r1.end && j < r2.end) {
+        if (lessThan(arr[j], arr[i], cmp, decreasing)'not) {
+            merged'append(arr[i] =>);
+            i++;
+        } else {
+            merged'append(arr[j] =>);
+            j++;
+        }
+    }
+    while (i < r1.end) {
+        merged'append(arr[i] =>);
+        i++;
+    }
+    while (j < r2.end) {
+        merged'append(arr[j] =>);
+        j++;
+    }
+    totalBytes := (r1'len + r2'len) * sizeof(arr..elemType);
+    c.memcpy(arr.mem.addr + r1.start * sizeof(arr..elemType), merged.mem.addr, totalBytes);
+};
+
 *def sort(arr: mut Array, cmp : FuncDef, decreasing := false) = -> void {
-    for (i in 1z:arr'len) {
+    if (arr'len > 1) {
+        regions: Array~RangeSize;
+        perChunk := 16z;
+        for(i in :(arr'len~void):perChunk) {
+            range := i:min(arr'len, i+perChunk);
+            arr'insertionSort(range, cmp, decreasing);
+            regions'append(range);
+        }
+
+
+        while (regions'len > 1) {
+            mergedRegions: Array~RangeSize;
+            i: mut = 1z;
+            while(i < regions'len) {
+                merge(arr, regions[i-1], regions[i], cmp, decreasing);
+                mergedRegions @= regions[i-1].start:regions[i].end;
+                i += 2;
+            }
+            if (regions'len \mod 2z == 1z) {
+                mergedRegions @= regions[regions'len - 1];
+            }
+            regions =< mergedRegions;
+        }
+    }
+};
+
+-def insertionSort(arr: mut Array, region: RangeSize, cmp : FuncDef, decreasing := false) = -> void {
+    i : mut = region.start + 1z;
+    while (i < region.end) {
         elem: arr..elemType;
         elem =< arr[i];
         j : mut = i;
-        while (j > 0 && lessThan(elem, arr[j-1], cmp, decreasing)) {
+        while (j > region.start && lessThan(elem, arr[j-1], cmp, decreasing)) {
             arr[j] =< arr[j-1];
             j--;
         }
         arr[j] =< elem;
+        i++;
     }
 };
 
