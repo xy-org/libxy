@@ -98,72 +98,57 @@ struct ArrayIter {
     arr: mut Array, decreasing := false,
 ) = sort(arr, ^$cmp(arr..elemType, arr..elemType), =decreasing);
 
-def merge(arr: mut Array, r1: RangeSize, r2: RangeSize, cmp: FuncDef, decreasing: Bool) = -> void {
-    merged: Array~[arr..elemType];
-    i : mut = r1.start;
-    j : mut = r2.start;
-    while (i < r1.end && j < r2.end) {
-        if (lessThan(arr[j], arr[i], cmp, decreasing)'not) {
-            merged'append(arr[i] =>);
-            i++;
-        } else {
-            merged'append(arr[j] =>);
-            j++;
-        }
-    }
-    while (i < r1.end) {
-        merged'append(arr[i] =>);
-        i++;
-    }
-    while (j < r2.end) {
-        merged'append(arr[j] =>);
-        j++;
-    }
-    totalBytes := (r1'len + r2'len) * sizeof(arr..elemType);
-    c.memcpy(arr.mem.addr + r1.start * sizeof(arr..elemType), merged.mem.addr, totalBytes);
-};
-
-*def sort(arr: mut Array, cmp : FuncDef, decreasing := false) = -> void {
-    if (arr'len > 1) {
-        regions: Array~RangeSize;
-        perChunk := 16z;
-        for(i in :(arr'len~void):perChunk) {
-            range := i:min(arr'len, i+perChunk);
-            arr'insertionSort(range, cmp, decreasing);
-            regions'append(range);
-        }
+*def sort(arr: mut Array, cmp : FuncDef, decreasing := false) =
+    if (!decreasing) {
+        doSort(arr, (
+            def indirectCmp(
+                a: Ptr, b: Ptr, cmp := cmp, elemType := arr..elemType
+            ) = [cmp]([a~[%elemType]], [b~[%elemType]])
+        )'toCallback((:Ptr, :Ptr)->Int));
+    } else {
+        doSort(arr, (
+            def indirectCmp(
+                a: Ptr, b: Ptr, cmp := cmp, elemType := arr..elemType
+            ) = -[cmp]([a~[%elemType]], [b~[%elemType]])
+        )'toCallback((:Ptr, :Ptr)->Int));
+    };
 
 
-        while (regions'len > 1) {
-            mergedRegions: Array~RangeSize;
-            i: mut = 1z;
-            while(i < regions'len) {
-                merge(arr, regions[i-1], regions[i], cmp, decreasing);
-                mergedRegions @= regions[i-1].start:regions[i].end;
-                i += 2;
-            }
-            if (regions'len \mod 2z == 1z) {
-                mergedRegions @= regions[regions'len - 1];
-            }
-            regions =< mergedRegions;
-        }
-    }
-};
+-def doSort(
+    arr: mut Array, cmp: (:Ptr, :Ptr)->Int, esize: Size = sizeof(arr..elemType)
+) {
+    range := :arr'len'to(Size);
+    arr'insertionSort(range, cmp, =esize);
+}
 
--def insertionSort(arr: mut Array, region: RangeSize, cmp : FuncDef, decreasing := false) = -> void {
+-def insertionSort(
+    arr: mut Array, region: RangeSize, cmp: (:Ptr, :Ptr)->Int,
+    esize: Size = sizeof(arr..elemType),
+) {
     i : mut = region.start + 1z;
     while (i < region.end) {
-        elem: arr..elemType;
-        elem =< arr[i];
         j : mut = i;
-        while (j > region.start && lessThan(elem, arr[j-1], cmp, decreasing)) {
-            arr[j] =< arr[j-1];
+        while (j > region.start && [cmp](arr.mem.addr + esize * j, arr.mem.addr + esize * (j-1)) < 0) {
+            arr'swap(j, j-1, =esize);
             j--;
         }
-        arr[j] =< elem;
         i++;
     }
-};
+}
+
+*def swap(
+    arr: mut Array, i: Size, j: Size, esize: Size = sizeof(arr..elemType)
+) {
+    if (i != j) {
+        mem : Memory;
+        mem'realloc(esize);
+        c.memcpy(mem.addr, arr.mem.addr + esize * i, esize);
+        c.memcpy(arr.mem.addr + esize * i, arr.mem.addr + esize * j, esize);
+        c.memcpy(arr.mem.addr + esize * j, mem.addr, esize);
+        mem'free();
+    }
+}
+
 
 -def lessThan(a: Any, b: Any, cmp: FuncDef, decreasing: Bool) =
     (decreasing && [cmp](a, b) > 0) || (decreasing'not && [cmp](a, b) < 0);
