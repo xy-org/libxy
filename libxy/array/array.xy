@@ -95,45 +95,147 @@ struct ArrayIter {
 };
 
 *def sort(
-    arr: mut Array, decreasing := false,
-) = sort(arr, ^$cmp(arr..elemType, arr..elemType), =decreasing);
+    arr: mut Array, decreasing := false, stable := false,
+) = sort(arr, ^$cmp(arr..elemType, arr..elemType), =decreasing, =stable);
 
-*def sort(arr: mut Array, cmp : FuncDef, decreasing := false) =
+*def sort(
+    arr: mut Array, cmp : FuncDef, decreasing := false, stable := false,
+) =
     if (!decreasing) {
-        doSort(arr, (
+        cmpCb :=(
             def indirectCmp(
                 a: Ptr, b: Ptr, cmp := cmp, elemType := arr..elemType
             ) = [cmp]([a~[%elemType]], [b~[%elemType]])
-        )'toCallback((:Ptr, :Ptr)->Int));
+        )'toCallback((:Ptr, :Ptr)->Int);
+
+        if (stable) {
+            auxMem: Memory;
+            auxMem'realloc(arr'len * sizeof(arr..elemType));
+            sortStable(arr.mem.addr, auxMem.addr, arr'len, cmpCb, sizeof(arr..elemType));
+            auxMem'free();
+        } else {
+            sortUnstable(arr.mem.addr, arr'len, cmpCb, sizeof(arr..elemType));
+        }
     } else {
-        doSort(arr, (
+        cmpCb := (
             def indirectCmp(
                 a: Ptr, b: Ptr, cmp := cmp, elemType := arr..elemType
             ) = -[cmp]([a~[%elemType]], [b~[%elemType]])
-        )'toCallback((:Ptr, :Ptr)->Int));
+        )'toCallback((:Ptr, :Ptr)->Int);
+
+        if (stable) {
+            auxMem: Memory;
+            auxMem'realloc(arr'len * sizeof(arr..elemType));
+            sortStable(arr.mem.addr, auxMem.addr, arr'len, cmpCb, sizeof(arr..elemType));
+            auxMem'free();
+        } else {
+            sortUnstable(arr.mem.addr, arr'len, cmpCb, sizeof(arr..elemType));
+        }
     };
 
 
--def doSort(
-    arr: mut Array, cmp: (:Ptr, :Ptr)->Int, esize: Size = sizeof(arr..elemType)
+-def sortUnstable(
+    arr: Ptr~Byte, nelems: Size, cmp: (:Ptr, :Ptr)->Int, esize: Size
 ) {
-    range := :arr'len'to(Size);
-    arr'insertionSort(range, cmp, =esize);
+    auxMem: Memory;
+    auxMem'realloc(nelems * esize);
+    sortStable(arr, auxMem.addr, nelems, cmp, esize);
+    auxMem'free();
+}
+
+
+-def sortStable(
+    arr: Ptr~Byte, aux: %arr, nelems: Size, cmp: (:Ptr, :Ptr)->Int, esize: Size
+) {
+    ;; merge sort falling back to insertion sort for small arrays
+    ;; 16 was chosen completely at random.
+    if (nelems <= 16) {
+        insertionSort(arr, nelems, cmp, esize);
+        return;
+    }
+
+    mid := nelems / 2z;
+    sortStable(arr, aux, mid, cmp, esize);
+    sortStable(arr + mid*esize, aux + mid*esize, nelems-mid, cmp, esize);
+    merge(arr, aux, mid, nelems, cmp, esize);
+}
+
+def merge(arr: Ptr~Byte, aux: %arr, mid: Size, nelems: Size, cmp: (:Ptr, :Ptr)->Int, esize: Size) {
+
+    left: Ptr~Byte = arr;
+    right: Ptr~Byte = arr + mid * esize;
+    leftLen : mut = mid;
+    rightLen := nelems - mid;
+    i : mut = 0z;
+    j : mut = 0z;
+    k : mut = 0z;
+    while (i < leftLen && j < rightLen) {
+        firstToCopy : mut = i;
+        while (i < leftLen && [cmp](left + i * esize, right + j * esize) <= 0) {
+            i++;
+        }
+        if (firstToCopy < i) {
+            c.memcpy(aux + k * esize, left + firstToCopy * esize, (i-firstToCopy)*esize);
+            k += i - firstToCopy;
+        }
+        if (i >= leftLen) break;
+
+        firstToCopy = j;
+        j++;; We know there is atleast one to copy
+        while (j < rightLen && [cmp](left + i * esize, right + j * esize) > 0) {
+            j++;
+        }
+        if (firstToCopy < j) {
+            c.memcpy(aux + k * esize, right + firstToCopy * esize, (j-firstToCopy)*esize);
+            k += j - firstToCopy;
+        }
+    }
+
+    if (i < leftLen) {
+        c.memcpy(aux + k * esize, left + i * esize, (leftLen - i) * esize);
+        k += leftLen - i;
+    }
+    if (j < rightLen) {
+        c.memcpy(aux + k * esize, right + j * esize, (rightLen - j) * esize);
+    }
+
+    c.memcpy(arr, aux, nelems * esize);
 }
 
 -def insertionSort(
-    arr: mut Array, region: RangeSize, cmp: (:Ptr, :Ptr)->Int,
+    arr: Ptr~Byte, nelems: Size, cmp: (:Ptr, :Ptr)->Int,
     esize: Size = sizeof(arr..elemType),
 ) {
-    def findInsertionPos(
-        arr: mut Array, region: RangeSize, cmp: (:Ptr, :Ptr)->Int,
+    def moveElement(arr: Ptr~Byte, to: Size, from: Size, esize: Size) {
+        mem : Memory;
+        mem'realloc(esize);
+        c.memcpy(mem.addr, arr + from * esize, esize);
+        bytesToMove := (from - to) * esize;
+        c.memmove(arr + esize * (to + 1), arr + esize * to, bytesToMove);
+        c.memcpy(arr + esize * to, mem.addr, esize);
+        mem'free();
+    }
+
+    ;; the actual insertion sort
+    for (i in 1z:nelems) {
+        elem : Ptr = arr + esize * i;
+        pos := findInsertionPos(arr, i, cmp, esize, elem);
+
+        if (pos < i) {
+            arr'moveElement(to=pos, from=i, =esize);
+        }
+    }
+}
+
+def findInsertionPos(
+        arr: Ptr~Byte, nelems: Size, cmp: (:Ptr, :Ptr)->Int,
         esize: Size = sizeof(arr..elemType), elem: Ptr,
     ) -> Size {
-        low : mut = region.start;
-        high : mut = region.end;
+        low : mut = 0z;
+        high : mut = nelems;
         while (low < high) {
             mid := low + ((high - low) / 2z);
-            cmpRes := [cmp](arr.mem.addr + esize * mid, elem);
+            cmpRes := [cmp](arr + esize * mid, elem);
             if (cmpRes > 0) {
                 high = mid;
             } else {
@@ -142,29 +244,6 @@ struct ArrayIter {
         }
         return low;
     }
-
-    def moveElement(arr: mut Array, to: Size, from: Size, esize: Size) {
-        mem : Memory;
-        mem'realloc(esize);
-        c.memcpy(mem.addr, arr.mem.addr + from * esize, esize);
-        bytesToMove := (from - to) * esize;
-        c.memmove(arr.mem.addr + esize * (to + 1), arr.mem.addr + esize * to, bytesToMove);
-        c.memcpy(arr.mem.addr + esize * to, mem.addr, esize);
-        mem'free();
-    }
-
-    i : mut = region.start + 1z;
-    while (i < region.end) {
-        sortedRegion := region.start : i;
-        elem : Ptr = arr.mem.addr + esize * i;
-        pos : mut = findInsertionPos(arr, sortedRegion, cmp, esize, elem);
-
-        if (pos < i) {
-            arr'moveElement(to=pos, from=i, =esize);
-        }
-        i++;
-    }
-}
 
 def insert(
      arr: mut Array, pos: Size, elem: pseudo Any,
@@ -184,7 +263,10 @@ def insert(
 
 *def swap(
     arr: mut Array, i: Size, j: Size, esize: Size = sizeof(arr..elemType)
-) {
+) -> void
+>> i < arr'len
+>> j < arr'len
+{
     if (i != j) {
         mem : Memory;
         mem'realloc(esize);
