@@ -47,6 +47,16 @@ def dtor(s: WithDtor) {
     (equal) [Global~DtorCounter].count, 10;
 }
 
+*def insertingItems~Test() {
+    arr : Array~Int;
+    for (i in :10) {
+        arr'insert(0'to(Size), i);
+    }
+    for (i in :10) {
+        (equal) arr[i], 10 - i - 1;
+    }
+}
+
 *def sortingEasy~Test() {
     n := 10;
     arr : Array~Int;
@@ -73,7 +83,7 @@ struct Pair {
 def cmp(p1: Pair, p2: Pair) = cmp(p1.key, p2.key);
 
 *def stability~Test() {
-    n := 100;
+    n := 1_000;
     max := 10;
     arr: Array~Pair;
     for (i in :n) {

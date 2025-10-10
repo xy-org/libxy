@@ -125,15 +125,61 @@ struct ArrayIter {
     arr: mut Array, region: RangeSize, cmp: (:Ptr, :Ptr)->Int,
     esize: Size = sizeof(arr..elemType),
 ) {
+    def findInsertionPos(
+        arr: mut Array, region: RangeSize, cmp: (:Ptr, :Ptr)->Int,
+        esize: Size = sizeof(arr..elemType), elem: Ptr,
+    ) -> Size {
+        low : mut = region.start;
+        high : mut = region.end;
+        while (low < high) {
+            mid := low + ((high - low) / 2z);
+            cmpRes := [cmp](arr.mem.addr + esize * mid, elem);
+            if (cmpRes > 0) {
+                high = mid;
+            } else {
+                low = mid + 1z;
+            }
+        }
+        return low;
+    }
+
+    def moveElement(arr: mut Array, to: Size, from: Size, esize: Size) {
+        mem : Memory;
+        mem'realloc(esize);
+        c.memcpy(mem.addr, arr.mem.addr + from * esize, esize);
+        bytesToMove := (from - to) * esize;
+        c.memmove(arr.mem.addr + esize * (to + 1), arr.mem.addr + esize * to, bytesToMove);
+        c.memcpy(arr.mem.addr + esize * to, mem.addr, esize);
+        mem'free();
+    }
+
     i : mut = region.start + 1z;
     while (i < region.end) {
-        j : mut = i;
-        while (j > region.start && [cmp](arr.mem.addr + esize * j, arr.mem.addr + esize * (j-1)) < 0) {
-            arr'swap(j, j-1, =esize);
-            j--;
+        sortedRegion := region.start : i;
+        elem : Ptr = arr.mem.addr + esize * i;
+        pos : mut = findInsertionPos(arr, sortedRegion, cmp, esize, elem);
+
+        if (pos < i) {
+            arr'moveElement(to=pos, from=i, =esize);
         }
         i++;
     }
+}
+
+def insert(
+     arr: mut Array, pos: Size, elem: pseudo Any,
+     elemPtr: Ptr = elem'addrof, esize : Size = elem'sizeof,
+) -> void
+>> cmpTypes(arr..elemType, elem) >= 0
+>> pos <= arr'len
+{
+    arr'ensureCapacity(arr.len + 1, elemSize=esize);
+    bytesToMove := (arr'len - pos) * esize;
+    if (bytesToMove > 0) {
+        c.memmove(arr.mem.addr + esize * (pos + 1), arr.mem.addr + esize * pos, bytesToMove);
+    }
+    c.memcpy(arr.mem.addr + esize * pos, elemPtr, esize);
+    arr.len++;
 }
 
 *def swap(
