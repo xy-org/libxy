@@ -90,7 +90,7 @@ def cmp(p1: Pair, p2: Pair) = cmp(p1.key, p2.key);
         arr @= Pair{key=i \mod max, value=i};
     }
 
-    arr'sort;
+    arr'sort(.stable);
 
     for (i in 1z:arr'len) {
         (assert) arr[i-1].key <= arr[i].key;
@@ -98,4 +98,33 @@ def cmp(p1: Pair, p2: Pair) = cmp(p1.key, p2.key);
             (assert) arr[i-1].value < arr[i].value;
         }
     }
+}
+
+*def unstable~Test() {
+    n := 1_000;
+    max := 10;
+    arr: Array~Pair;
+    for (i in :n) {
+        arr @= Pair{key=i \mod max, value=i};
+    }
+
+    arr'sort(stable=false);
+
+    for (i in 1z:arr'len) {
+        (assert) arr[i-1].key <= arr[i].key;
+    }
+}
+
+*def swapping~Test() {
+    arr: Array~Int;
+    arr @= 0;
+    arr'swap(0, 0);
+    (equal) arr[0], 0;
+
+    for (i in 1:10) {
+        arr @= i;
+    }
+    arr'swap(5, 9);
+    (equal) arr[5], 9;
+    (equal) arr[9], 5;
 }

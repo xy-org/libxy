@@ -95,11 +95,11 @@ struct ArrayIter {
 };
 
 *def sort(
-    arr: mut Array, decreasing := false, stable := false,
+    arr: mut Array, decreasing := false, stable := true,
 ) = sort(arr, ^$cmp(arr..elemType, arr..elemType), =decreasing, =stable);
 
 *def sort(
-    arr: mut Array, cmp : FuncDef, decreasing := false, stable := false,
+    arr: mut Array, cmp : FuncDef, decreasing := false, stable := true,
 ) =
     if (!decreasing) {
         cmpCb :=(
@@ -133,14 +133,59 @@ struct ArrayIter {
         }
     };
 
-
 -def sortUnstable(
     arr: Ptr~Byte, nelems: Size, cmp: (:Ptr, :Ptr)->Int, esize: Size
 ) {
-    auxMem: Memory;
-    auxMem'realloc(nelems * esize);
-    sortStable(arr, auxMem.addr, nelems, cmp, esize);
-    auxMem'free();
+    # Introsort implementation: hybrid of quicksort insertion sort for small regions
+    introsort(arr, nelems, cmp, esize);
+}
+
+-def introsort(arr: Ptr~Byte, nelems: Size, cmp: (:Ptr, :Ptr)->Int, esize: Size) {
+    if (nelems <= 16) {
+        arr'insertionSort(nelems, cmp, esize);
+        return;
+    }
+    # Partition
+
+    mid := nelems / 2z;
+    if ([cmp](arr + mid * esize, arr) < 0) {
+        unsafeSwap(arr, 0z, mid, esize);
+    }
+    if ([cmp](arr + (nelems-1) * esize, arr) < 0) {
+        unsafeSwap(arr, 0z, nelems-1, esize);
+    }
+    if ([cmp](arr + (nelems-1)*esize, arr + mid*esize) < 0) {
+        unsafeSwap(arr, mid, nelems-1, esize);
+    }
+    # median is in arr[mid]
+    pivotMem: Memory;
+    pivotMem'realloc(esize);
+    c.memcpy(pivotMem.addr, arr + mid * esize, esize);
+
+    lt : mut = 0z;
+    eq : mut = 0z;
+    gt : mut = nelems;
+    while (eq < gt) {
+        cmpRes := [cmp](arr + eq*esize, pivotMem.addr);
+        if (cmpRes < 0) {
+            unsafeSwap(arr, eq, lt, esize);
+            lt++;
+            eq++;
+        } elif (cmpRes > 0) {
+            unsafeSwap(arr, eq, gt-1, esize);
+            gt--;
+        } else {
+            eq++;
+        }
+    }
+    pivotMem'free();
+
+    if (lt > 0) {
+        introsort(arr, lt, cmp, esize);
+    }
+    if (gt < nelems) {
+        introsort(arr + gt * esize, nelems - gt, cmp, esize);
+    }
 }
 
 
@@ -161,7 +206,6 @@ struct ArrayIter {
 }
 
 def merge(arr: Ptr~Byte, aux: %arr, mid: Size, nelems: Size, cmp: (:Ptr, :Ptr)->Int, esize: Size) {
-
     left: Ptr~Byte = arr;
     right: Ptr~Byte = arr + mid * esize;
     leftLen : mut = mid;
@@ -262,19 +306,25 @@ def insert(
 }
 
 *def swap(
-    arr: mut Array, i: Size, j: Size, esize: Size = sizeof(arr..elemType)
+    arr: mut Array,
+    i: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong, Size), j: %i,
+    esize: Size = sizeof(arr..elemType)
 ) -> void
->> i < arr'len
->> j < arr'len
+>> 0 <= i && i < arr'len
+>> 0 <= j && j < arr'len
 {
     if (i != j) {
-        mem : Memory;
-        mem'realloc(esize);
-        c.memcpy(mem.addr, arr.mem.addr + esize * i, esize);
-        c.memcpy(arr.mem.addr + esize * i, arr.mem.addr + esize * j, esize);
-        c.memcpy(arr.mem.addr + esize * j, mem.addr, esize);
-        mem'free();
+        unsafeSwap(arr.mem.addr, i'to(Size), j'to(Size), esize);
     }
+}
+
+-def unsafeSwap(arr: Ptr~Byte, i: Size, j: Size, esize: Size) {
+    mem : Memory;
+    mem'realloc(esize);
+    c.memcpy(mem.addr, arr + esize * i, esize);
+    c.memcpy(arr + esize * i, arr + esize * j, esize);
+    c.memcpy(arr + esize * j, mem.addr, esize);
+    mem'free();
 }
 
 
