@@ -87,7 +87,7 @@ def cmp(p1: Pair, p2: Pair) = cmp(p1.key, p2.key);
     max := 10;
     arr: Array~Pair;
     for (i in :n) {
-        arr @= Pair{key=i \mod max, value=i};
+        arr @= Pair{key=i \rem max, value=i};
     }
 
     arr'sort(.stable);
@@ -105,7 +105,7 @@ def cmp(p1: Pair, p2: Pair) = cmp(p1.key, p2.key);
     max := 10;
     arr: Array~Pair;
     for (i in :n) {
-        arr @= Pair{key=i \mod max, value=i};
+        arr @= Pair{key=i \rem max, value=i};
     }
 
     arr'sort(stable=false);

@@ -118,7 +118,7 @@ def capacity(fstr: Fstr) fstr.mem.size - fstr.fill;
     fstr'ensureCap(numDigits);
     number = num;
     for (i in :numDigits) {
-        digit := number \mod base'to(%number);
+        digit := number \rem base'to(%number);
         digitSymbol := if (digit <= 9) `0` + digit else `A` + digit - 10;
         fstr.mem.addr[fstr.fill + numDigits - i - 1] = digitSymbol'to(Byte);
         number /= base'to(%number);
@@ -133,7 +133,7 @@ def capacity(fstr: Fstr) fstr.mem.size - fstr.fill;
     letters := c"0123456789ABCDEF";
     num : mut = bits'unsigned'nibbles'reverse.bits'unsigned;
     for (i in :(bits'sizeof*2)) {
-        oct := num \mod 16'to(%num);
+        oct := num \rem 16'to(%num);
         num = num / 16;
         fstr.mem.addr[fstr.fill + i] = letters[oct];
     }

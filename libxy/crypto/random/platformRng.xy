@@ -76,7 +76,7 @@ import libc~[Clib{headers=@{"stdlib.h", "math.h"}}] in c;
 
 	product : mut = upperBound'to(Ulong) * rng'random(Uint)'to(Ulong);
 	if (product'to(Uint) < upperBound) {
-		threshold := -upperBound \mod upperBound;
+		threshold := -upperBound \rem upperBound;
 		while (product'to(Uint) < threshold) {
             product = upperBound'to(Ulong) * rng'random(Uint)'to(Ulong);
         }
