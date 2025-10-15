@@ -3,7 +3,7 @@ import libxy.(unit, memory, slice, error);
 import libc~[Clib{}] in c;
 
 ;; A dynamic array. Can grow and shrink as you append and pop elements.
-*struct Array~[elemType: struct, xy_dtor=true] {
+*struct Array~[elemType: struct] {
     mem: Memory;
     len: Size~Count;
 }
@@ -28,29 +28,22 @@ def ensureCapacity(
     }
 }
 
-*def append(
-    arr: Array,
-    elem: pseudo Any,
-) = -> void {
-    arr'pushBack = elem;
+*def append(arr: Array, elem: don Any) = -> void {
+    _ := assumeCompatibleTypes(arr..elemType, %elem);
+    arr'appendUnsafe(elem'addrof, sizeof(arr..elemType));
+    void =< elem;
 };
 
--def pushBack(
-    arr: mut Array,
-    elemSize : Size = sizeof(arr..elemType),
-) -> arr[ Ptr~[^arr..elemType] ] {
-    pos := arr.len;
+-def appendUnsafe(arr: Array, elemPtr: Ptr, elemSize: Size) {
     arr'ensureCapacity(arr.len + 1, elemSize=elemSize);
+    c.memcpy(arr.mem.addr + arr.len * elemSize, elemPtr, elemSize);
     arr.len++;
-    return (arr.mem.addr + pos * elemSize)~[void];
 }
 
-*def pop(arr: mut Array) {
-    # TODO call dtor;
-    if (arr.len > 0) {
-        arr.len--;
-    }
-}
+*def pop(arr: mut Array) = if (arr.len > 0) {
+    arr[arr.len-1] =< void;
+    arr.len--;
+};
 
 *def get(
     arr: Array, i: (Size, Int, Uint, Long, Ulong),

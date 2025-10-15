@@ -63,9 +63,9 @@ import libxy.(string, stdio, array, slice, memory);
     field := CliParam{=name, =short, =desc, =arg, =nargs, =greedy, =command};
 
     if (positional) {
-        schema.positional'append(field);
+        schema.positional'append(field =>);
     } else {
-        schema.named'append(field);
+        schema.named'append(field =>);
     }
 }
 
