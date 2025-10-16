@@ -27,24 +27,26 @@ import xytest;
 }
 
 struct WithDtor {
-    ptr: Ptr;
+    id: Int;
 }
 
 struct DtorCounter {
-    count: Uint;
+    counts: @Int[11];
 }
 
 def dtor(s: WithDtor) {
-    [Global~DtorCounter].count++;
+    [Global~DtorCounter].counts[s.id]++;
 }
 
 *def dtorsAreCalled~Test() {
     arr: Array~WithDtor;
     for (i in :10) {
-        arr @= WithDtor{Ptr{}};
+        arr @= WithDtor{i+1};
     }
     arr'clear();
-    (equal) [Global~DtorCounter].count, 10;
+    for (i in 1:11) {
+        (equal) [Global~DtorCounter].counts[i], 1;
+    }
 }
 
 *def insertingItems~Test() {
