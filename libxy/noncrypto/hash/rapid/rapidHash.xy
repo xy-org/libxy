@@ -2,7 +2,7 @@ import libxy.string;
 
 ;; RapidHash - yet another mum hash. Faster then the rest.
 *struct RapidHash64 {
-    seed : Bits64;; You can specify this to add some extra entropy
+    seed : Bits64;; Specify this to add extra entropy
 }
 
 -secrets := @Bits64[3] {
