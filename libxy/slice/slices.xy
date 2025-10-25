@@ -52,11 +52,7 @@
     end: Ulong;
 }
 
-;; ...
-*struct RangeSize {
-    start: Size;
-    end: Size;
-}
+*RangeSize := RangeUlong;
 
 ;; Range is an half-open interval [start, end}.
 *struct RangeFloat {
@@ -77,27 +73,20 @@
     step: Int;
 }
 
-;; ...
-*struct SliceSize {
-    start: Size;
-    end: Size;
-    step: Size;
-}
-
 # I don't see the point of floating-point slices
 
 ;; Construct a slice
 *def slice(
-    start: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong, Size)
+    start: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong)
 ) = rangeType(start){start, (%start)'max};
 
 *def slice(
-    end: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong, Size),
+    end: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong),
     start := 0'to(%end)
 ) = rangeType(start){start, end};
 
 *def slice(
-    step: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong, Size),
+    step: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong),
     end := (%step)'max, start := 0'to(%end)
 ) = sliceType(start){start, end, step};
 
@@ -109,7 +98,6 @@
 -def rangeType(:Uint)   = RangeUint;
 -def rangeType(:Long)   = RangeLong;
 -def rangeType(:Ulong)  = RangeUlong;
--def rangeType(:Size)   = RangeSize;
 
 -def sliceType(:Byte)   = SliceByte;
 -def sliceType(:Ubyte)  = SliceUbyte;
@@ -119,10 +107,9 @@
 -def sliceType(:Uint)   = SliceUint;
 -def sliceType(:Long)   = SliceLong;
 -def sliceType(:Ulong)  = SliceUlong;
--def sliceType(:Size)   = SliceSize;
 
 *def len(
-    range: (RangeUbyte, RangeUshort, RangeUint, RangeUlong, RangeSize)
+    range: (RangeUbyte, RangeUshort, RangeUint, RangeUlong)
 ) =
     if (range.end > range.start) range.end - range.start
     else 0'to(%range.end);

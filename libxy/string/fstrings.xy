@@ -89,7 +89,7 @@ def capacity(fstr: Fstr) fstr.mem.size - fstr.fill;
 ;; Stringify and append {num}
 *def append(
     fstr: mut Fstr,
-    num: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong, Size),
+    num: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong),
     base := 10,
 )
 >> base >= 2 && base <= 36
@@ -106,7 +106,7 @@ def capacity(fstr: Fstr) fstr.mem.size - fstr.fill;
 
 -def appendDigits(
     fstr: mut Fstr,
-    num:(Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong, Size),
+    num:(Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong),
     base: Int,
 ) {
     number : mut = num;
@@ -148,7 +148,6 @@ def unsigned(a: Ubyte) a;
 def unsigned(a: Ushort) a;
 def unsigned(a: Uint) a;
 def unsigned(a: Ulong) a;
-def unsigned(a: Size) a;
 def unsigned(a: Bits8) a'to(Ubyte);
 def unsigned(a: Bits16) a'to(Ushort);
 def unsigned(a: Bits32) a'to(Uint);

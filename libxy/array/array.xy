@@ -46,7 +46,7 @@ def ensureCapacity(
 };
 
 *def get(
-    arr: Array, i: (Size, Int, Uint, Long, Ulong),
+    arr: Array, i: (Int, Uint, Long, Ulong),
     elemSize : Size = sizeof(arr..elemType)
 ) -> arr[ Ptr~[^arr..elemType] ]
 >> i'to(Size) < arr'len
@@ -300,7 +300,7 @@ def insert(
 
 *def swap(
     arr: mut Array,
-    i: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong, Size), j: %i,
+    i: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong), j: %i,
     esize: Size = sizeof(arr..elemType)
 ) -> void
 >> 0 <= i && i < arr'len
