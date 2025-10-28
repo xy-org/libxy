@@ -43,7 +43,7 @@ import libc~[Clib{headers=@{"stdlib.h", "math.h"}}] in c;
 
 *def random(rng: PlatformRng, :Long) = rng'random(Ulong)'to(Long);
 
-*def random(rng: pseudo PlatformRng, buf: Ptr, size: Size) -> void {
+*def random(rng: pseudo PlatformRng, buf: Ptr, size: Usize) -> void {
     c.arc4random_buf(buf, size);
 }
 
@@ -85,7 +85,7 @@ import libc~[Clib{headers=@{"stdlib.h", "math.h"}}] in c;
 	return range.start + product'to(Bits64)'shiftr(32)'to(Bits32)'to(Int);
 }
 
-*def append(buf: mut Buf, rng: PlatformRng, size: Size) -> void {
+*def append(buf: mut Buf, rng: PlatformRng, size: Usize) -> void {
     buf'ensureCap(size);
     rng'random(buf.mem.addr + buf.fill, size);
     buf.fill += size;

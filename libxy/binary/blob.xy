@@ -12,10 +12,10 @@ import posix~[Clib{}] in c;
 ;; When tagged with {MemStatic}, the memory needs no deallocation
 *struct Blob~[memory := MemManaged] {
     addr: Ptr~Byte;
-    size: Size;
+    size: Usize;
 }
 
-*def bstr~[StrCtor{prefix="b"}](addr: Ptr~Byte, size: Size) =
+*def bstr~[StrCtor{prefix="b"}](addr: Ptr~Byte, size: Usize) =
     Blob~MemStatic{addr, size};
 
 *def bunstr~[UnstrCtor{prefix=""}](:Blob~void)   = UnstrIter{};
@@ -72,7 +72,7 @@ import posix~[Clib{}] in c;
 ;;
 
 struct UnstrIter {
-    offset: Size;
+    offset: Usize;
     endian: Endian;
 }
 

@@ -206,17 +206,17 @@ struct Descriptor {
 -def tryRead(sys: mut SpawnSystem, slotId: Uint) {
     desc := sys.spawns[slotId];
 
-    header := bf"{desc.channel, 24z}";
+    header := bf"{desc.channel, 24uz}";
     "{id: Int}{linkFlags: Bits16}{msgFlags: Bits16}{headerSize: Ulong}{payloadSize: Ulong}" = header;
 
     env: Envelope;
     env.comm = true;
 
     if (headerSize > 0) {
-        env.msg.header =< bf"{desc.channel, headerSize'to(Size)}";
+        env.msg.header =< bf"{desc.channel, headerSize'to(Usize)}";
     }
     if (payloadSize > 0) {
-        env.msg.payload =< bf"{desc.channel, payloadSize'to(Size)}";
+        env.msg.payload =< bf"{desc.channel, payloadSize'to(Usize)}";
     }
 
     sys.q'append(env =>);

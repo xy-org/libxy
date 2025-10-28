@@ -52,7 +52,7 @@ def dtor(s: WithDtor) {
 *def insertingItems~Test() {
     arr : Array~Int;
     for (i in :10) {
-        arr'insert(0'to(Size), i);
+        arr'insert(0uz, i);
     }
     for (i in :10) {
         (equal) arr[i], 10 - i - 1;

@@ -4,11 +4,11 @@ import libxy.(slice, error);
 ;; Buf - a binary f-string i.e. a binary string that can be modified
 *struct Buf {
     mem: Memory;
-    fill: Size;
+    fill: Usize;
 }
 
 *def bfstr~[StrCtor{prefix="bf", .interpolation, to=Blob}](
-    addr: pseudo Ptr~Byte, size: Size
+    addr: pseudo Ptr~Byte, size: Usize
 ) -> Buf {
     res: Buf;
     res.mem'realloc(2*size);; Just a heuristic. But we have to start somewhere
@@ -21,7 +21,7 @@ import libxy.(slice, error);
     return res;
 }
 
-*def append(buf: mut Buf, addr: Ptr~Byte, size: Size) -> void {
+*def append(buf: mut Buf, addr: Ptr~Byte, size: Usize) -> void {
     buf'ensureCap(size);
     buf.mem[buf.fill +: size] = addr;
     buf.fill += size;
@@ -63,7 +63,7 @@ import libxy.(slice, error);
     buf.fill += blob.size;
 }
 
-def ensureCap(buf: mut Buf, required: Size) -> void | SystemError {
+def ensureCap(buf: mut Buf, required: Usize) -> void | SystemError {
     if (buf.mem.size - buf.fill < required) {
         newSize := max(required, 2 * buf.mem.size);
         buf.mem'realloc(newSize);

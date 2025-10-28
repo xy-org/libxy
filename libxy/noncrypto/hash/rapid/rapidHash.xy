@@ -13,7 +13,7 @@ import libxy.string;
 
 *def hash(s: Str, hash: RapidHash64) = hash(s.addr, s.size, hash);
 
-*def hash(data: Ptr, len: Size, hash: RapidHash64)-> Bits64 {
+*def hash(data: Ptr, len: Usize, hash: RapidHash64)-> Bits64 {
     ;; See https://github.com/Nicoshev/rapidhash
 
     p : mut = data~[to=Ubyte];
@@ -74,7 +74,7 @@ import libxy.string;
     return x'to(%a) - y'to(%a);
 }
 
--def readLessThanWord(p: Ptr~Ubyte, k: Size ) -> Bits64 {
+-def readLessThanWord(p: Ptr~Ubyte, k: Usize ) -> Bits64 {
     a := p[0]    'to(Ulong)'to(Bits64);
     b := p[k / 2]'to(Ulong)'to(Bits64);
     c := p[k - 1]'to(Ulong)'to(Bits64);

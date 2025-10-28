@@ -100,7 +100,7 @@ inlinec"""
 }
 
 *def write(file: File, str: Str) -> void | SystemError {
-    total : mut Size;
+    total : mut Usize;
     do {
         # TODO use c.ssize_t
         written : c.ssize_t = c.write(
@@ -133,7 +133,7 @@ inlinec"""
 *def read(file: File, fstr: mut Fstr) -> void | SystemError {
     res : c.ssize_t;
     do {
-        fstr'ensureCap(4098z);
+        fstr'ensureCap(4098uz);
         res = c.read(file.fd, fstr.mem.addr + fstr.fill, fstr'capacity);
         if (inlinec"{res} < 0") {
             errno : Int = c.errno;
@@ -141,7 +141,7 @@ inlinec"""
             error SystemError{errno};
         }
 
-        fstr.fill += Size{inlinec"{res}"};
+        fstr.fill += Usize{inlinec"{res}"};
     } while (inlinec"{res} > 0");
 }
 
@@ -150,9 +150,9 @@ inlinec"""
 
 ;; Read from {file} exactly {nbyte} bytes into {buf}
 ;; {file} must be either blocking or have atleast {nbytes} available for read
-*def read(file: File, buf: mut Buf, nbyte: Size) -> void | SystemError {
+*def read(file: File, buf: mut Buf, nbyte: Usize) -> void | SystemError {
     res : c.ssize_t;
-    remaining: mut Size = nbyte;
+    remaining: mut Usize = nbyte;
     buf'ensureCap(nbyte);
     do {
         res = c.read(file.fd, buf.mem.addr + buf.fill, remaining);
@@ -160,13 +160,13 @@ inlinec"""
             error SystemError{c.errno};
         }
 
-        buf.fill += Size{inlinec"{res}"};
-        remaining -= Size{inlinec"{res}"};
+        buf.fill += Usize{inlinec"{res}"};
+        remaining -= Usize{inlinec"{res}"};
     } while (remaining > 0);
 }
 
 ;; ...
-*def append(buf: mut Buf, file: File, nbyte: Size) = file'read(buf, nbyte);
+*def append(buf: mut Buf, file: File, nbyte: Usize) = file'read(buf, nbyte);
 
 -struct BlockingField{}
 

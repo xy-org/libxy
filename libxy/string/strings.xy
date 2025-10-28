@@ -2,7 +2,7 @@ import libc~[Clib{headers=@{"string.h", "stdio.h", "inttypes.h"}}] in c;
 import libxy.(memory, error, slice, bitwise);
 
 def cstr~[StrCtor{prefix="c", interpolation=false}] (
-    addr: Ptr, size: Size
+    addr: Ptr, size: Usize
 )
     addr~[c.char];
 
@@ -19,7 +19,7 @@ def cstr~[StrCtor{prefix="c", interpolation=false}] (
     memory : Any = void
 ] {
     addr: Ptr~Byte;
-    size: Size;; The byte-length of the string as encoding in UTF-8
+    size: Usize;; The byte-length of the string as encoding in UTF-8
 }
 
 *def dtor(str: Str) dtor(str, str..memory);
@@ -34,10 +34,10 @@ def dtor(str: Str, :MemStatic) {}
 
 
 def str~[StrCtor{prefix="", interpolation=false}] (
-    addr: Ptr, size: Size
+    addr: Ptr, size: Usize
 ) Str~MemStatic{addr, size};
 
-*def get(s: Str, i: Size) -> Byte
+*def get(s: Str, i: Usize) -> Byte
 >> i < s.size
 {
     return [(s.addr)~[to=Byte] + i];
@@ -45,15 +45,15 @@ def str~[StrCtor{prefix="", interpolation=false}] (
 
 ;; Count the number of unicode code points (chars) in the string
 ;; Illegal byte sequences are counted as 1 code point
-*def count(s: Str) -> Size {
-    res : Size;
-    i : Size;
+*def count(s: Str) -> Usize {
+    res : Usize;
+    i : Usize;
     while (i < s.size) {
         leadingOnes := s[i]'bits'countLeadingOnes;
         res++;
         i++;
         if (leadingOnes >= 2 && leadingOnes <= 4) {
-            contBytes := min((leadingOnes - 1)'to(Size), s.size - i);
+            contBytes := min((leadingOnes - 1)'to(Usize), s.size - i);
             for (_ in 0:contBytes) {
                 contOnes := s[i]'bits'countLeadingOnes;
                 if (contOnes != 1 && contOnes <= 4) {
@@ -75,8 +75,8 @@ def str~[StrCtor{prefix="", interpolation=false}] (
 *def get(s: Str, int: (RangeInt, RangeUint, RangeUlong)) -> Str~MemExt
 >> int.start >= 0 && int.start <= int.end
 {
-    start := min(int.start'to(Size), s.size);
-    end := min(int.end'to(Size), s.size);
+    start := min(int.start'to(Usize), s.size);
+    end := min(int.end'to(Usize), s.size);
     return Str~MemExt{s.addr + start, end - start};
 }
 
@@ -130,7 +130,7 @@ def nullTerminated(str: Str, :MemExt) false;
 }
 
 struct CharIter {
-    i: Size;; byte-offset of the code point after {char} in string
+    i: Usize;; byte-offset of the code point after {char} in string
     char: Char;; character at that offset
 }
 
@@ -151,7 +151,7 @@ struct CharIter {
     iter.char = cp;
 }
 
-def decode(s: Str, i: mut Size) -> Char {
+def decode(s: Str, i: mut Usize) -> Char {
     if (i >= s.size) {
         return (-1)'to(Char);
     }
@@ -163,7 +163,7 @@ def decode(s: Str, i: mut Size) -> Char {
 
     if (leadingOnes >= 2 && leadingOnes <= 4) {
         cp'bits = 0xFF'bits'shiftr(leadingOnes+1) && leadingByte'bits'to(Bits32);
-        contBytes := min((leadingOnes - 1)'to(Size), s.size - i);
+        contBytes := min((leadingOnes - 1)'to(Usize), s.size - i);
         for (_ in 0:contBytes) {
             contOnes := s[i]'bits'countLeadingOnes;
             if (contOnes == 1) {
@@ -207,7 +207,7 @@ def decode(s: Str, i: mut Size) -> Char {
 *def get(str: Str, iter: SplitIter) = iter.word;
 
 *def next(str: Str, iter: mut SplitIter) {
-    istart := do -> (istart: Size) {
+    istart := do -> (istart: Usize) {
         istart = iter.ichar.i;
         next(str, iter.ichar);
         if (!valid(str, iter.ichar)) {
@@ -216,7 +216,7 @@ def decode(s: Str, i: mut Size) -> Char {
         }
     } while (str[iter.ichar]'space);
 
-    iend := do -> (iend: Size) {
+    iend := do -> (iend: Usize) {
         iend = iter.ichar.i;
         next(str, iter.ichar);
         if (!valid(str, iter.ichar)) {

@@ -9,7 +9,7 @@ import libxy.error;
 ;; memory has been allocated.
 struct Memory {
     addr: Ptr~Byte;
-    size: Size;
+    size: Usize;
 }
 
 ;; Tag for a managed region block that needs to be deallocated using {free()}
@@ -23,15 +23,19 @@ struct MemExt {}
 ;; require deallocation
 struct MemStatic {}
 
-*def malloc(size: Size) -> Memory | SystemError {
+*def malloc(
+    size: (Int, Uint, Long, Ulong)
+) -> Memory | SystemError
+>> size >= 0
+{
     addr: Ptr~Byte = c.malloc(size);
     if (addr == Ptr{}) {
         error SystemError{c.ENOMEM};
     }
-    return Memory{addr, size};
+    return Memory{addr, size'to(Usize)};
 }
 
-*def realloc(mem: mut Memory, size: Size) -> void | SystemError {
+*def realloc(mem: mut Memory, size: Usize) -> void | SystemError {
     newMem : Ptr~Byte = c.realloc(mem.addr, size);
     if (newMem == Ptr{}) {
         error SystemError{c.ENOMEM};
@@ -49,7 +53,7 @@ struct MemStatic {}
     mem.size = 0;
 }
 
-*def free(addr: mut Ptr~Byte, size: Size) {
+*def free(addr: mut Ptr~Byte, size: Usize) {
     c.free(addr);
     addr = Ptr{};
 }

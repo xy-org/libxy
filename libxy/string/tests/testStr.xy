@@ -70,7 +70,7 @@ import xytest;
 
 -def testSplitIter(
     str: Str, exp: pseudo @Str[],
-    expAddr : Ptr~Str = exp'addrof, expLen : Size = exp'len
+    expAddr : Ptr~Str = exp'addrof, expLen : Usize = exp'len
 ) -> void {
     i : Size;
     for (word in str'split) {

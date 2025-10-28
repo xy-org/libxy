@@ -27,7 +27,7 @@ pathSeparator := `/`;
     # finally strip the separating /
     if (dirLen >= 2 && path[dirLen-1] == separator) dirLen--;
 
-    x := 0z:dirLen;
+    x := 0uz:dirLen;
     return x;
 }
 
@@ -35,7 +35,7 @@ struct PathStr {
     fstr: Fstr;
 }
 
-def path~[StrCtor{prefix="path", interpolation=true, to=Str}](addr: Ptr, len: Size) -> PathStr{
+def path~[StrCtor{prefix="path", interpolation=true, to=Str}](addr: Ptr, len: Usize) -> PathStr{
     return PathStr{fstr(addr, len)};
 }
 
@@ -46,7 +46,7 @@ def path~[StrCtor{prefix="path", interpolation=true, to=Str}](addr: Ptr, len: Si
     path.fstr'append(str);
 }
 
-*def append(path: mut PathStr, cstr: Ptr, len: Size) {
+*def append(path: mut PathStr, cstr: Ptr, len: Usize) {
     path.fstr'append(cstr, len);
 }
 

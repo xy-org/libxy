@@ -26,7 +26,7 @@ import xytest;
 
 *def readingIntoBuf~Test() {
     rng : PlatformRng;
-    buf := bf"{rng, 12z}";
+    buf := bf"{rng, 12uz}";
     (assert) buf.size == 12z;
     "{n1: Uint}{n2: Uint}{n3: Uint}" = buf;
     (assert) n1 != n2;

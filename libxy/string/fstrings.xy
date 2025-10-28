@@ -3,7 +3,7 @@ import libxy.bitwise;
 
 *struct Fstr~[xy_dtor=true] {
     mem: Memory;
-    fill: Size;
+    fill: Usize;
 }
 
 *def dtor(builder: mut Fstr) {
@@ -11,12 +11,12 @@ import libxy.bitwise;
 }
 
 *def fstr~[StrCtor{prefix="f", interpolation=true, to=Str}] (
-    addr: pseudo Ptr, size: Size
+    addr: pseudo Ptr, size: Usize
 ) -> Fstr {
     return Fstr{};
 }
 
-def ensureCap(builder: mut Fstr, requiredCap: Size) {
+def ensureCap(builder: mut Fstr, requiredCap: Usize) {
     minSize := builder.fill + requiredCap;
     if (builder.mem.size < minSize) {
         newSize : mut = 2 * builder.mem.size;
@@ -27,7 +27,7 @@ def ensureCap(builder: mut Fstr, requiredCap: Size) {
     }
 }
 
-*def append(builder: mut Fstr, addr: Ptr, size: Size) {
+*def append(builder: mut Fstr, addr: Ptr, size: Usize) {
     builder'ensureCap(size);
     c.memcpy(builder.mem.addr + builder.fill, addr, size);
     builder.fill += size;
@@ -43,13 +43,13 @@ def ensureCap(builder: mut Fstr, requiredCap: Size) {
 >> if (minWidth != Int'max) maxWidth >= minWidth else true
 {
     strCount := str'count;
-    minSize := if (minWidth != Int'max) max(minWidth, 0)'to(Size) else 0z;
-    maxSize := max(maxWidth, 0)'to(Size);
+    minSize := if (minWidth != Int'max) max(minWidth, 0)'to(Usize) else 0uz;
+    maxSize := max(maxWidth, 0)'to(Usize);
 
     if (strCount < minSize) {
         # we have to pad
-        padBefore: Size;
-        padAfter: Size;
+        padBefore: Usize;
+        padAfter: Usize;
         if (strCount < minSize) {
             if (left) {
                 padAfter = minSize - strCount;
@@ -110,7 +110,7 @@ def capacity(fstr: Fstr) fstr.mem.size - fstr.fill;
     base: Int,
 ) {
     number : mut = num;
-    numDigits := do -> (i : Size) {
+    numDigits := do -> (i : Usize) {
         i++;
         number /= base'to(%number);
     } while (number != 0);
@@ -160,7 +160,7 @@ def unsigned(a: Bits64) a'to(Ulong);
     precision := -1,
     scientific := false,
 ) {
-    fstr'ensureCap(20z);
+    fstr'ensureCap(20uz);
     for (_ in :2) {
         capacity := fstr'capacity;
 
@@ -211,12 +211,12 @@ def unsigned(a: Bits64) a'to(Ulong);
 }
 
 *def backtrack(builder: mut Fstr, num: Uint) {
-    builder.fill -= num'to(Size);
+    builder.fill -= num'to(Usize);
 }
 
 ;; Encode {char} to utf-8 and append to str. Invalid chars are ignored.
 *def append(builder: mut Fstr, char: Char) {
-    builder'ensureCap(4z);
+    builder'ensureCap(4uz);
     nchar := char'to(Uint);
     if (nchar <= 0x7F) {
         [builder.mem.addr+builder.fill] = nchar'to(Byte);
@@ -243,14 +243,14 @@ def unsigned(a: Bits64) a'to(Ulong);
 ;; ...
 *def append(fstr: mut Fstr, char: Char, repeat: Uint) {
     if (repeat > 0) {
-        addedBytes := -> (added: Size) {
+        addedBytes := -> (added: Usize) {
             added = fstr.fill;
             fstr'append(char);
             added = fstr.fill - added;
         };
 
-        required : mut = repeat'to(Size) - 1;
-        available : mut = 1z;
+        required : mut = repeat'to(Usize) - 1;
+        available : mut = 1uz;
         fstr'ensureCap(addedBytes * required);
         src := fstr.mem.addr + fstr.fill - addedBytes;
         while (required > 0) {
@@ -264,7 +264,7 @@ def unsigned(a: Bits64) a'to(Ulong);
 }
 
 *def to(builder: mut Fstr, :Str) -> Str~MemManaged {
-    builder'ensureCap(1z);
+    builder'ensureCap(1uz);
     ;; not really needed but better safe than sorry
     [builder.mem.addr~[c.char] + builder.fill] = 0;
     res := Str{builder.mem.addr, builder.fill};
