@@ -28,13 +28,12 @@ func ensureCapacity(
     }
 }
 
-*func append(arr: Array, elem: don Any) = -> void {
-    _ := assumeCompatibleTypes(arr..elemType, %elem);
-    arr'appendUnsafe(elem'addrof, sizeof(arr..elemType));
-    void =< elem;
-};
-
--func appendUnsafe(arr: Array, elemPtr: Ptr, elemSize: Usize) {
+*func append(
+    arr: Array, elem: don Any,
+    elemPtr: Ptr = elem'addrof, elemSize: Usize = elem'sizeof,
+)
+>> assumeCompatibleTypes(arr..elemType, %elem)
+{
     arr'ensureCapacity(arr.len + 1, elemSize=elemSize);
     c.memcpy(arr.mem.addr + arr.len * elemSize, elemPtr, elemSize);
     arr.len++;
