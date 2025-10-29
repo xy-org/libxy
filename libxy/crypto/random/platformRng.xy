@@ -7,11 +7,11 @@ import libc~[Clib{headers=@{"stdlib.h", "math.h"}}] in c;
 ;; Generate a cryptographically strong random number
 *func random(
     type: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong, Float, Double)
-) = [Global~LocalRng]'random(type);
+) = [Global~PlatformRng]'random(type);
 
 #*func random(
 #    range: (IntRange, LongRange, SizeRange, FloatRange, DoubleRange)
-#) = [Global~LocalRng]'random(range);
+#) = [Global~PlatformRng]'random(range);
 
 
 ;; Generate cryptographically strong random numbers
@@ -27,38 +27,38 @@ import libc~[Clib{headers=@{"stdlib.h", "math.h"}}] in c;
 ;;
 ;; Have a look at libxy.noncryto.random if you don't require cryptographically
 ;; strong randomness (cases include simulations, hashes, etc.)
-*struct LocalRng {}
+*struct PlatformRng {}
 
-*func random(rng: pseudo LocalRng, :Uint) = Uint{c.arc4random()};
+*func random(rng: pseudo PlatformRng, :Uint) = Uint{c.arc4random()};
 
-*func random(rng: LocalRng, :Byte  ) = rng'random(Uint)'to(Byte);
-*func random(rng: LocalRng, :Ubyte ) = rng'random(Uint)'to(Ubyte);
-*func random(rng: LocalRng, :Short ) = rng'random(Uint)'to(Short);
-*func random(rng: LocalRng, :Ushort) = rng'random(Uint)'to(Ushort);
-*func random(rng: LocalRng, :Int   ) = rng'random(Uint)'to(Int);
+*func random(rng: PlatformRng, :Byte  ) = rng'random(Uint)'to(Byte);
+*func random(rng: PlatformRng, :Ubyte ) = rng'random(Uint)'to(Ubyte);
+*func random(rng: PlatformRng, :Short ) = rng'random(Uint)'to(Short);
+*func random(rng: PlatformRng, :Ushort) = rng'random(Uint)'to(Ushort);
+*func random(rng: PlatformRng, :Int   ) = rng'random(Uint)'to(Int);
 
-*func random(rng: LocalRng, :Ulong) -> (res: Ulong) {
+*func random(rng: PlatformRng, :Ulong) -> (res: Ulong) {
     rng'random(res'addrof, res'sizeof);
 }
 
-*func random(rng: LocalRng, :Long) = rng'random(Ulong)'to(Long);
+*func random(rng: PlatformRng, :Long) = rng'random(Ulong)'to(Long);
 
-*func random(rng: pseudo LocalRng, buf: Ptr, size: Usize) -> void {
+*func random(rng: pseudo PlatformRng, buf: Ptr, size: Usize) -> void {
     c.arc4random_buf(buf, size);
 }
 
-*func random(rng: LocalRng, :Float) = random(rng, 0.0:1.0);
+*func random(rng: PlatformRng, :Float) = random(rng, 0.0:1.0);
 
-*func random(rng: LocalRng, range: RangeFloat) -> Float {
+*func random(rng: PlatformRng, range: RangeFloat) -> Float {
     precision := 24;; IEEE754 single has 24-bit precision
     rand := ( rng'random(Uint)'to(Bits32)'shiftr(32 - precision) )'to(Uint);
     norm : Float = c.ldexpf(range'len, -precision);
     return range.start + rand'to(Float) * norm;
 }
 
-*func random(rng: LocalRng, :Double) = random(rng, 0.0d:1.0d);
+*func random(rng: PlatformRng, :Double) = random(rng, 0.0d:1.0d);
 
-*func random(rng: LocalRng, range: RangeDouble) -> Double {
+*func random(rng: PlatformRng, range: RangeDouble) -> Double {
     precision := 53;; IEEE754 double has 53-bit precision
     rand := ( rng'random(Ulong)'to(Bits64)'shiftr(64 - precision) )'to(Ulong);
     norm : Double = c.ldexp(range'len, -precision);
@@ -66,7 +66,7 @@ import libc~[Clib{headers=@{"stdlib.h", "math.h"}}] in c;
 }
 
 ;; Generate a random integer uniformly distributed in {range}
-*func random(rng: LocalRng, range: RangeInt) -> Int {
+*func random(rng: PlatformRng, range: RangeInt) -> Int {
     ;; Based uppon:
     ;; Daniel Lemire, "Fast Random Integer Generation in an Interval".
     ;; Also inspired by freebsd-src/lib/libc/gen/arc4random_uniform.c
@@ -85,7 +85,7 @@ import libc~[Clib{headers=@{"stdlib.h", "math.h"}}] in c;
 	return range.start + product'to(Bits64)'shiftr(32)'to(Bits32)'to(Int);
 }
 
-*func append(buf: mut Buf, rng: LocalRng, size: Usize) -> void {
+*func append(buf: mut Buf, rng: PlatformRng, size: Usize) -> void {
     buf'ensureCap(size);
     rng'random(buf.mem.addr + buf.fill, size);
     buf.fill += size;

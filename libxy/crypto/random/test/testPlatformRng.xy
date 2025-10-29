@@ -3,7 +3,7 @@ import libxy.(binary, slice);
 import xytest;
 
 *func sanity~Test() {
-    rng : LocalRng;
+    rng : PlatformRng;
     history: @Uint[32];
     for (i in :history'len) {
         history[i] = rng'random(Uint);
@@ -14,7 +14,7 @@ import xytest;
 }
 
 *func primTypes~Test() {
-    rng : LocalRng;
+    rng : PlatformRng;
     a : Byte = rng'random(Byte);
     b : Ubyte = rng'random(Ubyte);
     c : Short = rng'random(Short);
@@ -25,7 +25,7 @@ import xytest;
 }
 
 *func readingIntoBuf~Test() {
-    rng : LocalRng;
+    rng : PlatformRng;
     buf := bf"{rng, 12uz}";
     (assert) buf.size == 12z;
     "{n1: Uint}{n2: Uint}{n3: Uint}" = buf;
@@ -33,10 +33,10 @@ import xytest;
     (assert) n1 != n3;
 }
 
-*func randomFloatRange~Test() { testFpRange(LocalRng{}, Float); }
-*func randomDoubleRange~Test() { testFpRange(LocalRng{}, Double); }
+*func randomFloatRange~Test() { testFpRange(PlatformRng{}, Float); }
+*func randomDoubleRange~Test() { testFpRange(PlatformRng{}, Double); }
 
--func testFpRange(rng: mut LocalRng, fpType: pseudo (Float, Double)) {
+-func testFpRange(rng: mut PlatformRng, fpType: pseudo (Float, Double)) {
     for (i in :100) {
         fp := rng'random(fpType);
         (assert) fp >= 0.0'to(%fpType);
@@ -45,14 +45,14 @@ import xytest;
 }
 
 *func randomFloatExplicitRange~Test() {
-    testFpExplicitRange(LocalRng{}, Float, 5.0:10.0);
+    testFpExplicitRange(PlatformRng{}, Float, 5.0:10.0);
 }
 *func randomDoubleExplicitRange~Test() {
-    testFpExplicitRange(LocalRng{}, Double, 1.61803d:3.14d);
+    testFpExplicitRange(PlatformRng{}, Double, 1.61803d:3.14d);
 }
 
 -func testFpExplicitRange(
-    rng: mut LocalRng, fpType: pseudo (Float, Double),
+    rng: mut PlatformRng, fpType: pseudo (Float, Double),
     range := %(fpType:fpType),
 ) {
     for (i in :100) {
@@ -63,15 +63,15 @@ import xytest;
 }
 
 *func randomFloatDistribution~Test() {
-    testRandomDistribution(LocalRng{}, Float);
+    testRandomDistribution(PlatformRng{}, Float);
 }
 *func randomDoubleDistribution~Test() {
-    testRandomDistribution(LocalRng{}, Double);
+    testRandomDistribution(PlatformRng{}, Double);
 }
 
 ;; Very simple way to check if the distribution is atleast sane
 -func testRandomDistribution(
-    rng: mut LocalRng, fpType: pseudo (Float, Double)
+    rng: mut PlatformRng, fpType: pseudo (Float, Double)
 ) {
     nbins := 10;
     perBin := 1000;
@@ -106,7 +106,7 @@ import xytest;
 }
 
 *func generatingIntsSmoke~Test() {
-    rng: LocalRng;
+    rng: PlatformRng;
     range := 100:10_000_000;
     a := rng'random(range);
     b := rng'random(range);
@@ -116,7 +116,7 @@ import xytest;
 }
 
 *func generatingIntsRange~Test() {
-    rng: LocalRng;
+    rng: PlatformRng;
     range := 100:110;
     for (i in :10) {
         rand := rng'random(range);
@@ -126,7 +126,7 @@ import xytest;
 }
 
 *func generatingIntsInvalidRange~Test() {
-    rng: LocalRng;
+    rng: PlatformRng;
 
     (assert) rng'random(0:0) == 0;
     (assert) rng'random(0:-1) == 0;
@@ -135,7 +135,7 @@ import xytest;
 }
 
 *func generatingIntsLargeRange~Test() {
-    rng: LocalRng;
+    rng: PlatformRng;
 
     for (i in :10) {
         (assert) rng'random(0:Int'max) >= 0;
