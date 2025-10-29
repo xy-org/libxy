@@ -29,7 +29,7 @@ struct MemStatic {}
 >> size >= 0
 {
     addr: Ptr~Byte = c.malloc(size);
-    if (addr == Ptr{}) {
+    if (addr == %addr) {
         error SystemError{c.ENOMEM};
     }
     return Memory{addr, size'to(Usize)};
@@ -37,7 +37,7 @@ struct MemStatic {}
 
 *func realloc(mem: mut Memory, size: Usize) -> void | SystemError {
     newMem : Ptr~Byte = c.realloc(mem.addr, size);
-    if (newMem == Ptr{}) {
+    if (newMem == %newMem) {
         error SystemError{c.ENOMEM};
     }
     if (size > mem.size) {
@@ -55,7 +55,7 @@ struct MemStatic {}
 
 *func free(addr: mut Ptr~Byte, size: Usize) {
     c.free(addr);
-    addr = Ptr{};
+    addr = %addr;
 }
 
 *func set(mem: Memory, interval: (RangeUlong, RangeUint), ptr: Ptr)

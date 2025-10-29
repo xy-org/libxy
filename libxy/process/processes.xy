@@ -22,8 +22,7 @@ struct Process {
         for (arg in args) {
             argv'append(arg.addr);
         }
-        null := Ptr{};
-        argv'append(null);
+        argv'append(Ptr{});
 
         err: Int = c.execvp(path.addr~[c.char], argv.mem.addr~Ptr~[c.char]);
 

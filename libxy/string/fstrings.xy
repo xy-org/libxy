@@ -1,7 +1,7 @@
 import xy.ctti;
 import libxy.bitwise;
 
-*struct Fstr~[xy_dtor=true] {
+*struct Fstr {
     mem: Memory;
     fill: Usize;
 }

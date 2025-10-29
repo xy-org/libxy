@@ -66,7 +66,7 @@ struct Listing {
 {
     dirfd : Int = c.open(path.addr~[c.char], inlinec"O_RDONLY | O_DIRECTORY");
     pDir :  mut Ptr~[c.DIR] = c.fdopendir(dirfd);
-    if (pDir == Ptr{}) {
+    if (pDir == %pDir) {
         error SystemError{c.errno};
     }
     res : mut = Listing{flags, dirfd, pDir};
