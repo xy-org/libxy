@@ -1,6 +1,6 @@
 import xytest;
 
-*def charLen~Test() {
+*func charLen~Test() {
     (assert) "".size == 0;
     (assert) ""'count == 0;
     (assert) "\x00".size == 1;
@@ -16,7 +16,7 @@ import xytest;
     (assert) "\U+1F396\U+FE0F"'count == 2;
 }
 
-*def charLenInvalidInput~Test() {
+*func charLenInvalidInput~Test() {
     ;; A truncated 3-byte code followed by a space.
     ;; Count the truncated code as 1 invalid symbol and the space as other.
     (assert) "\xE1\xA0\x20"'count == 2;
@@ -33,7 +33,7 @@ import xytest;
     (assert) "\xA0\x20"'count == 2;
 }
 
-*def iteratingChars~Test() {
+*func iteratingChars~Test() {
     ;; U+0041 U+0411 U+304F U+0394
     str := "AБくΔ";
     expr := @{`A`, `Б`, `く`, `Δ`};
@@ -46,11 +46,11 @@ import xytest;
     (equal) charLen, 4;
 }
 
-*def iteratingWords~Test() {
+*func iteratingWords~Test() {
     testSplitIter("word1 word2\nword3", @{"word1", "word2", "word3"});
 }
 
-*def splitting~Test() {
+*func splitting~Test() {
     i : Size;
     for (word in ""'split) {
         i++;
@@ -68,7 +68,7 @@ import xytest;
     (equal) i, 2z;
 }
 
--def testSplitIter(
+-func testSplitIter(
     str: Str, exp: pseudo @Str[],
     expAddr : Ptr~Str = exp'addrof, expLen : Usize = exp'len
 ) -> void {

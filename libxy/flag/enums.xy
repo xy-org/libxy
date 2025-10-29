@@ -4,10 +4,10 @@
 }
 
 ;; Set {value} to {enum} if {on}
-*def set(
+*func set(
     value: mut (Byte, Ubyte, Short, Ushort, Int, Uint), enum: Enum, on: Bool
 ) if (on) value = enum.value'to(%value);
 
-;; Check if {value} is equal to the {enum} 
-*def get(value: (Byte, Ubyte, Short, Ushort, Int, Uint), enum: Enum) =
+;; Check if {value} is equal to the {enum}
+*func get(value: (Byte, Ubyte, Short, Ushort, Int, Uint), enum: Enum) =
     value == enum.value'to(%value);

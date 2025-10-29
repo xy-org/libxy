@@ -1,13 +1,13 @@
 import xytest;
 import libxy.(binary, string);
 
-*def makingBlob~Test() {
+*func makingBlob~Test() {
     (equal) (b"").size, 0;
     (equal) (b"abc").size, 3;
     (equal) (b"\x01\xFF\x00").size, 3;
 }
 
-*def stringifyBlob~Test() {
+*func stringifyBlob~Test() {
     blob := b"num=\xF0\x9F\x98\x8A";
     (equal) f"{blob}", "\\x6e\\x75\\x6d\\x3d\\xf0\\x9f\\x98\\x8a";
     (equal) f"{blob, .ascii}", "num=....";

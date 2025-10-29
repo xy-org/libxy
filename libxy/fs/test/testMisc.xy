@@ -1,4 +1,4 @@
-*def blocking~Test() {
+*func blocking~Test() {
     file := openTmp();
     (assert) file.blocking;
 

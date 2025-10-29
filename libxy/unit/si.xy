@@ -33,10 +33,10 @@ struct g~[xyTag:=TagCtor{label="units"}] {}
 struct DegC~[xyTag:=TagCtor{label="units"}] {}
 
 ;; Convert Degree Celsius to Kelvin
-# def to(temp: Float~DegC, :K) = (temp + 273.15)~K
+# func to(temp: Float~DegC, :K) = (temp + 273.15)~K
 
 ;; Convert Kelvin to Degree Celsius
-# def to(temp: Float~K, :DegC) = (temp - 273.15)~DegC
+# func to(temp: Float~K, :DegC) = (temp - 273.15)~DegC
 
 ;; Units of radians. Measure of plane angle.
 struct rad~[xyTag:=TagCtor{label="units"}] {}
@@ -98,6 +98,6 @@ struct mps~[xyTag:=TagCtor{label="units"}] {}
 
 struct kph~[xyTag:=TagCtor{label="units"}] {}
 
-# def to(v: Float~mps, :kph) = (3.6 * v)~kph
+# func to(v: Float~mps, :kph) = (3.6 * v)~kph
 
-# def to(v: Float~kph, :mps) = (v / 3.6)~mps
+# func to(v: Float~kph, :mps) = (v / 3.6)~mps

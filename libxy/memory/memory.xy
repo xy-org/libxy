@@ -23,7 +23,7 @@ struct MemExt {}
 ;; require deallocation
 struct MemStatic {}
 
-*def malloc(
+*func malloc(
     size: (Int, Uint, Long, Ulong)
 ) -> Memory | SystemError
 >> size >= 0
@@ -35,7 +35,7 @@ struct MemStatic {}
     return Memory{addr, size'to(Usize)};
 }
 
-*def realloc(mem: mut Memory, size: Usize) -> void | SystemError {
+*func realloc(mem: mut Memory, size: Usize) -> void | SystemError {
     newMem : Ptr~Byte = c.realloc(mem.addr, size);
     if (newMem == Ptr{}) {
         error SystemError{c.ENOMEM};
@@ -47,18 +47,18 @@ struct MemStatic {}
     mem.size = size;
 }
 
-*def free(mem: mut Memory) {
+*func free(mem: mut Memory) {
     c.free(mem.addr);
     mem.addr = Ptr{};
     mem.size = 0;
 }
 
-*def free(addr: mut Ptr~Byte, size: Usize) {
+*func free(addr: mut Ptr~Byte, size: Usize) {
     c.free(addr);
     addr = Ptr{};
 }
 
-*def set(mem: Memory, interval: (RangeUlong, RangeUint), ptr: Ptr)
+*func set(mem: Memory, interval: (RangeUlong, RangeUint), ptr: Ptr)
 # >> (
 #     (ptr + interval'len) <= (mem + interval.start) |
 #     (mem + interval.end) <= ptr
@@ -67,4 +67,4 @@ struct MemStatic {}
     c.memcpy(mem.addr + interval.start, ptr, interval'len);
 }
 
-#*def set(mem: Memory, interval: RangeSize, ptr: Ptr) break "sdfsdf";
+#*func set(mem: Memory, interval: RangeSize, ptr: Ptr) break "sdfsdf";

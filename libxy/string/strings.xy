@@ -1,7 +1,7 @@
 import libc~[Clib{headers=@{"string.h", "stdio.h", "inttypes.h"}}] in c;
 import libxy.(memory, error, slice, bitwise);
 
-def cstr~[StrCtor{prefix="c", interpolation=false}] (
+func cstr~[StrCtor{prefix="c", interpolation=false}] (
     addr: Ptr, size: Usize
 )
     addr~[c.char];
@@ -22,22 +22,22 @@ def cstr~[StrCtor{prefix="c", interpolation=false}] (
     size: Usize;; The byte-length of the string as encoding in UTF-8
 }
 
-*def dtor(str: Str) dtor(str, str..memory);
+*func dtor(str: Str) dtor(str, str..memory);
 
-def dtor(str: Str, :MemManaged) {
+func dtor(str: Str, :MemManaged) {
     c.free(str.addr);
 }
 
-def dtor(str: Str, :MemExt) {}
+func dtor(str: Str, :MemExt) {}
 
-def dtor(str: Str, :MemStatic) {}
+func dtor(str: Str, :MemStatic) {}
 
 
-def str~[StrCtor{prefix="", interpolation=false}] (
+func str~[StrCtor{prefix="", interpolation=false}] (
     addr: Ptr, size: Usize
 ) Str~MemStatic{addr, size};
 
-*def get(s: Str, i: Usize) -> Byte
+*func get(s: Str, i: Usize) -> Byte
 >> i < s.size
 {
     return [(s.addr)~[to=Byte] + i];
@@ -45,7 +45,7 @@ def str~[StrCtor{prefix="", interpolation=false}] (
 
 ;; Count the number of unicode code points (chars) in the string
 ;; Illegal byte sequences are counted as 1 code point
-*def count(s: Str) -> Usize {
+*func count(s: Str) -> Usize {
     res : Usize;
     i : Usize;
     while (i < s.size) {
@@ -72,7 +72,7 @@ def str~[StrCtor{prefix="", interpolation=false}] (
     return res;
 }
 
-*def get(s: Str, int: (RangeInt, RangeUint, RangeUlong)) -> Str~MemExt
+*func get(s: Str, int: (RangeInt, RangeUint, RangeUlong)) -> Str~MemExt
 >> int.start >= 0 && int.start <= int.end
 {
     start := min(int.start'to(Usize), s.size);
@@ -81,12 +81,12 @@ def str~[StrCtor{prefix="", interpolation=false}] (
 }
 
 ;; Return true if string is empty
-*def empty(s: Str) s.size == 0;
+*func empty(s: Str) s.size == 0;
 
 ;; Retrun true if string is not empty
-*def any(s: Str) s.size != 0;
+*func any(s: Str) s.size != 0;
 
-*def cmp(str1: Str, str2: Str) -> Int {
+*func cmp(str1: Str, str2: Str) -> Int {
     if (str1.size > str2.size) {
         return 1;
     } elif (str1.size < str2.size) {
@@ -95,7 +95,7 @@ def str~[StrCtor{prefix="", interpolation=false}] (
     return c.strncmp(str1.addr~[c.char], str2.addr~[c.char], str1.size);
 }
 
-*def startswith(str: Str, prefix: Str) -> Bool {
+*func startswith(str: Str, prefix: Str) -> Bool {
     if (prefix.size > str.size) {
         return false;
     }
@@ -103,7 +103,7 @@ def str~[StrCtor{prefix="", interpolation=false}] (
     return strncmpRes == 0;
 }
 
-*def endswith(str: Str, suffix: Str) -> Bool {
+*func endswith(str: Str, suffix: Str) -> Bool {
     if (suffix.size > str.size) {
         return false;
     }
@@ -111,17 +111,17 @@ def str~[StrCtor{prefix="", interpolation=false}] (
     return strncmpRes == 0;
 }
 
-*def ensureNullTerminated(str: Str) ensureNullTerminated(str, str..memory);
-def ensureNullTerminated(str: Str, :MemManaged) str;
-def ensureNullTerminated(str: Str, :MemStatic) str;
-def ensureNullTerminated(str: Str, :MemExt) str'copy();
+*func ensureNullTerminated(str: Str) ensureNullTerminated(str, str..memory);
+func ensureNullTerminated(str: Str, :MemManaged) str;
+func ensureNullTerminated(str: Str, :MemStatic) str;
+func ensureNullTerminated(str: Str, :MemExt) str'copy();
 
-*def nullTerminated(str: Str) nullTerminated(str, str..(memory, MemExt));
-def nullTerminated(str: Str, :MemManaged) true;
-def nullTerminated(str: Str, :MemStatic) true;
-def nullTerminated(str: Str, :MemExt) false;
+*func nullTerminated(str: Str) nullTerminated(str, str..(memory, MemExt));
+func nullTerminated(str: Str, :MemManaged) true;
+func nullTerminated(str: Str, :MemStatic) true;
+func nullTerminated(str: Str, :MemExt) false;
 
-*def copy(str: Str) -> Str~MemManaged {
+*func copy(str: Str) -> Str~MemManaged {
     newmem : Memory;
     newmem'realloc(str.size + 1);
     c.memcpy(newmem.addr, str.addr, str.size);
@@ -134,24 +134,24 @@ struct CharIter {
     char: Char;; character at that offset
 }
 
-*def get(str: Str, charIter: CharIter) = charIter.char;
+*func get(str: Str, charIter: CharIter) = charIter.char;
 
 ;; Iterate of the unicode characters (code points) in {str}
 ;; Illegal byte sequences are replaced by U+FFFD
-*def chars~IterCtor(str: Str) -> str[ CharIter ] {
+*func chars~IterCtor(str: Str) -> str[ CharIter ] {
     iter : CharIter;
     next(str, iter);
     return iter;
 }
 
-*def valid(str: Str, iter: CharIter) iter.char'to(Int) >= 0;
+*func valid(str: Str, iter: CharIter) iter.char'to(Int) >= 0;
 
-*def next(str: Str, iter: mut CharIter) {
+*func next(str: Str, iter: mut CharIter) {
     cp := decode(str, iter.i);
     iter.char = cp;
 }
 
-def decode(s: Str, i: mut Usize) -> Char {
+func decode(s: Str, i: mut Usize) -> Char {
     if (i >= s.size) {
         return (-1)'to(Char);
     }
@@ -196,17 +196,17 @@ def decode(s: Str, i: mut Usize) -> Char {
 
 
 ;; Split by (white)space characters
-*def split~IterCtor(str: Str) -> str[ SplitIter ] {
+*func split~IterCtor(str: Str) -> str[ SplitIter ] {
     si: mut = SplitIter{.valid};
     next(str, si);
     return si;
 }
 
-*def valid(str: Str, iter: SplitIter) = iter.valid;
+*func valid(str: Str, iter: SplitIter) = iter.valid;
 
-*def get(str: Str, iter: SplitIter) = iter.word;
+*func get(str: Str, iter: SplitIter) = iter.word;
 
-*def next(str: Str, iter: mut SplitIter) {
+*func next(str: Str, iter: mut SplitIter) {
     istart := do -> (istart: Usize) {
         istart = iter.ichar.i;
         next(str, iter.ichar);
@@ -233,6 +233,6 @@ struct SplitIter {
     valid: Bool;
 }
 
-*def space(ch: Char) -> Bool {
+*func space(ch: Char) -> Bool {
     return ch == `\n` || ch == ` `;
 }

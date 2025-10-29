@@ -4,7 +4,7 @@ import libxy.tty;
 import libxy.stdio;
 import libxy.flag;
 
-*def settingGraphics~Test() {
+*func settingGraphics~Test() {
     (assert) f"{Esc{}}" == "";
     (assert) f"{Esc{.reset}}" == "\033[0m";
     (assert) f"{Esc{.bold}}" == "\033[1m";
@@ -12,10 +12,10 @@ import libxy.flag;
     (assert) f"{Esc{.bold, fg=Color{.green}}}" == "\033[1;32m";
 }
 
-*def alternativeBuffer~Test() {
+*func alternativeBuffer~Test() {
     (assert) f"{Esc{.screenBuffer.alternative}}" == "\033[?1049h";
 }
 
 # TODO;
-# *def movingCursor~Test() {
+# *func movingCursor~Test() {
 # }

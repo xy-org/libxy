@@ -11,9 +11,9 @@ import libxy.string;
     0x4b33a62ed433d4a3ul'to(Bits64),
 };
 
-*def hash(s: Str, hash: RapidHash64) = hash(s.addr, s.size, hash);
+*func hash(s: Str, hash: RapidHash64) = hash(s.addr, s.size, hash);
 
-*def hash(data: Ptr, len: Usize, hash: RapidHash64)-> Bits64 {
+*func hash(data: Ptr, len: Usize, hash: RapidHash64)-> Bits64 {
     ;; See https://github.com/Nicoshev/rapidhash
 
     p : mut = data~[to=Ubyte];
@@ -68,19 +68,19 @@ import libxy.string;
     return mix(a - secrets[0] - lenBits, b - secrets[1]);
 }
 
--def mix(a: Bits64, b: Bits64) -> Bits64 {
+-func mix(a: Bits64, b: Bits64) -> Bits64 {
     x := a'to(Ulong) * b'to(Ulong);
     y := a'to(Ulong) \mulhi b'to(Ulong);
     return x'to(%a) - y'to(%a);
 }
 
--def readLessThanWord(p: Ptr~Ubyte, k: Usize ) -> Bits64 {
+-func readLessThanWord(p: Ptr~Ubyte, k: Usize ) -> Bits64 {
     a := p[0]    'to(Ulong)'to(Bits64);
     b := p[k / 2]'to(Ulong)'to(Bits64);
     c := p[k - 1]'to(Ulong)'to(Bits64);
     return a'shiftl(56) || b'shiftl(32) || c;
 }
 
--def read32(p: Ptr~Ubyte) = [p~Bits32]'to(Bits64);
+-func read32(p: Ptr~Ubyte) = [p~Bits32]'to(Bits64);
 
--def read64(p: Ptr~Ubyte) = [p~Bits64];
+-func read64(p: Ptr~Ubyte) = [p~Bits64];

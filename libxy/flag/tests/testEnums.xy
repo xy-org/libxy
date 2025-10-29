@@ -1,7 +1,7 @@
 import libxy.flag;
 import xytest;
 
-*def enum~Test() {
+*func enum~Test() {
     num : mut = 0;
 
     enum1: pseudo = Enum{0x1};
@@ -24,11 +24,11 @@ struct StructEnum {
     enum2: pseudo = Enum{0x20};
 }
 
-def get(s: StructEnum, f: Enum) = s.value[f];
+func get(s: StructEnum, f: Enum) = s.value[f];
 
-def set(s: mut StructEnum, f: Enum, on: Bool) s.value[f] = on;
+func set(s: mut StructEnum, f: Enum, on: Bool) s.value[f] = on;
 
-*def enumInStruct~Test() {
+*func enumInStruct~Test() {
     s : mut StructEnum;
 
     assert(!s.enum1);

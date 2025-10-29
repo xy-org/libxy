@@ -9,7 +9,7 @@
 #    lineCount: Bool;
 #}
 
-# *def parseToStruct~Test() {
+# *func parseToStruct~Test() {
 #     cliArgs := @{c"./a.out", c"--line-count", "file1.txt", "file2.txt"};
 #     rawArgs=CmdArgs{cliArgs'len'to(Int), cliArgs'addrof};
 #
@@ -17,14 +17,14 @@
 #     parseToStruct(args, rawArgs);
 # }
 #
-# def rtti(f) {
+# func rtti(f) {
 #     FieldDesc{
 #         offsetof=f'offsetof,
 #         arg=typeof(f..typeof)
 #     }
 # }
 #
-# def parseToStruct(a: mut Any) = {
+# func parseToStruct(a: mut Any) = {
 #     schema : CliSchema{};
 #     for (f in a'fieldsof) {
 #         schema'param(f'nameof, desc=f'commentof, data=rtti(f));

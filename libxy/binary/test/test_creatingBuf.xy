@@ -1,12 +1,12 @@
 import xytest;
 import libxy.bitwise;
 
-*def makingBuf~Test() {
+*func makingBuf~Test() {
     blob := bf"abc={1b}{2b}";
     (equal) blob, b"abc=\x01\x02";
 }
 
-*def writingInts~Test() {
+*func writingInts~Test() {
     blobBe := bf"num={0x12345678}";
     (equal) blobBe, b"num=\x12\x34\x56\x78";
 
@@ -14,7 +14,7 @@ import libxy.bitwise;
     (equal) blobLe, b"num=\x78\x56\x34\x12";
 }
 
-*def writingBits~Test() {
+*func writingBits~Test() {
     b8 := 0x12()b'bits;
     b16 := 0x1234s'bits;
     b32 := 0x12345678'bits;
@@ -24,13 +24,13 @@ import libxy.bitwise;
     (equal) bf"{b64}", b"\x11\x22\x33\x44\x55\x66\xAA\xFF";
 }
 
-*def writingStr~Test() {
+*func writingStr~Test() {
     str := "abc\xFF";
     (equal) bf"{str}", b"abc\xFF";
     (equal) bf"{str, .nullTerminate}", b"abc\xFF\x00";
 }
 
-*def writingAnotherBlob~Test() {
+*func writingAnotherBlob~Test() {
     blob := b"\x00\xFF\xAA\x33";
     (equal) bf"{blob}", b"\x00\xFF\xAA\x33";
 }

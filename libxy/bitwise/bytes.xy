@@ -8,75 +8,75 @@ struct Bytes4 { bits: Bits32; }
 struct Bytes8 { bits: Bits64; }
 
 # Byte length
-def len(b: Bytes1) 1;
-def len(b: Bytes2) 2;
-def len(b: Bytes4) 4;
-def len(b: Bytes8) 8;
+func len(b: Bytes1) 1;
+func len(b: Bytes2) 2;
+func len(b: Bytes4) 4;
+func len(b: Bytes8) 8;
 
 ;; Convert from bytes back to a number
-def to(b: Bytes1, t: pseudo (Byte, Ubyte)) b.bits'to(%t);
-def to(b: Bytes2, t: pseudo (Short, Ushort)) b.bits'to(%t);
-def to(b: Bytes4, t: pseudo (Int, Uint, Float)    ) b.bits'to(%t);
-def to(b: Bytes8, t: pseudo (Long, Ulong, Double)  ) b.bits'to(%t);
+func to(b: Bytes1, t: pseudo (Byte, Ubyte)) b.bits'to(%t);
+func to(b: Bytes2, t: pseudo (Short, Ushort)) b.bits'to(%t);
+func to(b: Bytes4, t: pseudo (Int, Uint, Float)    ) b.bits'to(%t);
+func to(b: Bytes8, t: pseudo (Long, Ulong, Double)  ) b.bits'to(%t);
 
 ;; Compare for (in)equality
-def cmp(a: (Bytes1, Bytes2, Bytes4, Bytes8), b: %a) = cmp(a.bits, b.bits);
+func cmp(a: (Bytes1, Bytes2, Bytes4, Bytes8), b: %a) = cmp(a.bits, b.bits);
 
-def bytes(
+func bytes(
     num: (Bits8, Bits16, Bits32, Bits64, Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong, Float, Double)
 ) -> num[ Bytes ] {
     return Bytes{};
 }
 
 ;; Get bytes of a number
-def get(bits: Bits8,  :Bytes) = Bytes1{bits};
-def get(bits: Bits16, :Bytes) = Bytes2{bits};
-def get(bits: Bits32, :Bytes) = Bytes4{bits};
-def get(bits: Bits64, :Bytes) = Bytes8{bits};
-def get(num: (Byte, Ubyte), :Bytes) = Bytes1{num'bits};
-def get(num: (Short, Ushort), :Bytes) = Bytes2{num'bits};
-def get(num: (Int, Uint, Float),     :Bytes) = Bytes4{num'bits};
-def get(num: (Long, Ulong, Double),   :Bytes) = Bytes8{num'bits};
+func get(bits: Bits8,  :Bytes) = Bytes1{bits};
+func get(bits: Bits16, :Bytes) = Bytes2{bits};
+func get(bits: Bits32, :Bytes) = Bytes4{bits};
+func get(bits: Bits64, :Bytes) = Bytes8{bits};
+func get(num: (Byte, Ubyte), :Bytes) = Bytes1{num'bits};
+func get(num: (Short, Ushort), :Bytes) = Bytes2{num'bits};
+func get(num: (Int, Uint, Float),     :Bytes) = Bytes4{num'bits};
+func get(num: (Long, Ulong, Double),   :Bytes) = Bytes8{num'bits};
 
 ;; Set bytes of a number
-def set(num: mut (Byte, Ubyte), :Bytes, bytes: Bytes1) num'bits = bytes.bits;
-def set(num: mut (Short, Ushort), :Bytes, bytes: Bytes2) num'bits = bytes.bits;
-def set(num: mut (Int, Uint, Float),     :Bytes, bytes: Bytes4) num'bits = bytes.bits;
-def set(num: mut (Long, Ulong, Double),   :Bytes, bytes: Bytes8) num'bits = bytes.bits;
+func set(num: mut (Byte, Ubyte), :Bytes, bytes: Bytes1) num'bits = bytes.bits;
+func set(num: mut (Short, Ushort), :Bytes, bytes: Bytes2) num'bits = bytes.bits;
+func set(num: mut (Int, Uint, Float),     :Bytes, bytes: Bytes4) num'bits = bytes.bits;
+func set(num: mut (Long, Ulong, Double),   :Bytes, bytes: Bytes8) num'bits = bytes.bits;
 
 ;; Get the {i}th byte of {bytes}
 ;; Called for expressions like num'bytes[i]
-def get(bytes: (Bytes1, Bytes2, Bytes4, Bytes8), i: Int) =
+func get(bytes: (Bytes1, Bytes2, Bytes4, Bytes8), i: Int) =
     (bytes.bits && 0xFF'bits'to(%bytes.bits)'shiftl(i*8))'shiftr(i*8)'to(Bits8)'to(Byte);
 
 ;; Set the {i}th byte of {num}
 ;; Called for expressions like num'bytes[i] = byte;
-def set(
+func set(
     num: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong, Float, Double),
     :Bytes, i: Int, byte: Byte
 ) num'bits = num'bits && !(0xFF'bits'to(%num'bits)'shiftl(i*8)) || byte'bits'to(%num'bits)'shiftl(i*8);
 
 ;; Reverse bytes around the middle i.e. reverse byte order
-def reverse(bytes: Bytes1)
+func reverse(bytes: Bytes1)
     bytes;
 
-def reverse(bytes: Bytes2)
+func reverse(bytes: Bytes2)
     Bytes2{bytes.bits'shiftl(8) || bytes.bits'shiftr(8)};
 
 ;; ...
-def reverse(bytes: Bytes4)
+func reverse(bytes: Bytes4)
     Bytes4{bytes.bits'shiftl(24) || (bytes.bits'shiftl(8) && 0xFF0000'bits) || (bytes.bits'shiftr(8) && 0xFF00'bits) || bytes.bits'shiftr(24)};
 
 ;; ...
-def reverse(bytes: Bytes8)
+func reverse(bytes: Bytes8)
     Bytes8{
         (bytes.bits \shiftl 56) || ((bytes.bits && 0xFF00ul'bits) \shiftl 40) || ((bytes.bits && 0xFF0000ul'bits) \shiftl 24) || ((bytes.bits && 0xFF000000ul'bits) \shiftl 8) || ((bytes.bits \shiftr 8) && 0xFF000000ul'bits) || ((bytes.bits \shiftr 24) && 0xFF0000ul'bits) || ((bytes.bits \shiftr 40) && 0xFF00ul'bits) || (bytes.bits \shiftr 56)
     };
 
 ;; Rotate left by {i} bytes
-def rotl(bytes: (Bytes1, Bytes2, Bytes4, Bytes8), i: Int)
+func rotl(bytes: (Bytes1, Bytes2, Bytes4, Bytes8), i: Int)
     (%bytes){bytes.bits'rotl(i*8)};
 
 ;; Rotate right by {i} bytes
-def rotr(bytes: (Bytes1, Bytes2, Bytes4, Bytes8), i: Int)
+func rotr(bytes: (Bytes1, Bytes2, Bytes4, Bytes8), i: Int)
     (%bytes){bytes.bits'rotr(i*8)};

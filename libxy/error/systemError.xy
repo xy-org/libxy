@@ -11,12 +11,12 @@ import posix~[Clib{
     }
 }] in c;
 
-;; Error occurring during system operations like syscalls or memory allocation 
+;; Error occurring during system operations like syscalls or memory allocation
 *struct SystemError {
     code: Int;; Usually holds the value of errno
 }
 
-*def to(s: SystemError, :Bool) s.code != 0;
+*func to(s: SystemError, :Bool) s.code != 0;
 
 # RAGE RANT: I hate these defines. Why everything needs to be so complicated.
 # I want to use some basic functionality provided by most OSs.

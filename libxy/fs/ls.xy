@@ -3,7 +3,7 @@ import libxy.time;
 import libxy.memory;
 
 ;; List directory content
-*def ls(
+*func ls(
     path: Str,
     hidden := false, ;; want all the files in a dir including hidden ones
     type  := false, ;; want the type of each directory entry
@@ -53,13 +53,13 @@ struct Listing {
     callStat: Bool;; should we call stat
 }
 
-*def dtor(ls: Listing) {
+*func dtor(ls: Listing) {
     if (ls.pDir != Ptr{}) {
         c.closedir(ls.pDir);
     }
 }
 
-*def ls~IterCtor(
+*func ls~IterCtor(
     path: Str, flags: LsFlags,
 ) -> [ Listing ] | SystemError
 >> nullTerminated(path)
@@ -75,9 +75,9 @@ struct Listing {
     return res;
 }
 
-*def valid(d: Listing) !d.eol;
+*func valid(d: Listing) !d.eol;
 
-*def next(d: mut Listing) {
+*func next(d: mut Listing) {
     if (d.pDir == Ptr{} || d.eol) {
         d.eol = true;
         return;
@@ -95,7 +95,7 @@ struct Listing {
 }
 
 ;; Return false if {dirent} needs to be skipped
-def loadNodeInfo(
+func loadNodeInfo(
     d: mut Listing,
     dirent: Ptr~[c."struct dirent"]
 ) -> Bool {
@@ -183,4 +183,4 @@ def loadNodeInfo(
     return true;
 }
 
-*def get(d: Listing) d.currNode;
+*func get(d: Listing) d.currNode;

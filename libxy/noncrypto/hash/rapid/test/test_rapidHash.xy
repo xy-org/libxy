@@ -2,7 +2,7 @@ import xytest;
 import libxy.(string, binary, bitwise);
 import libxy.noncrypto.hash.rapid;
 
-*def sanity~Test() {
+*func sanity~Test() {
     # Test vectors from
     #     https://github.com/fwojcik/smhasher3/blob/main/hashes/rapidhash.cpp
 

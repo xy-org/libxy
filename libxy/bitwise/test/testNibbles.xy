@@ -1,4 +1,4 @@
-*def gettingNibbles~Test() {
+*func gettingNibbles~Test() {
     num := 0x27FA;
     (assert) num'nibbles[0] == 0xA;
     (assert) num'nibbles[1] == 0xF;
@@ -10,14 +10,14 @@
     (assert) num'nibbles[7] == 0x0;
 }
 
-*def gettingNibbleFloatingPoint~Test() {
+*func gettingNibbleFloatingPoint~Test() {
     float := 3.14;; 0x4048F5C3
     double := 1.61803d;; 0x3FF9E3736CDF266C
     (assert) float'nibbles[0] == 0x3;
     (assert) double'nibbles[10] == 0x3;
 }
 
-*def settingNibbles~Test() {
+*func settingNibbles~Test() {
     num : Int;
     num'nibbles[0] = 0xA()b;
     num'nibbles[1] = 0xF()b;
@@ -26,20 +26,20 @@
     (assert) num == 0x27FA;
 }
 
-*def reversingNibbles~Test() {
+*func reversingNibbles~Test() {
     (assert) 0x12ub'nibbles'reverse == 0x21ub'nibbles;
     (assert) 0x1234s'nibbles'reverse == 0x4321s'nibbles;
     (assert) 0x12345678'nibbles'reverse == 0x87654321'nibbles;
     (assert) 0x34567890ABCDEFl'nibbles'reverse == 0xFEDCBA0987654300l'nibbles;
 }
 
-*def rotatingNibbles~Test() {
+*func rotatingNibbles~Test() {
     num := 0x3579FECF;
     (assert) num'nibbles'rotl(3) == 0x9FECF357'nibbles;
     (assert) num'nibbles'rotr(5) == 0x9FECF357'nibbles;
 }
 
-*def nibblewiseOpsOutOfBounds~Test() {
+*func nibblewiseOpsOutOfBounds~Test() {
     (assert) 0x11223344'nibbles[0] == 0x11223344'nibbles[8];
     (assert) 0x11223344'nibbles[-1] == 0x11223344'nibbles[7];
 

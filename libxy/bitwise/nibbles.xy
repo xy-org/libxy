@@ -8,83 +8,83 @@ struct Nibbles8 { bits: Bits32; }
 struct Nibbles16 { bits: Bits64; }
 
 # Nibble length
-def len(b: Nibbles2)   2;
-def len(b: Nibbles4)   4;
-def len(b: Nibbles8)   8;
-def len(b: Nibbles16) 16;
+func len(b: Nibbles2)   2;
+func len(b: Nibbles4)   4;
+func len(b: Nibbles8)   8;
+func len(b: Nibbles16) 16;
 
 ;; Convert from nibbles back to a number
-def to(b: Nibbles2,  t: pseudo (Byte, Ubyte))  b.bits'to(%t);
-def to(b: Nibbles4,  t: pseudo (Short, Ushort)) b.bits'to(%t);
-def to(b: Nibbles8,  t: pseudo (Int, Uint, Float)) b.bits'to(%t);
-def to(b: Nibbles16, t: pseudo (Long, Ulong, Double)) b.bits'to(%t);
+func to(b: Nibbles2,  t: pseudo (Byte, Ubyte))  b.bits'to(%t);
+func to(b: Nibbles4,  t: pseudo (Short, Ushort)) b.bits'to(%t);
+func to(b: Nibbles8,  t: pseudo (Int, Uint, Float)) b.bits'to(%t);
+func to(b: Nibbles16, t: pseudo (Long, Ulong, Double)) b.bits'to(%t);
 
 ;; Compare for (in)equality
-def cmp(a: (Nibbles2, Nibbles4, Nibbles8, Nibbles16), b: %a) =
+func cmp(a: (Nibbles2, Nibbles4, Nibbles8, Nibbles16), b: %a) =
     cmp(a.bits, b.bits);
 
-def nibbles(
+func nibbles(
     num: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong, Float, Double)
 ) -> num[ Nibbles ] {
     return Nibbles{};
 }
 
 ;; Get nibbles of a number
-def get(num: (Byte, Ubyte),   :Nibbles) = Nibbles2{num'bits};
-def get(num: (Short, Ushort), :Nibbles) = Nibbles4{num'bits};
-def get(num: (Int, Uint, Float),     :Nibbles) = Nibbles8{num'bits};
-def get(num: (Long, Ulong, Double),   :Nibbles) = Nibbles16{num'bits};
+func get(num: (Byte, Ubyte),   :Nibbles) = Nibbles2{num'bits};
+func get(num: (Short, Ushort), :Nibbles) = Nibbles4{num'bits};
+func get(num: (Int, Uint, Float),     :Nibbles) = Nibbles8{num'bits};
+func get(num: (Long, Ulong, Double),   :Nibbles) = Nibbles16{num'bits};
 
 ;; Set nibbles of a number
-def set(num: mut (Byte, Ubyte),   :Nibbles, nibbles: Nibbles2)
+func set(num: mut (Byte, Ubyte),   :Nibbles, nibbles: Nibbles2)
     num'bits = nibbles.bits;
-def set(num: mut (Short, Ushort), :Nibbles, nibbles: Nibbles4)
+func set(num: mut (Short, Ushort), :Nibbles, nibbles: Nibbles4)
     num'bits = nibbles.bits;
-def set(num: mut (Int, Uint, Float), :Nibbles, nibbles: Nibbles8)
+func set(num: mut (Int, Uint, Float), :Nibbles, nibbles: Nibbles8)
     num'bits = nibbles.bits;
-def set(num: mut (Long, Ulong, Double), :Nibbles, nibbles: Nibbles16)
+func set(num: mut (Long, Ulong, Double), :Nibbles, nibbles: Nibbles16)
     num'bits = nibbles.bits;
 
 ;; Get the {i}th nibble of {nibbles}
 ;; Called for expressions like num'nibbles[i]
 ;; There is no integer 4-bit type so we are going to use Byte
-def get(nibbles: (Nibbles2, Nibbles4, Nibbles8, Nibbles16), i: Int) =
+func get(nibbles: (Nibbles2, Nibbles4, Nibbles8, Nibbles16), i: Int) =
     (nibbles.bits && 0xF'bits'to(%nibbles.bits)'shiftl(i*4))'shiftr(i*4)'to(Bits8)'to(Byte);
 
 ;; Set the {i}th nibble of {num}
 ;; Called for expressions like num'nibbles[i] = nibble;
-def set(
+func set(
     num: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong, Float, Double),
     :Nibbles, i: Int, nibble: Byte
 ) num'bits = num'bits && !(0xF'bits'to(%num'bits)'shiftl(i*4)) || (nibble'bits'to(%num'bits) && 0xF'bits'to(%num'bits))'shiftl(i*4);
 
 ;; Reflect nibbles around the middle i.e. reverse nibble order
-def reverse(nibs: Nibbles2) -> %nibs {
+func reverse(nibs: Nibbles2) -> %nibs {
     return (%nibs){(nibs.bits && 0x0Fub'bits) \shiftl 4 || (nibs.bits \shiftr 4) && 0x0Fub'bits};
 }
 
 ;; ...
-def reverse(nibs: Nibbles4) -> %nibs {
+func reverse(nibs: Nibbles4) -> %nibs {
     bits := (nibs.bits && 0x0F0Fs'bits) \shiftl 4 || (nibs.bits \shiftr 4) && 0x0F0Fs'bits;
     return Nibbles4{bits'bytes'reverse'to(Ushort)'bits};
 }
 
 ;; ...
-def reverse(nibs: Nibbles8) -> %nibs {
+func reverse(nibs: Nibbles8) -> %nibs {
     bits := (nibs.bits && 0x0F0F0F0F'bits) \shiftl 4 || (nibs.bits \shiftr 4) && 0x0F0F0F0F'bits;
     return Nibbles8{bits'bytes'reverse'to(Uint)'bits};
 }
 
 ;; ...
-def reverse(nibs: Nibbles16) -> %nibs {
+func reverse(nibs: Nibbles16) -> %nibs {
     bits := (nibs.bits && 0x0F0F0F0F0F0F0F0Ful'bits) \shiftl 4 || (nibs.bits \shiftr 4) && 0x0F0F0F0F0F0F0F0Ful'bits;
     return Nibbles16{bits'bytes'reverse'to(Ulong)'bits};
 }
 
 ;; Rotate left by {i} bytes
-def rotl(nibbles: (Nibbles2, Nibbles4, Nibbles8, Nibbles16), i: Int)
+func rotl(nibbles: (Nibbles2, Nibbles4, Nibbles8, Nibbles16), i: Int)
     (%nibbles){nibbles.bits'rotl(i*4)};
 
 ;; Rotate right by {i} bytes
-def rotr(nibbles: (Nibbles2, Nibbles4, Nibbles8, Nibbles16), i: Int)
+func rotr(nibbles: (Nibbles2, Nibbles4, Nibbles8, Nibbles16), i: Int)
     (%nibbles){nibbles.bits'rotr(i*4)};

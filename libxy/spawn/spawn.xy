@@ -33,8 +33,8 @@ import libxy.(fs, binary, error, array);
     secret: Uint;
 }
 
-*def cmpEq(s1: Sid, s2: Sid) s1.slotId == s2.slotId && s1.secret == s2.secret;
-*def cmpNe(s1: Sid, s2: Sid) s1.slotId != s2.slotId || s1.secret != s2.secret;
+*func cmpEq(s1: Sid, s2: Sid) s1.slotId == s2.slotId && s1.secret == s2.secret;
+*func cmpNe(s1: Sid, s2: Sid) s1.slotId != s2.slotId || s1.secret != s2.secret;
 
 ;; Don't use directly
 struct SpawnSystem {
@@ -70,9 +70,9 @@ struct Descriptor {
     comm: Bool;; A normal (in-band) message sent from a spawn
 }
 
-*def spawn(func: ()->void) = [Global~SpawnSystem]'ispawn(func);
+*func spawn(fun: ()->void) = [Global~SpawnSystem]'ispawn(fun);
 
-*def ispawn(sys: mut SpawnSystem, func: ()->void) -> Sid | SystemError {
+*func ispawn(sys: mut SpawnSystem, fun: ()->void) -> Sid | SystemError {
     commSockets: @Int[2];
     err: mut Int = c.socketpair(c.AF_UNIX, c.SOCK_STREAM, 0, commSockets'addrof);
     if (err) {
@@ -98,13 +98,13 @@ struct Descriptor {
         [Global~SpawnSystem].mySecret = secret;
         [Global~SpawnSystem].parentSecret = sys.mySecret;
         c.close(commSockets[0]);
-        [func]();
+        [fun]();
         c.exit(0);
         return Sid{};; Unreachable
     }
 }
 
--def setNonblocking(fd: Int) -> void | SystemError {
+-func setNonblocking(fd: Int) -> void | SystemError {
     flags: mut Int = c.fcntl(fd, c.F_GETFL, 0);
     if (flags < 0) {
         error SystemError{c.errno};
@@ -116,9 +116,9 @@ struct Descriptor {
     }
 }
 
-*def send(spawn: Sid, msg: mut Msg) = [Global~SpawnSystem]'send(spawn, msg);
+*func send(spawn: Sid, msg: mut Msg) = [Global~SpawnSystem]'send(spawn, msg);
 
-*def send(sys: SpawnSystem, sid: Sid, msg: mut Msg) -> void
+*func send(sys: SpawnSystem, sid: Sid, msg: mut Msg) -> void
 # >> steal(msg)
 {
     if (sid.slotId >= sys.spawns'len) {
@@ -145,9 +145,9 @@ struct Descriptor {
 }
 
 ;; Receive a message
-*def receive() = [Global~SpawnSystem]'receive();
+*func receive() = [Global~SpawnSystem]'receive();
 
-*def receive(sys: mut SpawnSystem) -> Envelope {
+*func receive(sys: mut SpawnSystem) -> Envelope {
     res: Envelope;
 
     if (sys.qIdx < sys.q'len) {
@@ -161,9 +161,9 @@ struct Descriptor {
 }
 
 ;; Receive messages from {sid} only
-*def receive(sid: Sid) = [Global~SpawnSystem]'receive(sid);
+*func receive(sid: Sid) = [Global~SpawnSystem]'receive(sid);
 
-*def receive(sys: mut SpawnSystem, sid: Sid) -> Envelope {
+*func receive(sys: mut SpawnSystem, sid: Sid) -> Envelope {
     for (i in sys.qIdx:sys.q'len) {
         if (sys.q[i].from == sid) {
             return sys.q[i] =>;
@@ -175,7 +175,7 @@ struct Descriptor {
     return receive(sys, sid);
 }
 
--def pumpQ(sys: mut SpawnSystem) {
+-func pumpQ(sys: mut SpawnSystem) {
     sys.qIdx = 0;
     sys.q'clear();
     nevents := sys.select'select();
@@ -199,11 +199,11 @@ struct Descriptor {
     }
 }
 
--def tryWrite(sys: mut SpawnSystem, slotId: Uint) {
+-func tryWrite(sys: mut SpawnSystem, slotId: Uint) {
     # noop b/c of the blocking nature
 }
 
--def tryRead(sys: mut SpawnSystem, slotId: Uint) {
+-func tryRead(sys: mut SpawnSystem, slotId: Uint) {
     desc := sys.spawns[slotId];
 
     header := bf"{desc.channel, 24uz}";

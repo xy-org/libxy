@@ -1,4 +1,4 @@
-*def testDirname~Test() {
+*func testDirname~Test() {
     (equal) dirname("/basket/apples"), "/basket";
     (equal) dirname("/basket/apples/"), "/basket";
     (equal) dirname("/basket/apples//////"), "/basket";
@@ -26,7 +26,7 @@
     (equal) dirname("~"), "";
 }
 
-*def testDirnameNonLatin~Test() {
+*func testDirnameNonLatin~Test() {
     (equal) dirname("/кошница/ябълки"), "/кошница";
     (equal) dirname("卷宗.txt"), "";
     (equal) dirname("雪"), "";
@@ -34,7 +34,7 @@
     (equal) dirname("😀/💯/🐊"), "😀/💯";
 }
 
-*def joiningPathStrs~Test() {
+*func joiningPathStrs~Test() {
     (equal) path"dir/subdir", "dir/subdir";
 
     dir := "dir";

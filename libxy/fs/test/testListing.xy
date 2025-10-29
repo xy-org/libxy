@@ -4,7 +4,7 @@ import libxy.string;
 import libxy.fs;
 import xytest;
 
-*def listing~Test() {
+*func listing~Test() {
     len : Size;
     sampleDir := f"{'fileof'dirname}/sampleDir";
     for (i in :, node in ls(sampleDir)) {
@@ -14,7 +14,7 @@ import xytest;
     (assert) len == 3;
 }
 
-*def listingAll~Test() {
+*func listingAll~Test() {
     numHidden : Int;
     sampleDir := f"{'fileof'dirname}/sampleDir";
     for (node in ls(sampleDir, .hidden)) {
@@ -24,7 +24,7 @@ import xytest;
     (assert) numHidden > 0;
 }
 
-*def listingWithType~Test() {
+*func listingWithType~Test() {
     numFiles: Int;
     numDirs: Int;
     sampleDir := f"{'fileof'dirname}/sampleDir";
@@ -36,14 +36,14 @@ import xytest;
     (assert) numDirs > 0;
 }
 
-*def listingWithTypeAndSize~Test() {
+*func listingWithTypeAndSize~Test() {
     sampleDir := f"{'fileof'dirname}/sampleDir";
     for (node in ls(sampleDir, .type, .size)) {
         (assert) node.size > 0;
     }
 }
 
-*def listingEverything~Test() {
+*func listingEverything~Test() {
     sampleDir := f"{'fileof'dirname}/sampleDir";
     for (
         node in ls(sampleDir, .type, .size, .hidden, .atime, .mtime, .ctime)

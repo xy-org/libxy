@@ -10,6 +10,6 @@ struct StdIo {
 }
 
 ;; Prints `msg` to standard output
-*def print(msg: Str, file := [Global~StdIo].stdout) -> void {
+*func print(msg: Str, file := [Global~StdIo].stdout) -> void {
     file'write(msg);
 }

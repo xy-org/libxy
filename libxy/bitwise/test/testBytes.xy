@@ -1,4 +1,4 @@
-*def gettingBytes~Test() {
+*func gettingBytes~Test() {
     num := 0x27FA;
     (assert) num'bytes[0] == 0xFA()b;
     (assert) num'bytes[1] == 0x27()b;
@@ -6,28 +6,28 @@
     (assert) num'bytes[3] == 0x00()b;
 }
 
-*def gettingBytesFloatingPoint~Test() {
+*func gettingBytesFloatingPoint~Test() {
     float := 3.14;
     double := 1.61803d;
     (assert) float'bytes[0] == 0xC3()b;
     (assert) double'bytes[1] == 0x26()b;
 }
 
-*def settingBytes~Test() {
+*func settingBytes~Test() {
     num : Int;
     num'bytes[0] = 0xFA()b;
     num'bytes[1] = 0x27()b;
     (assert) num == 0x27FA;
 }
 
-*def reversingBytes~Test() {
+*func reversingBytes~Test() {
     (assert) 0x1122s'bytes'reverse'to(Short) == 0x2211s;
     (assert) 0x11223344'bytes'reverse == 0x44332211'bytes;
     (assert) 0x12FAs'bytes'reverse'to(Short) == 0xFA12s;
     (assert) 0x1234567890ABCDEFl'bytes'reverse == 0xEFCDAB9078563412l'bytes;
 }
 
-*def rotatingBytes~Test() {
+*func rotatingBytes~Test() {
     (assert) 0x3579s'bytes'rotr(1) == 0x7935s'bytes;
     (assert) 0x3579FECF'bytes'rotr(0) == 0x3579FECF'bytes;
     (assert) 0x3579FECF'bytes'rotr(3) == 0x79FECF35'bytes;
@@ -39,7 +39,7 @@
     (assert) 0x1234567890ABCDEFl'bytes'rotl(5) == 0xABCDEF1234567890l'bytes;
 }
 
-*def bytewiseOpsOutOfBounds~Test() {
+*func bytewiseOpsOutOfBounds~Test() {
     (assert) 0x11223344'bytes[0] == 0x11223344'bytes[4];
     (assert) 0x11223344'bytes[-1] == 0x11223344'bytes[3];
 

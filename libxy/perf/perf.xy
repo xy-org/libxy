@@ -7,7 +7,7 @@ import libc~[Clib{headers=@{"errno.h", "time.h"}}] in c;
 ;; The clock used to measure the time is monotonic and doesn't tick if the
 ;; system is suspended. The returned value makes sense only when compared to
 ;; another value returned by this function.
-*def time() -> Long~ns {
+*func time() -> Long~ns {
     ts: c."struct timespec";
     err : Int = inlinec"clock_gettime(CLOCK_MONOTONIC, &{ts})";
     if (err != 0) {

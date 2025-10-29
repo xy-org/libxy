@@ -7,7 +7,7 @@ import libxy.(slice, error);
     fill: Usize;
 }
 
-*def bfstr~[StrCtor{prefix="bf", .interpolation, to=Blob}](
+*func bfstr~[StrCtor{prefix="bf", .interpolation, to=Blob}](
     addr: pseudo Ptr~Byte, size: Usize
 ) -> Buf {
     res: Buf;
@@ -15,19 +15,19 @@ import libxy.(slice, error);
     return res;
 }
 
-*def to(buf: mut Buf, :Blob) -> Blob {
+*func to(buf: mut Buf, :Blob) -> Blob {
     res := Blob{buf.mem.addr =>, buf.fill =>};
     buf.mem.size = 0;
     return res;
 }
 
-*def append(buf: mut Buf, addr: Ptr~Byte, size: Usize) -> void {
+*func append(buf: mut Buf, addr: Ptr~Byte, size: Usize) -> void {
     buf'ensureCap(size);
     buf.mem[buf.fill +: size] = addr;
     buf.fill += size;
 }
 
-*def append(
+*func append(
     buf: mut Buf,
     num: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong),
     endian := Endian{},
@@ -39,14 +39,14 @@ import libxy.(slice, error);
 }
 
 ;; Append {bits} to the binary string. Always use big-endian.
-*def append(buf: mut Buf, bits: Bits8)  = buf'append(bits'to(Ubyte));
-*def append(buf: mut Buf, bits: Bits16) = buf'append(bits'to(Ushort));
-*def append(buf: mut Buf, bits: Bits32) = buf'append(bits'to(Uint));
-*def append(buf: mut Buf, bits: Bits64) = buf'append(bits'to(Ulong));
+*func append(buf: mut Buf, bits: Bits8)  = buf'append(bits'to(Ubyte));
+*func append(buf: mut Buf, bits: Bits16) = buf'append(bits'to(Ushort));
+*func append(buf: mut Buf, bits: Bits32) = buf'append(bits'to(Uint));
+*func append(buf: mut Buf, bits: Bits64) = buf'append(bits'to(Ulong));
 
 
 ;; Append {str} to the buffer
-*def append(buf: mut Buf, str: Str, nullTerminate := false) {
+*func append(buf: mut Buf, str: Str, nullTerminate := false) {
     buf'ensureCap(str.size + nullTerminate'to(%str.size));
     buf.mem[buf.fill +: str.size] = str.addr;
     buf.fill += str.size;
@@ -57,13 +57,13 @@ import libxy.(slice, error);
 }
 
 ;; Append {blob} to the buffer
-*def append(buf: mut Buf, blob: Blob~void) {
+*func append(buf: mut Buf, blob: Blob~void) {
     buf'ensureCap(blob.size);
     buf.mem[buf.fill +: blob.size] = blob.addr;
     buf.fill += blob.size;
 }
 
-def ensureCap(buf: mut Buf, required: Usize) -> void | SystemError {
+func ensureCap(buf: mut Buf, required: Usize) -> void | SystemError {
     if (buf.mem.size - buf.fill < required) {
         newSize := max(required, 2 * buf.mem.size);
         buf.mem'realloc(newSize);
@@ -81,20 +81,20 @@ def ensureCap(buf: mut Buf, required: Usize) -> void | SystemError {
     network: pseudo = Endian{-1b};; Synonym for {big}
 }
 
-*def get(endian: Endian, test: Endian) endian.val == test.val;
-*def set(endian: mut Endian, new: Endian, set:Bool) {
+*func get(endian: Endian, test: Endian) endian.val == test.val;
+*func set(endian: mut Endian, new: Endian, set:Bool) {
     endian.val = if (set) new.val else endian.val;
 }
 
 -littleEndianHost := true; # TODO Get that from somewhere
 
 ;; Change endianness of a number
-*def to(
+*func to(
     num: (Short, Ushort, Int, Uint, Long, Ulong),
     endian: Endian
 ) = if ((littleEndianHost && endian.big) || (!littleEndianHost && endian.little)) num'bytes'reverse'to(%num) else num;
 
 ;; Just to keep things consistent
-*def to(num: (Byte, Ubyte), endian: Endian) = num;
+*func to(num: (Byte, Ubyte), endian: Endian) = num;
 
-*def dtor(buf: mut Buf) buf.mem'free();
+*func dtor(buf: mut Buf) buf.mem'free();

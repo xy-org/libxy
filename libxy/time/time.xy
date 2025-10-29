@@ -23,7 +23,7 @@ struct Timestamp {
 ;; sequential calls may vary quite a lot and a latter call can result in a
 ;; timestamp that is earlier in time. Use the returned value as a rough
 ;; estimation of the current time. Let the nanosecond stuff not fool you.
-def timestamp() -> Timestamp {
+func timestamp() -> Timestamp {
     ts: c."struct timespec";
     err : Int = inlinec"clock_gettime(CLOCK_REALTIME, &{ts})";
     if (err != 0) {
@@ -35,10 +35,10 @@ def timestamp() -> Timestamp {
 
 ;; Suspend current thread for {duration}
 ;; The unit of time is determined based on {duration}..unit
-*def sleep(duration: (Int, Long)) =
+*func sleep(duration: (Int, Long)) =
     sleep(duration'to(Long), duration..(units, UnknownDurationUnit));
 
-*def sleep(duration: Long, :ns) {
+*func sleep(duration: Long, :ns) {
     ts: c."struct timespec";
     inlinec"""
         {ts}.tv_sec = {duration} / 1000000000;
@@ -48,12 +48,12 @@ def timestamp() -> Timestamp {
     c.nanosleep(ts'addrof, c.NULL);; Ignore result intentionally
 }
 
-*def sleep(duration: Long, :us) = sleep(duration * 1000l, ns);
+*func sleep(duration: Long, :us) = sleep(duration * 1000l, ns);
 
-*def sleep(duration: Long, :ms) = sleep(duration * 1000_000l, ns);
+*func sleep(duration: Long, :ms) = sleep(duration * 1000_000l, ns);
 
-*def sleep(duration: Long, :s) = sleep(duration * 1000_000_000l, ns);
+*func sleep(duration: Long, :s) = sleep(duration * 1000_000_000l, ns);
 
 -struct UnknownDurationUnit {}
-*def sleep(duration: Long, :UnknownDurationUnit) =
+*func sleep(duration: Long, :UnknownDurationUnit) =
     break "Unknown sleep duration unit. Tag duration with the required unit";

@@ -7,7 +7,7 @@ struct Process {
     pid: Int;
 }
 
-*def run(
+*func run(
     path: Str, ;; Path to an executable
     args: Array~Str, ;; Arguments to pass to the executable
 ) -> Process | SystemError
@@ -38,7 +38,7 @@ struct Process {
     }
 }
 
-*def wait(p: Process) -> Int {
+*func wait(p: Process) -> Int {
     status: Int;
     c.waitpid(p.pid, status'addrof, 0);
     return status;

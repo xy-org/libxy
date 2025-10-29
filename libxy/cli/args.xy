@@ -29,7 +29,7 @@ import libxy.(string, stdio, array, slice, memory);
     command: Bool;
 }
 
-*def config(
+*func config(
     schema: mut CliSchema, prefixLong := "--", prefixShort := "-",
     manualHelp := false
 ) {
@@ -39,7 +39,7 @@ import libxy.(string, stdio, array, slice, memory);
     };
 }
 
-*def prog(
+*func prog(
     schema: mut CliSchema, name := "", short := "", desc := "", epilog := ""
 ) {
     schema.name = name;
@@ -49,7 +49,7 @@ import libxy.(string, stdio, array, slice, memory);
     schema.named'append(CliParam{"help", desc="show this help message and exit"});
 }
 
-*def param(
+*func param(
     schema: mut CliSchema,
     name := "",
     short := Char{},
@@ -69,7 +69,7 @@ import libxy.(string, stdio, array, slice, memory);
     }
 }
 
-def command(
+func command(
     schema: mut CliSchema,
     name: Str~MemStatic,
     desc := "",
@@ -77,7 +77,7 @@ def command(
     # TODO implement
 }
 
-*def append(fstr: mut Fstr, schema: CliSchema) {
+*func append(fstr: mut Fstr, schema: CliSchema) {
     if (schema.short'any) {
         fstr @= { schema.name, schema.short, "\n\n" };
     }
@@ -163,16 +163,16 @@ struct ParsingError {
     msg: Str~MemManaged;
 }
 
-*def to(pe: ParsingError, :Bool) pe.msg.size > 0;
+*func to(pe: ParsingError, :Bool) pe.msg.size > 0;
 
-*def unhandled(pe: ParsingError) {
+*func unhandled(pe: ParsingError) {
     print(pe.msg);
     if (!pe.msg'endswith("\n")) {
         print("\n");
     }
 }
 
-*def parse(
+*func parse(
     schema: CliSchema, rawArgs := [Global~CmdArgs]
 ) -> Array~CliArg | ParsingError {
     stream : Array~CliArg;
@@ -306,7 +306,7 @@ struct ParsingError {
     # dataIdx: Size;
 }
 
--def findParam(schema: CliSchema, name: Str) -> Int {
+-func findParam(schema: CliSchema, name: Str) -> Int {
     for (idx in :, param in schema.named) {
         if (param.name == name) {
             return idx'to(Int);
@@ -315,7 +315,7 @@ struct ParsingError {
     return -1;
 }
 
--def findParam(schema: CliSchema, short: Char) -> Int {
+-func findParam(schema: CliSchema, short: Char) -> Int {
     for (idx in :, param in schema.named) {
         if (param.short == short) {
             return idx'to(Int);

@@ -1,7 +1,7 @@
 import libxy.flag;
 import xytest;
 
-*def flag~Test() {
+*func flag~Test() {
     num : mut = 0;
 
     flag1: pseudo = Flag{0x1};
@@ -33,11 +33,11 @@ struct FuncFlags {
     flag3: pseudo = Flag{0x10};
 }
 
-def get(s: FuncFlags, f: Flag) = s.flags[f];
+func get(s: FuncFlags, f: Flag) = s.flags[f];
 
-def set(s: mut FuncFlags, f: Flag, on: Bool) s.flags[f] = on;
+func set(s: mut FuncFlags, f: Flag, on: Bool) s.flags[f] = on;
 
-*def flagInStruct~Test() {
+*func flagInStruct~Test() {
     s : mut FuncFlags;
 
     assert(!s.flag1);

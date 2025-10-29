@@ -15,16 +15,16 @@ import posix~[Clib{}] in c;
     size: Usize;
 }
 
-*def bstr~[StrCtor{prefix="b"}](addr: Ptr~Byte, size: Usize) =
+*func bstr~[StrCtor{prefix="b"}](addr: Ptr~Byte, size: Usize) =
     Blob~MemStatic{addr, size};
 
-*def bunstr~[UnstrCtor{prefix=""}](:Blob~void)   = UnstrIter{};
-*def bunstrBe~[UnstrCtor{prefix="be"}](:Blob~void) = UnstrIter{};
-*def bunstrLe~[UnstrCtor{prefix="le"}](:Blob~void) = UnstrIter{endian=Endian.little};
+*func bunstr~[UnstrCtor{prefix=""}](:Blob~void)   = UnstrIter{};
+*func bunstrBe~[UnstrCtor{prefix="be"}](:Blob~void) = UnstrIter{};
+*func bunstrLe~[UnstrCtor{prefix="le"}](:Blob~void) = UnstrIter{endian=Endian.little};
 
-*def dtor(blob: mut Blob~void) = dtor(blob, blob..memory);
+*func dtor(blob: mut Blob~void) = dtor(blob, blob..memory);
 
-*def cmp(lhs: Blob~void, rhs: Blob~void) -> Int {
+*func cmp(lhs: Blob~void, rhs: Blob~void) -> Int {
     if (lhs.size > rhs.size) {
         return 1;
     } elif (lhs.size < rhs.size) {
@@ -33,7 +33,7 @@ import posix~[Clib{}] in c;
     return c.memcmp(lhs.addr~[c.char], rhs.addr~[c.char], lhs.size);
 }
 
-*def append(fstr: mut Fstr, blob: Blob~void, prefix:="\\x", sep:="") -> void | SystemError {
+*func append(fstr: mut Fstr, blob: Blob~void, prefix:="\\x", sep:="") -> void | SystemError {
     for (i in :blob.size) {
         byte := [blob.addr + i];
         fstr'append(prefix);
@@ -51,7 +51,7 @@ import posix~[Clib{}] in c;
     }
 }
 
-*def append(fstr: mut Fstr, blob: Blob~void, ascii: Bool) -> void | SystemError {
+*func append(fstr: mut Fstr, blob: Blob~void, ascii: Bool) -> void | SystemError {
     if (!ascii) {
         fstr'append(blob);
     }
@@ -76,7 +76,7 @@ struct UnstrIter {
     endian: Endian;
 }
 
-*def read(
+*func read(
     blob: Blob~void, iter: mut UnstrIter,
     num: mut (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong),
     endian : Endian = Endian{iter.endian.val} # TODO why no just endian := iter.endian ???
@@ -88,7 +88,7 @@ struct UnstrIter {
     num = num'to(endian);
 }
 
-*def read(
+*func read(
     blob: Blob~void, iter: mut UnstrIter,
     bits: mut (Bits8, Bits16, Bits32, Bits64),
 )
@@ -101,16 +101,16 @@ struct UnstrIter {
 }
 
 ;; I hate this func. There should be a better more expressive way to do that.
--def to(bits: Bits8, endian: Endian) = bits;
--def to(bits: Bits16, endian: Endian) = bits'to(Ushort)'to(endian)'bits;
--def to(bits: Bits32, endian: Endian) = bits'to(Uint)'to(endian)'bits;
--def to(bits: Bits64, endian: Endian) = bits'to(Ulong)'to(endian)'bits;
+-func to(bits: Bits8, endian: Endian) = bits;
+-func to(bits: Bits16, endian: Endian) = bits'to(Ushort)'to(endian)'bits;
+-func to(bits: Bits32, endian: Endian) = bits'to(Uint)'to(endian)'bits;
+-func to(bits: Bits64, endian: Endian) = bits'to(Ulong)'to(endian)'bits;
 
-*def read(
+*func read(
     blob: Blob~void, iter: mut UnstrIter, other: mut Blob~void,
 ) = read(blob, iter, other, other..memory);
 
-*def read(
+*func read(
     blob: Blob~void, iter: mut UnstrIter, other: mut Blob~void, :MemExt
 ) {
     if (iter.offset < blob.size) {
@@ -123,17 +123,17 @@ struct UnstrIter {
     iter.offset += other.size;
 }
 
-*def read(
+*func read(
     blob: Blob~void, offset: mut UnstrIter, other: mut Blob~void, :MemStatic
 ) break "Cannot read into a blob with static memory";
 
-*def read(
+*func read(
     blob: Blob~void, offset: mut UnstrIter, other: mut Blob~void, :MemManaged
 ) break "Cannot read into a blob with managed memory. Read into Blob~MemExt and then copy";
 
-def dtor(blob: mut Blob~void, :MemManaged) {
+func dtor(blob: mut Blob~void, :MemManaged) {
     free(blob.addr, blob.size);
 }
 
-def dtor(blob: mut Blob~void, :MemStatic) {}
-def dtor(blob: mut Blob~void, :MemExt) {}
+func dtor(blob: mut Blob~void, :MemStatic) {}
+func dtor(blob: mut Blob~void, :MemExt) {}

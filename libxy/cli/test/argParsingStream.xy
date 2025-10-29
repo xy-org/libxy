@@ -2,7 +2,7 @@ import xy.sys;
 import xytest;
 import libxy.(array, cli, string, slice);
 
-*def helpMsg1~Test() {
+*func helpMsg1~Test() {
     schema : mut = CliSchema{};
     schema'prog(
         "ProgramName",
@@ -30,7 +30,7 @@ import libxy.(array, cli, string, slice);
     ";
 }
 
-*def helpMsg2~Test() {
+*func helpMsg2~Test() {
     schema := CliSchema {
         'prog("xytest", desc="Discover and Run Tests"),
         'param("dir", .positional),
@@ -49,7 +49,7 @@ import libxy.(array, cli, string, slice);
     ";
 }
 
-*def autoHelp~Test() {
+*func autoHelp~Test() {
     schema := CliSchema {
         'param("filename", .positional),
     };
@@ -62,7 +62,7 @@ import libxy.(array, cli, string, slice);
     (assert) err.msg'startswith("Usage");
 }
 
-*def parsingOnePosArg~Test() {
+*func parsingOnePosArg~Test() {
     schema := CliSchema {
         'prog("ProgramName"),
         'param("filename", .positional),
@@ -76,7 +76,7 @@ import libxy.(array, cli, string, slice);
     (equal) parsed[0].value, "myfile.txt";
 }
 
-*def parsingTwoPositional~Test() {
+*func parsingTwoPositional~Test() {
     schema := CliSchema {
         'prog("ProgramName"),
         'param("fileA", .positional),
@@ -93,7 +93,7 @@ import libxy.(array, cli, string, slice);
     (equal) parsed[1].value, "file2.txt";
 }
 
-def lsSchema() = CliSchema {
+func lsSchema() = CliSchema {
     'prog("ls"),
     'param("long", `l`, arg=""),
     'param("all", `a`, arg=""),
@@ -101,7 +101,7 @@ def lsSchema() = CliSchema {
     'param("files", .positional, nargs=0:, .greedy),
 };
 
-*def parsingLs1~Test() {
+*func parsingLs1~Test() {
     schema := 'lsSchema;
 
     cliArgs := @{c"ls", c"-lr"};
@@ -125,7 +125,7 @@ def lsSchema() = CliSchema {
     }
 }
 
-*def parsingLs2~Test() {
+*func parsingLs2~Test() {
     schema := 'lsSchema;
 
     cliArgs := @{c"ls", c"-lr", c"."};
@@ -141,7 +141,7 @@ def lsSchema() = CliSchema {
     (equal) parsed[2].value, ".";
 }
 
-*def parsingLs3~Test() {
+*func parsingLs3~Test() {
     schema := 'lsSchema;
 
     cliArgs := @{c"ls", c".", c"-lr"};
@@ -154,7 +154,7 @@ def lsSchema() = CliSchema {
     (equal) parsed[1].value, "-lr";
 }
 
-*def parsingLs4~Test() {
+*func parsingLs4~Test() {
     schema := 'lsSchema;
 
     cliArgs := @{c"ls", c"-l", c".", c"-ar"};
@@ -168,7 +168,7 @@ def lsSchema() = CliSchema {
     (equal) parsed[2].value, "-ar";
 }
 
--def gccLikeSchema() = CliSchema {
+-func gccLikeSchema() = CliSchema {
     ;; Note: not all of gcc idiosyncrasies can be exactly represented
     ;; -W<warnings> or -L<dir> cannot be represented
 
@@ -179,7 +179,7 @@ def lsSchema() = CliSchema {
     'param("warning", short=`W`, arg="warning"),
 };
 
-*def parsingGccLike1~Test() {
+*func parsingGccLike1~Test() {
     schema := 'gccLikeSchema;
 
     cliArgs := @{c"cc", c"program.c", c"-c", c"-o", c"prg.o", c"-W", c"all"};
@@ -195,7 +195,7 @@ def lsSchema() = CliSchema {
     (equal) parsed[3].value, "all";
 }
 
-#-def gitSchema() -> CliSchema {
+#-func gitSchema() -> CliSchema {
 #    schema : CliSchema;
 #    schema'param("version", arg="");
 #    schema'param("command", .command);
@@ -206,7 +206,7 @@ def lsSchema() = CliSchema {
 #    return schema;
 #}
 #
-#*def parsingGit1~Test() {
+#*func parsingGit1~Test() {
 #    schema := 'gitSchema;
 #
 #    cliArgs := @{c"git", c"push", c"origin", c"master"};
@@ -221,7 +221,7 @@ def lsSchema() = CliSchema {
 #    (equal) parsed[2].value, "master";
 #}
 
--def ffmpegSchema() = CliSchema {
+-func ffmpegSchema() = CliSchema {
     'config(prefixLong="-", prefixShort="-"),
     'param("input", `i`, nargs=1:),
     'param("output", .positional),
@@ -229,7 +229,7 @@ def lsSchema() = CliSchema {
     'param("-c:a"),
 };
 
-def parsingFfmpeg~Test() {
+func parsingFfmpeg~Test() {
     #testParsing(
     #    'ffmpegSchema,
     #    @{
@@ -257,7 +257,7 @@ def parsingFfmpeg~Test() {
     (equal) parsed'len, 7;
 }
 
-#-def testParsing(
+#-func testParsing(
 #    schema: CliSchema,
 #    args: pseudo @Ptr[],
 #    expected: pseudo @Arg[],
@@ -273,7 +273,7 @@ def parsingFfmpeg~Test() {
 #    (equal) parsed'len, expectedNum;
 #}
 
-*def parsingOnePosArgErr~Test() {
+*func parsingOnePosArgErr~Test() {
     schema := CliSchema {
         'prog("ProgramName"),
         'param("filename", .positional),

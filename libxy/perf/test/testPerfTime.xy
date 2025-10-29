@@ -1,7 +1,7 @@
 import libxy.perf;
 import xytest;
 
-*def timing~Test() {
+*func timing~Test() {
     t1 := time();
     t2 := time();
     (assert) t1 <= t2;

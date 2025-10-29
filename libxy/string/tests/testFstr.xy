@@ -1,7 +1,7 @@
 import libxy.string;
 import xytest;
 
-*def interpolatingChar~Test() {
+*func interpolatingChar~Test() {
     (assert) f"{`a`}" == "a";
     (assert) f"{`ж`}" == "ж";
     (assert) f"{`😊`}xyz" == "😊xyz";
@@ -9,7 +9,7 @@ import xytest;
     (assert) f"before{`😊`}after" == "before😊after";
 }
 
-*def interpolatingStr~Test() {
+*func interpolatingStr~Test() {
     str := "John";
     (assert) f"My name is {str}" == "My name is John";
 
@@ -20,7 +20,7 @@ import xytest;
     # (assert) f"{str, fill=`*`, width=10, .center}" == "***John***";
 }
 
-#*def strInterpolationUnicode~Test() {
+#*func strInterpolationUnicode~Test() {
 #    str := "Йоан";
 #    (assert) "My name is {str}" == "My name is Йоан";
 #    (assert) "My name is {str, .upper}" == "My name is ЙОАН";
@@ -28,7 +28,7 @@ import xytest;
 #    (assert) "{str, fill=`⁈`, width=6, .center}" == "⁈Йоан⁈";
 #}
 
-*def interpolatingInt~Test() {
+*func interpolatingInt~Test() {
     (equal) f"{1b}", "1";
     (equal) f"{12ub}", "12";
     (equal) f"{123s}", "123";
@@ -40,7 +40,7 @@ import xytest;
     (equal) f"{369z}", "369";
 }
 
-*def interpolatingIntExplicitBase~Test() {
+*func interpolatingIntExplicitBase~Test() {
     (equal) f"{789024328ul, base=10}", "789024328";
     (equal) f"{789024328ul, base=16}", "2F078E48";
     (equal) f"{789024328ul, base=8}", "5701707110";
@@ -49,14 +49,14 @@ import xytest;
     (equal) f"{48461859, base=36}", "SUPER";
 }
 
-*def interpolatingBits~Test() {
+*func interpolatingBits~Test() {
     (equal) f"{0xFE()b'to(Bits8)}", "0xFE";
     (equal) f"{0x1234s'to(Bits16)}", "0x1234";
     (equal) f"{0x123456'to(Bits32)}", "0x00123456";
     (equal) f"{0x123456ABCDEFul'to(Bits64)}", "0x0000123456ABCDEF";
 }
 
-*def interpolatingFloat~Test() {
+*func interpolatingFloat~Test() {
     (equal) f"{4125.6, precision=1}", "4125.6";
     (equal) f"{4125.6d}", "4125.6";
     (equal) f"{3.0}", "3";
@@ -71,13 +71,13 @@ import xytest;
     (equal) f"{-Double'nan}", "nan";
 }
 
-*def scientificNotation~Test() {
+*func scientificNotation~Test() {
     num := 3.14;
     (assert) f"{num, .scientific}" == "3.140000e+00";
     (assert) f"{num, .scientific, precision=2}" == "3.14e+00";
 }
 
-*def minWidth~Test() {
+*func minWidth~Test() {
     str := "String";
     (equal) f"{str, minWidth=10, fill=`*`}", "****String";
     (assert) f"{str, minWidth=10, fill=`*`, .left}" == "String****";
@@ -88,7 +88,7 @@ import xytest;
     (assert) f"{"!", minWidth=3, fill=`😊`}" == "😊😊!";
 }
 
-*def maxWidthAndClipping~Test() {
+*func maxWidthAndClipping~Test() {
     str := "Very long string";
     (equal) f"{str, maxWidth=10}", "Very lo...";
     (equal) f"{str, maxWidth=str'count'to(Int)}", "Very long string";
@@ -98,7 +98,7 @@ import xytest;
     (equal) f"{str, maxWidth=0, clip="..."}", "...";
 }
 
-*def widthAndClipping~Test() {
+*func widthAndClipping~Test() {
     str := "1234";
     (equal) f"{str, width=0, clip="?"}", "?";
     (equal) f"{str, width=0, clip="?"}", "?";
@@ -109,7 +109,7 @@ import xytest;
     (equal) f"{str, width=6, clip="?", fill=`*`}", "**1234";
 }
 
-*def repeatingChars~Test() {
+*func repeatingChars~Test() {
     (equal) f"{`A`, repeat=10u}", "AAAAAAAAAA";
     (equal) f"{`😊`, repeat=7u}", "😊😊😊😊😊😊😊";
     (equal) f"{`!`, repeat=0u}", "";

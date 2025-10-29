@@ -2,7 +2,7 @@ import libxy.perf;
 import libxy.time;
 import libxy.unit;
 
-*def sleeping~Test() {
+*func sleeping~Test() {
     duration : Long~ns = 100l;
     now := time();
     sleep(duration);

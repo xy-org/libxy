@@ -2,25 +2,25 @@ import libxy.fs;
 import xy.ctti;
 import libxy.memory;
 
-*def reading~Test() {
+*func reading~Test() {
     file := open('fileof, .readOnly);
     content := f"{file}";
     checkContent(content);
 }
 
-def checkContent(content: Str) {
+func checkContent(content: Str) {
     (assert) content.size > 100;
     (assert) content'startswith("import");
 }
 
-#def mmapFile~Test() {
+#func mmapFile~Test() {
 #    file := open('fileof, .read);
 #    mem := file'mmap;
 #    content := Str~External{mem, mem.size};
 #    # ...
 #}
 #
-#def readByChunks~Test() {
+#func readByChunks~Test() {
 #    file := open('fileof, .read);
 #
 #    buffer: Memory;

@@ -2,7 +2,7 @@ import libxy.(array, string);
 import xytest;
 
 
-*def normalUsage~Test() {
+*func normalUsage~Test() {
     arr: Array~Int;
 
     for (i in :100) {
@@ -34,11 +34,11 @@ struct DtorCounter {
     counts: @Int[11];
 }
 
-def dtor(s: WithDtor) {
+func dtor(s: WithDtor) {
     [Global~DtorCounter].counts[s.id]++;
 }
 
-*def dtorsAreCalled~Test() {
+*func dtorsAreCalled~Test() {
     arr: Array~WithDtor;
     for (i in :10) {
         arr @= WithDtor{i+1};
@@ -49,7 +49,7 @@ def dtor(s: WithDtor) {
     }
 }
 
-*def insertingItems~Test() {
+*func insertingItems~Test() {
     arr : Array~Int;
     for (i in :10) {
         arr'insert(0uz, i);
@@ -59,7 +59,7 @@ def dtor(s: WithDtor) {
     }
 }
 
-*def sortingEasy~Test() {
+*func sortingEasy~Test() {
     n := 10;
     arr : Array~Int;
     for (i in :n) {
@@ -82,9 +82,9 @@ struct Pair {
     value: Int;
 }
 
-def cmp(p1: Pair, p2: Pair) = cmp(p1.key, p2.key);
+func cmp(p1: Pair, p2: Pair) = cmp(p1.key, p2.key);
 
-*def stability~Test() {
+*func stability~Test() {
     n := 1_000;
     max := 10;
     arr: Array~Pair;
@@ -102,7 +102,7 @@ def cmp(p1: Pair, p2: Pair) = cmp(p1.key, p2.key);
     }
 }
 
-*def unstable~Test() {
+*func unstable~Test() {
     n := 1_000;
     max := 10;
     arr: Array~Pair;
@@ -117,7 +117,7 @@ def cmp(p1: Pair, p2: Pair) = cmp(p1.key, p2.key);
     }
 }
 
-*def swapping~Test() {
+*func swapping~Test() {
     arr: Array~Int;
     arr @= 0;
     arr'swap(0, 0);

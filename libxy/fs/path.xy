@@ -6,7 +6,7 @@ pathSeparator := `/`;
 
 ;; Strip last component from a filesystem path
 ;; If input contains no /'s, return empty interval (i.e. empty string)
-*def dirname(
+*func dirname(
     ;; What to strip
     path: Str,
     ;; Separator symbol to tokenize {path} by.
@@ -35,21 +35,21 @@ struct PathStr {
     fstr: Fstr;
 }
 
-def path~[StrCtor{prefix="path", interpolation=true, to=Str}](addr: Ptr, len: Usize) -> PathStr{
+func path~[StrCtor{prefix="path", interpolation=true, to=Str}](addr: Ptr, len: Usize) -> PathStr{
     return PathStr{fstr(addr, len)};
 }
 
-*def append(path: mut PathStr, str: Str) {
+*func append(path: mut PathStr, str: Str) {
     if (str'startswith("/")) {
         path.fstr.fill = 0;
     }
     path.fstr'append(str);
 }
 
-*def append(path: mut PathStr, cstr: Ptr, len: Usize) {
+*func append(path: mut PathStr, cstr: Ptr, len: Usize) {
     path.fstr'append(cstr, len);
 }
 
-*def to(path: mut PathStr, :Str) -> Str~MemManaged {
+*func to(path: mut PathStr, :Str) -> Str~MemManaged {
     return path.fstr'to(Str);
 }

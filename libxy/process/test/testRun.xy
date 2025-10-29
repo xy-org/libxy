@@ -5,7 +5,7 @@ import libxy.error;
 import libxy.memory;
 import xytest;
 
-*def runningLs~Test() {
+*func runningLs~Test() {
     args : Array~Str~MemStatic;
     args'append("Echoing from test");
     p := run("echo", args);

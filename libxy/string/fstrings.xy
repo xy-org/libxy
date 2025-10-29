@@ -6,17 +6,17 @@ import libxy.bitwise;
     fill: Usize;
 }
 
-*def dtor(builder: mut Fstr) {
+*func dtor(builder: mut Fstr) {
     builder.mem'free();
 }
 
-*def fstr~[StrCtor{prefix="f", interpolation=true, to=Str}] (
+*func fstr~[StrCtor{prefix="f", interpolation=true, to=Str}] (
     addr: pseudo Ptr, size: Usize
 ) -> Fstr {
     return Fstr{};
 }
 
-def ensureCap(builder: mut Fstr, requiredCap: Usize) {
+func ensureCap(builder: mut Fstr, requiredCap: Usize) {
     minSize := builder.fill + requiredCap;
     if (builder.mem.size < minSize) {
         newSize : mut = 2 * builder.mem.size;
@@ -27,13 +27,13 @@ def ensureCap(builder: mut Fstr, requiredCap: Usize) {
     }
 }
 
-*def append(builder: mut Fstr, addr: Ptr, size: Usize) {
+*func append(builder: mut Fstr, addr: Ptr, size: Usize) {
     builder'ensureCap(size);
     c.memcpy(builder.mem.addr + builder.fill, addr, size);
     builder.fill += size;
 }
 
-*def append(
+*func append(
     builder: mut Fstr, str: Str,
     width := Int'max, minWidth := width, maxWidth := width,
     fill := ` `, left := false, center := false,
@@ -80,14 +80,14 @@ def ensureCap(builder: mut Fstr, requiredCap: Usize) {
     }
 }
 
-*def append(builder: mut Fstr, str: Fstr) =
+*func append(builder: mut Fstr, str: Fstr) =
     builder'append(str.mem.addr, str.fill);
 
 ;; Number of available bytes in builder
-def capacity(fstr: Fstr) fstr.mem.size - fstr.fill;
+func capacity(fstr: Fstr) fstr.mem.size - fstr.fill;
 
 ;; Stringify and append {num}
-*def append(
+*func append(
     fstr: mut Fstr,
     num: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong),
     base := 10,
@@ -104,7 +104,7 @@ def capacity(fstr: Fstr) fstr.mem.size - fstr.fill;
     }
 }
 
--def appendDigits(
+-func appendDigits(
     fstr: mut Fstr,
     num:(Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong),
     base: Int,
@@ -127,7 +127,7 @@ def capacity(fstr: Fstr) fstr.mem.size - fstr.fill;
 }
 
 ;; Stringify and append {bits}
-*def append(fstr: mut Fstr, bits: (Bits8, Bits16, Bits32, Bits64)) {
+*func append(fstr: mut Fstr, bits: (Bits8, Bits16, Bits32, Bits64)) {
     fstr'ensureCap(2 + bits'sizeof * 2);
     fstr'append("0x");
     letters := c"0123456789ABCDEF";
@@ -140,21 +140,21 @@ def capacity(fstr: Fstr) fstr.mem.size - fstr.fill;
     fstr.fill += bits'sizeof*2;
 }
 
-def unsigned(a: Byte) a'to(Ubyte);
-def unsigned(a: Short) a'to(Ushort);
-def unsigned(a: Int) a'to(Uint);
-def unsigned(a: Long) a'to(Ulong);
-def unsigned(a: Ubyte) a;
-def unsigned(a: Ushort) a;
-def unsigned(a: Uint) a;
-def unsigned(a: Ulong) a;
-def unsigned(a: Bits8) a'to(Ubyte);
-def unsigned(a: Bits16) a'to(Ushort);
-def unsigned(a: Bits32) a'to(Uint);
-def unsigned(a: Bits64) a'to(Ulong);
+func unsigned(a: Byte) a'to(Ubyte);
+func unsigned(a: Short) a'to(Ushort);
+func unsigned(a: Int) a'to(Uint);
+func unsigned(a: Long) a'to(Ulong);
+func unsigned(a: Ubyte) a;
+func unsigned(a: Ushort) a;
+func unsigned(a: Uint) a;
+func unsigned(a: Ulong) a;
+func unsigned(a: Bits8) a'to(Ubyte);
+func unsigned(a: Bits16) a'to(Ushort);
+func unsigned(a: Bits32) a'to(Uint);
+func unsigned(a: Bits64) a'to(Ulong);
 
 ;; ...
-*def append(
+*func append(
     fstr: mut Fstr,
     num: (Float, Double),
     precision := -1,
@@ -199,7 +199,7 @@ def unsigned(a: Bits64) a'to(Ulong);
 }
 
 ;; ...
-*def append(
+*func append(
     builder: mut Fstr, flag: Bool,
     falseStr : Str = "false", trueStr : Str = "true",
 ) {
@@ -210,12 +210,12 @@ def unsigned(a: Bits64) a'to(Ulong);
     }
 }
 
-*def backtrack(builder: mut Fstr, num: Uint) {
+*func backtrack(builder: mut Fstr, num: Uint) {
     builder.fill -= num'to(Usize);
 }
 
 ;; Encode {char} to utf-8 and append to str. Invalid chars are ignored.
-*def append(builder: mut Fstr, char: Char) {
+*func append(builder: mut Fstr, char: Char) {
     builder'ensureCap(4uz);
     nchar := char'to(Uint);
     if (nchar <= 0x7F) {
@@ -241,7 +241,7 @@ def unsigned(a: Bits64) a'to(Ulong);
 }
 
 ;; ...
-*def append(fstr: mut Fstr, char: Char, repeat: Uint) {
+*func append(fstr: mut Fstr, char: Char, repeat: Uint) {
     if (repeat > 0) {
         addedBytes := -> (added: Usize) {
             added = fstr.fill;
@@ -263,7 +263,7 @@ def unsigned(a: Bits64) a'to(Ulong);
     }
 }
 
-*def to(builder: mut Fstr, :Str) -> Str~MemManaged {
+*func to(builder: mut Fstr, :Str) -> Str~MemManaged {
     builder'ensureCap(1uz);
     ;; not really needed but better safe than sorry
     [builder.mem.addr~[c.char] + builder.fill] = 0;

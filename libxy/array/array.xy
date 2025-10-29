@@ -8,16 +8,16 @@ import libc~[Clib{}] in c;
     len: Usize~Count;
 }
 
-*def dtor(arr: mut Array) = -> void {
+*func dtor(arr: mut Array) = -> void {
     for (i in :arr'len) {
         arr[i] =< void;
     }
     arr.mem'free();
 };
 
-*def len(a: Array) = a.len;
+*func len(a: Array) = a.len;
 
-def ensureCapacity(
+func ensureCapacity(
     arr: mut Array,
     requiredCap: Usize,
     elemSize : Usize = sizeof(arr..elemType)
@@ -28,24 +28,24 @@ def ensureCapacity(
     }
 }
 
-*def append(arr: Array, elem: don Any) = -> void {
+*func append(arr: Array, elem: don Any) = -> void {
     _ := assumeCompatibleTypes(arr..elemType, %elem);
     arr'appendUnsafe(elem'addrof, sizeof(arr..elemType));
     void =< elem;
 };
 
--def appendUnsafe(arr: Array, elemPtr: Ptr, elemSize: Usize) {
+-func appendUnsafe(arr: Array, elemPtr: Ptr, elemSize: Usize) {
     arr'ensureCapacity(arr.len + 1, elemSize=elemSize);
     c.memcpy(arr.mem.addr + arr.len * elemSize, elemPtr, elemSize);
     arr.len++;
 }
 
-*def pop(arr: mut Array) = if (arr.len > 0) {
+*func pop(arr: mut Array) = if (arr.len > 0) {
     arr[arr.len-1] =< void;
     arr.len--;
 };
 
-*def get(
+*func get(
     arr: Array, i: (Int, Uint, Long, Ulong),
     elemSize : Usize = sizeof(arr..elemType)
 ) -> arr[ Ptr~[^arr..elemType] ]
@@ -58,45 +58,45 @@ struct ArrayIter {
     idx: Usize;
 }
 
-*def iter(arr: Array) -> arr[ ArrayIter ] {
+*func iter(arr: Array) -> arr[ ArrayIter ] {
     return ArrayIter{};
 }
 
-*def valid(arr: Array, iter: ArrayIter) = iter.idx < arr'len;
+*func valid(arr: Array, iter: ArrayIter) = iter.idx < arr'len;
 
-*def next(arr: pseudo Array, iter: mut ArrayIter) {
+*func next(arr: pseudo Array, iter: mut ArrayIter) {
    iter.idx++;
 }
 
-*def get(
+*func get(
     arr: Array, iter: ArrayIter, elemSize : Usize = sizeof(arr..elemType)
 ) -> arr[ Ptr~[^arr..elemType] ] {
     return (arr.mem.addr + iter.idx * elemSize)~void;
 }
 
-*def fill(arr: mut Array, n: Usize, value: Any = (arr..elemType){}) =
+*func fill(arr: mut Array, n: Usize, value: Any = (arr..elemType){}) =
     for (i in :n) {
         arr'append(value);
     };
 
 ;; Clear the array
-*def clear(arr: mut Array) = -> void {
+*func clear(arr: mut Array) = -> void {
     for (i in :arr'len) {
         arr[i] =< void;
     }
     arr.len = 0;
 };
 
-*def sort(
+*func sort(
     arr: mut Array, decreasing := false, stable := true,
 ) = sort(arr, ^$cmp(arr..elemType, arr..elemType), =decreasing, =stable);
 
-*def sort(
+*func sort(
     arr: mut Array, cmp : FuncDef, decreasing := false, stable := true,
 ) =
     if (!decreasing) {
         cmpCb :=(
-            def indirectCmp(
+            func indirectCmp(
                 a: Ptr, b: Ptr, cmp := cmp, elemType := arr..elemType
             ) = [cmp]([a~[%elemType]], [b~[%elemType]])
         )'toCallback((:Ptr, :Ptr)->Int);
@@ -111,7 +111,7 @@ struct ArrayIter {
         }
     } else {
         cmpCb := (
-            def indirectCmp(
+            func indirectCmp(
                 a: Ptr, b: Ptr, cmp := cmp, elemType := arr..elemType
             ) = -[cmp]([a~[%elemType]], [b~[%elemType]])
         )'toCallback((:Ptr, :Ptr)->Int);
@@ -126,14 +126,14 @@ struct ArrayIter {
         }
     };
 
--def sortUnstable(
+-func sortUnstable(
     arr: Ptr~Byte, nelems: Usize, cmp: (:Ptr, :Ptr)->Int, esize: Usize
 ) {
     # Introsort implementation: hybrid of quicksort insertion sort for small regions
     introsort(arr, nelems, cmp, esize);
 }
 
--def introsort(arr: Ptr~Byte, nelems: Usize, cmp: (:Ptr, :Ptr)->Int, esize: Usize) {
+-func introsort(arr: Ptr~Byte, nelems: Usize, cmp: (:Ptr, :Ptr)->Int, esize: Usize) {
     if (nelems <= 16) {
         arr'insertionSort(nelems, cmp, esize);
         return;
@@ -182,7 +182,7 @@ struct ArrayIter {
 }
 
 
--def sortStable(
+-func sortStable(
     arr: Ptr~Byte, aux: %arr, nelems: Usize, cmp: (:Ptr, :Ptr)->Int, esize: Usize
 ) {
     ;; merge sort falling back to insertion sort for small arrays
@@ -198,7 +198,7 @@ struct ArrayIter {
     merge(arr, aux, mid, nelems, cmp, esize);
 }
 
-def merge(arr: Ptr~Byte, aux: %arr, mid: Usize, nelems: Usize, cmp: (:Ptr, :Ptr)->Int, esize: Usize) {
+func merge(arr: Ptr~Byte, aux: %arr, mid: Usize, nelems: Usize, cmp: (:Ptr, :Ptr)->Int, esize: Usize) {
     left: Ptr~Byte = arr;
     right: Ptr~Byte = arr + mid * esize;
     leftLen : mut = mid;
@@ -239,11 +239,11 @@ def merge(arr: Ptr~Byte, aux: %arr, mid: Usize, nelems: Usize, cmp: (:Ptr, :Ptr)
     c.memcpy(arr, aux, nelems * esize);
 }
 
--def insertionSort(
+-func insertionSort(
     arr: Ptr~Byte, nelems: Usize, cmp: (:Ptr, :Ptr)->Int,
     esize: Usize = sizeof(arr..elemType),
 ) {
-    def moveElement(arr: Ptr~Byte, to: Usize, from: Usize, esize: Usize) {
+    func moveElement(arr: Ptr~Byte, to: Usize, from: Usize, esize: Usize) {
         mem : Memory;
         mem'realloc(esize);
         c.memcpy(mem.addr, arr + from * esize, esize);
@@ -264,7 +264,7 @@ def merge(arr: Ptr~Byte, aux: %arr, mid: Usize, nelems: Usize, cmp: (:Ptr, :Ptr)
     }
 }
 
-def findInsertionPos(
+func findInsertionPos(
     arr: Ptr~Byte, nelems: Usize, cmp: (:Ptr, :Ptr)->Int,
     esize: Usize = sizeof(arr..elemType), elem: Ptr,
 ) -> Usize {
@@ -282,7 +282,7 @@ def findInsertionPos(
     return low;
 }
 
-def insert(
+func insert(
      arr: mut Array, pos: Usize, elem: pseudo Any,
      elemPtr: Ptr = elem'addrof, esize : Usize = elem'sizeof,
 ) -> void
@@ -298,7 +298,7 @@ def insert(
     arr.len++;
 }
 
-*def swap(
+*func swap(
     arr: mut Array,
     i: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong), j: %i,
     esize: Usize = sizeof(arr..elemType)
@@ -311,7 +311,7 @@ def insert(
     }
 }
 
--def unsafeSwap(arr: Ptr~Byte, i: Usize, j: Usize, esize: Usize) {
+-func unsafeSwap(arr: Ptr~Byte, i: Usize, j: Usize, esize: Usize) {
     mem : Memory;
     mem'realloc(esize);
     c.memcpy(mem.addr, arr + esize * i, esize);
@@ -321,5 +321,5 @@ def insert(
 }
 
 
--def lessThan(a: Any, b: Any, cmp: FuncDef, decreasing: Bool) =
+-func lessThan(a: Any, b: Any, cmp: FuncDef, decreasing: Bool) =
     (decreasing && [cmp](a, b) > 0) || (decreasing'not && [cmp](a, b) < 0);

@@ -1,7 +1,7 @@
 import xytest;
 import libxy.time;
 
-*def timestamping~Test() {
+*func timestamping~Test() {
     ts := timestamp();
     (assert) ts.nsec != 0;
 

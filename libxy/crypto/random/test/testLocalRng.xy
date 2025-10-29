@@ -2,7 +2,7 @@ import libxy.crypto.random;
 import libxy.(binary, slice);
 import xytest;
 
-*def sanity~Test() {
+*func sanity~Test() {
     rng : LocalRng;
     history: @Uint[32];
     for (i in :history'len) {
@@ -13,7 +13,7 @@ import xytest;
     }
 }
 
-*def primTypes~Test() {
+*func primTypes~Test() {
     rng : LocalRng;
     a : Byte = rng'random(Byte);
     b : Ubyte = rng'random(Ubyte);
@@ -24,7 +24,7 @@ import xytest;
     g : Ulong = rng'random(Ulong);
 }
 
-*def readingIntoBuf~Test() {
+*func readingIntoBuf~Test() {
     rng : LocalRng;
     buf := bf"{rng, 12uz}";
     (assert) buf.size == 12z;
@@ -33,10 +33,10 @@ import xytest;
     (assert) n1 != n3;
 }
 
-*def randomFloatRange~Test() { testFpRange(LocalRng{}, Float); }
-*def randomDoubleRange~Test() { testFpRange(LocalRng{}, Double); }
+*func randomFloatRange~Test() { testFpRange(LocalRng{}, Float); }
+*func randomDoubleRange~Test() { testFpRange(LocalRng{}, Double); }
 
--def testFpRange(rng: mut LocalRng, fpType: pseudo (Float, Double)) {
+-func testFpRange(rng: mut LocalRng, fpType: pseudo (Float, Double)) {
     for (i in :100) {
         fp := rng'random(fpType);
         (assert) fp >= 0.0'to(%fpType);
@@ -44,14 +44,14 @@ import xytest;
     }
 }
 
-*def randomFloatExplicitRange~Test() {
+*func randomFloatExplicitRange~Test() {
     testFpExplicitRange(LocalRng{}, Float, 5.0:10.0);
 }
-*def randomDoubleExplicitRange~Test() {
+*func randomDoubleExplicitRange~Test() {
     testFpExplicitRange(LocalRng{}, Double, 1.61803d:3.14d);
 }
 
--def testFpExplicitRange(
+-func testFpExplicitRange(
     rng: mut LocalRng, fpType: pseudo (Float, Double),
     range := %(fpType:fpType),
 ) {
@@ -62,15 +62,15 @@ import xytest;
     }
 }
 
-*def randomFloatDistribution~Test() {
+*func randomFloatDistribution~Test() {
     testRandomDistribution(LocalRng{}, Float);
 }
-*def randomDoubleDistribution~Test() {
+*func randomDoubleDistribution~Test() {
     testRandomDistribution(LocalRng{}, Double);
 }
 
 ;; Very simple way to check if the distribution is atleast sane
--def testRandomDistribution(
+-func testRandomDistribution(
     rng: mut LocalRng, fpType: pseudo (Float, Double)
 ) {
     nbins := 10;
@@ -100,12 +100,12 @@ import xytest;
     }
 }
 
-*def utils~Test() {
+*func utils~Test() {
     a := random(Uint);
     b := random(Long);
 }
 
-*def generatingIntsSmoke~Test() {
+*func generatingIntsSmoke~Test() {
     rng: LocalRng;
     range := 100:10_000_000;
     a := rng'random(range);
@@ -115,7 +115,7 @@ import xytest;
     (assert) a != c;
 }
 
-*def generatingIntsRange~Test() {
+*func generatingIntsRange~Test() {
     rng: LocalRng;
     range := 100:110;
     for (i in :10) {
@@ -125,7 +125,7 @@ import xytest;
     }
 }
 
-*def generatingIntsInvalidRange~Test() {
+*func generatingIntsInvalidRange~Test() {
     rng: LocalRng;
 
     (assert) rng'random(0:0) == 0;
@@ -134,7 +134,7 @@ import xytest;
     (assert) rng'random(Int'max : Int'min) == Int'max;
 }
 
-*def generatingIntsLargeRange~Test() {
+*func generatingIntsLargeRange~Test() {
     rng: LocalRng;
 
     for (i in :10) {

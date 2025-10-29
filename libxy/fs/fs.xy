@@ -29,9 +29,9 @@ import libxy.(string, binary, flag, error);
     #excl : pseudo = exclusive;; Shorthand for exclusive
 }
 
-*def get(oflags: OpenFlags, flag: Flag) = oflags.value[flag];
+*func get(oflags: OpenFlags, flag: Flag) = oflags.value[flag];
 
-*def set(oflags: mut OpenFlags, flag: Flag, on: Bool) oflags.value[flag] = on;
+*func set(oflags: mut OpenFlags, flag: Flag, on: Bool) oflags.value[flag] = on;
 
 ;; Struct representing a file handle.
 *struct File {
@@ -44,7 +44,7 @@ import libxy.(string, binary, flag, error);
 
 ;; Open a file
 ;; See {OpenFlags} for explanation of what all the toggles mean
-* def open(
+* func open(
     path: Str,
     append := false, create := false, directory := false, readOnly := false,
     writeOnly := false, readWrite := false, truncate := false,
@@ -56,7 +56,7 @@ import libxy.(string, binary, flag, error);
     }, mode);
 
 ;; Open a file
-*def open(
+*func open(
     path: Str, flags: OpenFlags, mode := 0644
 ) -> File | SystemError
 >> nullTerminated(path)
@@ -71,7 +71,7 @@ import libxy.(string, binary, flag, error);
 
 ;; Create and open a temporary file for reading and writing.
 ;; When closed the file will auto delete
-*def openTmp() -> File | SystemError {
+*func openTmp() -> File | SystemError {
     fd : Int;
 
 inlinec"""
@@ -91,7 +91,7 @@ inlinec"""
 
 ;; Dup {file} i.e. make a shollow copy of the file descriptor
 ;; No actual bytes get copied on the filesystem
-*def copy(file: File) -> File | SystemError {
+*func copy(file: File) -> File | SystemError {
     newFd : Int = c.dup(file.fd);
     if (newFd < 0) {
         error SystemError{c.errno};
@@ -99,7 +99,7 @@ inlinec"""
     return File{newFd};
 }
 
-*def write(file: File, str: Str) -> void | SystemError {
+*func write(file: File, str: Str) -> void | SystemError {
     total : mut Usize;
     do {
         # TODO use c.ssize_t
@@ -113,14 +113,14 @@ inlinec"""
     } while (total < str.size);
 }
 
-*def seek(file: File, offset: (Int, Size)) -> void | SystemError {
+*func seek(file: File, offset: (Int, Size)) -> void | SystemError {
     res: c.off_t = c.lseek(file.fd, offset, c.SEEK_SET);
     if (inlinec"{res} == (off_t) -1") {
         error SystemError{c.errno};
     }
 }
 
-*def close(file: File) -> void | SystemError {
+*func close(file: File) -> void | SystemError {
     if (file.fd >= 0) {
         res: Int = c.close(file.fd);
         if (res != 0) {
@@ -130,7 +130,7 @@ inlinec"""
 }
 
 ;; Read from {file} into {fstr} untile EoF, EAGAIN, EWOULDBLOCK
-*def read(file: File, fstr: mut Fstr) -> void | SystemError {
+*func read(file: File, fstr: mut Fstr) -> void | SystemError {
     res : c.ssize_t;
     do {
         fstr'ensureCap(4098uz);
@@ -146,11 +146,11 @@ inlinec"""
 }
 
 ;; ...
-*def append(fstr: mut Fstr, file: File) = file'read(fstr);
+*func append(fstr: mut Fstr, file: File) = file'read(fstr);
 
 ;; Read from {file} exactly {nbyte} bytes into {buf}
 ;; {file} must be either blocking or have atleast {nbytes} available for read
-*def read(file: File, buf: mut Buf, nbyte: Usize) -> void | SystemError {
+*func read(file: File, buf: mut Buf, nbyte: Usize) -> void | SystemError {
     res : c.ssize_t;
     remaining: mut Usize = nbyte;
     buf'ensureCap(nbyte);
@@ -166,11 +166,11 @@ inlinec"""
 }
 
 ;; ...
-*def append(buf: mut Buf, file: File, nbyte: Usize) = file'read(buf, nbyte);
+*func append(buf: mut Buf, file: File, nbyte: Usize) = file'read(buf, nbyte);
 
 -struct BlockingField{}
 
-*def get(file: File, :BlockingField) -> Bool | SystemError {
+*func get(file: File, :BlockingField) -> Bool | SystemError {
     flags: Int = c.fcntl(file.fd, c.F_GETFL);
     if (flags < 0) {
         error SystemError{c.errno};
@@ -179,7 +179,7 @@ inlinec"""
     return inlinec"({flags} & O_NONBLOCK) == 0";
 }
 
-*def set(file: File, :BlockingField, toggle: Bool) -> void | SystemError {
+*func set(file: File, :BlockingField, toggle: Bool) -> void | SystemError {
     flags: mut Int = c.fcntl(file.fd, c.F_GETFL);
     if (flags < 0) {
         error SystemError{c.errno};
@@ -197,11 +197,11 @@ inlinec"""
     }
 }
 
-*def dtor(f: File) {
+*func dtor(f: File) {
     f'close;
 }
 
-*def mkdir(path: Str, mode := 0755, parents := false) -> void | SystemError
+*func mkdir(path: Str, mode := 0755, parents := false) -> void | SystemError
 >> nullTerminated(path)
 {
     c.mkdir(path.addr~[c.char], mode);

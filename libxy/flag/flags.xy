@@ -9,11 +9,11 @@ import libxy.bitwise;
 }
 
 ;; Check if the bitmask stored in {flag} is applied to {value}
-*def get(value: (Byte, Ubyte, Short, Ushort, Int, Uint), flag: Flag)
+*func get(value: (Byte, Ubyte, Short, Ushort, Int, Uint), flag: Flag)
     (value'bits && flag.value'to(%value)'bits) == flag.value'to(%value)'bits;
 
 ;; Apply the bitmask stored in {flag} to {value}
-*def set(value: mut (Ubyte, Int, Uint), flag: Flag, on: Bool) {
+*func set(value: mut (Ubyte, Int, Uint), flag: Flag, on: Bool) {
     if (on) {value'bits = value'bits || flag.value'to(%value)'bits;}
     else {value'bits = value'bits && !flag.value'to(%value)'bits;}
 }

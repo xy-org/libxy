@@ -1,7 +1,7 @@
 import xytest;
 import libxy.bitwise;
 
-*def gettingBits~Test() {
+*func gettingBits~Test() {
     num := 011001010100101(2);
     (assert)  num'bits[0];
     (assert) !num'bits[1];
@@ -10,14 +10,14 @@ import libxy.bitwise;
     (assert)  num'bits[13];
 }
 
-*def gettingBitsFloatingPoint~Test() {
+*func gettingBitsFloatingPoint~Test() {
     float := 3.14;
     double := 1.61803d;
     (assert) float'bits == 0x4048F5C3'to(Bits32);
     (assert) double'bits == 0x3FF9E3736CDF266Cul'to(Bits64);
 }
 
-*def gettingBitsOoB~Test() {
+*func gettingBitsOoB~Test() {
     num := 011001010100101(2);
     (assert)  num'bits[0 + 32];
     (assert) !num'bits[1 + 32];
@@ -26,7 +26,7 @@ import libxy.bitwise;
     (assert)  num'bits[13 + 32];
 }
 
-*def gettingBitsSeparate~Test() {
+*func gettingBitsSeparate~Test() {
     bits := 011001010100101(2)'bits;
     (assert)  bits[0];
     (assert) !bits[1];
@@ -35,7 +35,7 @@ import libxy.bitwise;
     (assert)  bits[13];
 }
 
-*def flippingBits~Test() {
+*func flippingBits~Test() {
     num : mut = 011001010100101(2);
     num'bits = !num'bits;
     (assert) !num'bits[0];
@@ -45,7 +45,7 @@ import libxy.bitwise;
     (assert) !num'bits[13];
 }
 
-*def settingBits~Test() {
+*func settingBits~Test() {
     num : Int;
     num'bits[10] = true;
     num'bits[20] = true;
@@ -55,7 +55,7 @@ import libxy.bitwise;
     (assert) num == 0x00;
 }
 
-*def settingBitsOoB~Test() {
+*func settingBitsOoB~Test() {
     num : Ubyte;
     num'bits[0] = true;
     num'bits[7] = true;
@@ -74,7 +74,7 @@ import libxy.bitwise;
     (assert) num == 0xC0ub;
 }
 
-*def copyingBits~Test() {
+*func copyingBits~Test() {
     num := 0random(36);
 
     (assert) copyBits(num) == num;
@@ -88,7 +88,7 @@ import libxy.bitwise;
 }
 
 ;; probably the most inefficient way to copy a number
--def copyBits(num: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong)) -> %num {
+-func copyBits(num: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong)) -> %num {
     copy: %num;
     for (i in :num'bits'len) {
         copy'bits[i] = num'bits[i];
@@ -96,14 +96,14 @@ import libxy.bitwise;
     return copy;
 }
 
-*def xor~Test() {
+*func xor~Test() {
     n1 := 0x1fub;
     n2 := 0x22ub;
     xor := n1'bits - n2'bits;
     (assert) xor'to(Ubyte) == 0x3dub;
 }
 
-*def countingLeadingZeros0~Test() {
+*func countingLeadingZeros0~Test() {
     (assert) 0'bits'countLeadingZeros == 32;
     (assert) 0x0ub'bits'countLeadingZeros == 8;
     (assert) 0x0s'bits'countLeadingZeros == 16;
@@ -111,7 +111,7 @@ import libxy.bitwise;
     (assert) 0x0ul'bits'countLeadingZeros == 64;
 }
 
-*def countingLeadingZeros1~Test() {
+*func countingLeadingZeros1~Test() {
     (assert) 1'bits'countLeadingZeros == 31;
     (assert) 0x1ub'bits'countLeadingZeros == 7;
     (assert) 0x1s'bits'countLeadingZeros == 15;
@@ -119,21 +119,21 @@ import libxy.bitwise;
     (assert) 0x1l'bits'countLeadingZeros == 63;
 }
 
-*def countingLeadingZerosMinus1~Test() {
+*func countingLeadingZerosMinus1~Test() {
     (assert) (-1b)'bits'countLeadingZeros == 0;
     (assert) (-1s)'bits'countLeadingZeros == 0;
     (assert) (-1)'bits'countLeadingZeros == 0;
     (assert) (-1l)'bits'countLeadingZeros == 0;
 }
 
-*def countingLeadingZerosRandom~Test() {
+*func countingLeadingZerosRandom~Test() {
     (assert) 0x28()b'bits'countLeadingZeros == 2;
     (assert) 0x682As'bits'countLeadingZeros == 1;
     (assert) 0xE1A020'bits'countLeadingZeros == 8;
     (assert) 0x123CAFFEEul'bits'countLeadingZeros == 31;
 }
 
-*def countingLeadingOnes~Test() {
+*func countingLeadingOnes~Test() {
     ;; countLeadingOnes is more or less identical to countLeadingZeros
     ;; So we are going to run just a few simple tests
     (assert) 0'bits'countLeadingOnes == 0;
@@ -142,21 +142,21 @@ import libxy.bitwise;
     (assert) 0xCAD7s'bits'countLeadingOnes == 2;
 }
 
-*def countingTrailingZeros~Test() {
+*func countingTrailingZeros~Test() {
     (assert) 0'bits'countTrailingZeros == 32;
     (assert) 0x80()b'bits'countTrailingZeros == 7;
     (assert) (-1)'bits'countTrailingZeros == 0;
     (assert) 0xCAD8s'bits'countTrailingZeros == 3;
 }
 
-*def countingTrailingOnes~Test() {
+*func countingTrailingOnes~Test() {
     (assert) 0'bits'countTrailingOnes == 0;
     (assert) 0xF1ub'bits'countTrailingOnes == 1;
     (assert) (-1)'bits'countTrailingOnes == 32;
     (assert) 0xCAD7s'bits'countTrailingOnes == 3;
 }
 
-*def reversingBits~Test() {
+*func reversingBits~Test() {
     (assert) 0'bits'reverse == 0'bits;
     (assert) (-1)'bits'reverse == (-1)'bits;
 
@@ -166,7 +166,7 @@ import libxy.bitwise;
     (assert) 0x01234567ABCDEF01l'bits'reverse == 0x80F7B3D5E6A2C480l'bits;
 }
 
-*def rotatingLeft~Test() {
+*func rotatingLeft~Test() {
     (assert) 0'bits'rotl(0) == 0'bits;
     (assert) (-1)'bits'rotl(0) == (-1)'bits;
     (assert) 0x01234567'bits'rotl(0) == 0x01234567'bits;
@@ -179,7 +179,7 @@ import libxy.bitwise;
     (assert) 0xCAFEs'bits'rotl(13) == 0xD95Fs'bits;
 }
 
-*def rotatingRight~Test() {
+*func rotatingRight~Test() {
     (assert) 0'bits'rotr(0) == 0'bits;
     (assert) (-1)'bits'rotr(0) == (-1)'bits;
     (assert) 0x01234567'bits'rotr(0) == 0x01234567'bits;
@@ -192,7 +192,7 @@ import libxy.bitwise;
     (assert) 0xCAFEs'bits'rotr(13) == 0x57F6s'bits;
 }
 
-*def rotatingOoB~Test() {
+*func rotatingOoB~Test() {
     (assert) 0x01234567'bits'rotl(1) == 0x02468ACE'bits;
     (assert) 0x01234567'bits'rotl(33) == 0x01234567'bits'rotl(1);
 

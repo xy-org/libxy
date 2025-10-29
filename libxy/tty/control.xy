@@ -11,7 +11,7 @@ import libxy.(fs, error);
     raw: pseudo = RawAttr{};
 }
 
-*def ttyAttrs(f: File) -> TtyAttrs | SystemError {
+*func ttyAttrs(f: File) -> TtyAttrs | SystemError {
     attrs: TtyAttrs;
     res: Int = c.tcgetattr(f.fd, attrs.native'addrof);
     if (res < 0) {
@@ -20,7 +20,7 @@ import libxy.(fs, error);
     return attrs;
 }
 
-*def setTtyAttrs(f: File, attrs: TtyAttrs) -> void | SystemError {
+*func setTtyAttrs(f: File, attrs: TtyAttrs) -> void | SystemError {
     res: Int = c.tcsetattr(f.fd, c.TCSAFLUSH, attrs.native'addrof);
     if (res < 0) {
         error SystemError{c.errno};
@@ -32,7 +32,7 @@ import libxy.(fs, error);
     height: Uint;
 }
 
-*def ttySize(f: File) -> TtySize | SystemError {
+*func ttySize(f: File) -> TtySize | SystemError {
     winsize: c."struct winsize";
     err: Int = c.ioctl(f.fd, c.TIOCGWINSZ, winsize'addrof);
     if (err < 0) {
@@ -42,12 +42,12 @@ import libxy.(fs, error);
 }
 
 -struct RawAttr {}
-*def get(attrs: TtyAttrs, :RawAttr) = break """
+*func get(attrs: TtyAttrs, :RawAttr) = break """
     Raw is a pseudo property that turns on/off a few other properties.
     It cannot be read. Only set.
 ";
 
-*def set(attrs: mut TtyAttrs, :RawAttr, on: Bool)
+*func set(attrs: mut TtyAttrs, :RawAttr, on: Bool)
 >> on
 {
     ;; Refer to Advanced UNIX Programming 4.5.10 and tcgetattr(3) for more info

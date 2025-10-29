@@ -2,7 +2,7 @@ import xytest;
 import libxy.memory;
 
 ;; simple memory allocation sanity test
-*def consistency~Test() {
+*func consistency~Test() {
     pool: @Memory[100];
     for (i in :pool'len) {
         reqSize : Size = 10;; # TODO replace this by rng
@@ -20,7 +20,7 @@ import libxy.memory;
     }
 }
 
-*def allocRandomSize~Test() {
+*func allocRandomSize~Test() {
     for (i in :100) {
         reqSize : Size = 10;; # TODO replace this by rng
         mem : mut = malloc(reqSize);

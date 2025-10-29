@@ -1,7 +1,7 @@
 import libxy.memory;
 
 
-*def readingBuf~Test() {
+*func readingBuf~Test() {
     "{byte: Byte}{int: Int}{rest: Blob~MemExt}" = b"\x11\x22\x33\x44\x55\x66";
     (equal) byte, 0x11()b;
     (equal) int, 0x22334455;
@@ -17,7 +17,7 @@ import libxy.memory;
     (equal) num, 0x66554433;
 }
 
-*def readingBits~Test() {
+*func readingBits~Test() {
     "{b8: Bits8}{b16: Bits16}{b32: Bits32}" = b"\xF0\x11\x22\x33\x44\x55\x66";
     (equal) b8'to(Byte), 0xF0()b;
     (equal) b16'to(Short), 0x1122s;

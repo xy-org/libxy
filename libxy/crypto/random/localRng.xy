@@ -5,11 +5,11 @@ import libc~[Clib{headers=@{"stdlib.h", "math.h"}}] in c;
 ;; Utility functions
 
 ;; Generate a cryptographically strong random number
-*def random(
+*func random(
     type: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong, Float, Double)
 ) = [Global~LocalRng]'random(type);
 
-#*def random(
+#*func random(
 #    range: (IntRange, LongRange, SizeRange, FloatRange, DoubleRange)
 #) = [Global~LocalRng]'random(range);
 
@@ -29,36 +29,36 @@ import libc~[Clib{headers=@{"stdlib.h", "math.h"}}] in c;
 ;; strong randomness (cases include simulations, hashes, etc.)
 *struct LocalRng {}
 
-*def random(rng: pseudo LocalRng, :Uint) = Uint{c.arc4random()};
+*func random(rng: pseudo LocalRng, :Uint) = Uint{c.arc4random()};
 
-*def random(rng: LocalRng, :Byte  ) = rng'random(Uint)'to(Byte);
-*def random(rng: LocalRng, :Ubyte ) = rng'random(Uint)'to(Ubyte);
-*def random(rng: LocalRng, :Short ) = rng'random(Uint)'to(Short);
-*def random(rng: LocalRng, :Ushort) = rng'random(Uint)'to(Ushort);
-*def random(rng: LocalRng, :Int   ) = rng'random(Uint)'to(Int);
+*func random(rng: LocalRng, :Byte  ) = rng'random(Uint)'to(Byte);
+*func random(rng: LocalRng, :Ubyte ) = rng'random(Uint)'to(Ubyte);
+*func random(rng: LocalRng, :Short ) = rng'random(Uint)'to(Short);
+*func random(rng: LocalRng, :Ushort) = rng'random(Uint)'to(Ushort);
+*func random(rng: LocalRng, :Int   ) = rng'random(Uint)'to(Int);
 
-*def random(rng: LocalRng, :Ulong) -> (res: Ulong) {
+*func random(rng: LocalRng, :Ulong) -> (res: Ulong) {
     rng'random(res'addrof, res'sizeof);
 }
 
-*def random(rng: LocalRng, :Long) = rng'random(Ulong)'to(Long);
+*func random(rng: LocalRng, :Long) = rng'random(Ulong)'to(Long);
 
-*def random(rng: pseudo LocalRng, buf: Ptr, size: Usize) -> void {
+*func random(rng: pseudo LocalRng, buf: Ptr, size: Usize) -> void {
     c.arc4random_buf(buf, size);
 }
 
-*def random(rng: LocalRng, :Float) = random(rng, 0.0:1.0);
+*func random(rng: LocalRng, :Float) = random(rng, 0.0:1.0);
 
-*def random(rng: LocalRng, range: RangeFloat) -> Float {
+*func random(rng: LocalRng, range: RangeFloat) -> Float {
     precision := 24;; IEEE754 single has 24-bit precision
     rand := ( rng'random(Uint)'to(Bits32)'shiftr(32 - precision) )'to(Uint);
     norm : Float = c.ldexpf(range'len, -precision);
     return range.start + rand'to(Float) * norm;
 }
 
-*def random(rng: LocalRng, :Double) = random(rng, 0.0d:1.0d);
+*func random(rng: LocalRng, :Double) = random(rng, 0.0d:1.0d);
 
-*def random(rng: LocalRng, range: RangeDouble) -> Double {
+*func random(rng: LocalRng, range: RangeDouble) -> Double {
     precision := 53;; IEEE754 double has 53-bit precision
     rand := ( rng'random(Ulong)'to(Bits64)'shiftr(64 - precision) )'to(Ulong);
     norm : Double = c.ldexp(range'len, -precision);
@@ -66,7 +66,7 @@ import libc~[Clib{headers=@{"stdlib.h", "math.h"}}] in c;
 }
 
 ;; Generate a random integer uniformly distributed in {range}
-*def random(rng: LocalRng, range: RangeInt) -> Int {
+*func random(rng: LocalRng, range: RangeInt) -> Int {
     ;; Based uppon:
     ;; Daniel Lemire, "Fast Random Integer Generation in an Interval".
     ;; Also inspired by freebsd-src/lib/libc/gen/arc4random_uniform.c
@@ -85,7 +85,7 @@ import libc~[Clib{headers=@{"stdlib.h", "math.h"}}] in c;
 	return range.start + product'to(Bits64)'shiftr(32)'to(Bits32)'to(Int);
 }
 
-*def append(buf: mut Buf, rng: LocalRng, size: Usize) -> void {
+*func append(buf: mut Buf, rng: LocalRng, size: Usize) -> void {
     buf'ensureCap(size);
     rng'random(buf.mem.addr + buf.fill, size);
     buf.fill += size;
