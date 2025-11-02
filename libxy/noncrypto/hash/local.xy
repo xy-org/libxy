@@ -1,0 +1,14 @@
+import libxy.noncrypto.hash.rapid;
+import libxy.(string, binary);
+
+;; Fastest & Best hash available for the platform.
+struct LocalHash {
+    seed : %(Size'toBits);; You can specify this to add some extra entropy
+}
+
+*func hash(str: Str, hash: LocalHash) = hash(str.addr, str.size, hash);
+
+*func hash(blob: Blob, hash: LocalHash) = hash(blob.addr, blob.size, hash);
+
+*func hash(data: Ptr~Byte, len: Usize, hash: LocalHash) =
+    hash(data, len, RapidHash64{hash.seed});

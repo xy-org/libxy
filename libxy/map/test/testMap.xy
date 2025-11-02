@@ -1,0 +1,83 @@
+import libxy.(string, noncrypto.hash, map, memory);
+import xytest;
+
+*func simpleInsertion~Test() {
+    map : Map~[Str~MemStatic, Str~MemStatic];
+    map["one"] = "1";
+    map["two"] = "2";
+    map["three"] = "3";
+
+    (equal) map'len, 3;
+
+    (assert) map'has("one");
+    (assert) map'has("two");
+    (assert) map'has("three");
+
+    (assert) map'has("four")'not;
+    (assert) map'has("five")'not;
+
+    (equal) map["one"], "1";
+    (equal) map["two"], "2";
+    (equal) map["three"], "3";
+}
+
+*func insertingAndOverwriting~Test() {
+    map: Map~[Str~MemManaged, Int];
+
+    for (i in :256) {
+        map[f"{i}"] = i;
+    }
+
+    for (i in :256) {
+        (equal) map[f"{i}"], i;
+    }
+
+    ;; let's now repeat the same procedutre
+
+    for (i in :256) {
+        map[f"{i}"] = i;
+    }
+}
+
+*func lookupNonExistant~Test() {
+    map: Map~[Str~MemManaged, Int];
+    for (i in :128) {
+        map[f"{i}"] = i;
+
+        (assert) map'has(f"10000")'not;
+    }
+}
+
+*func deletingFromMap~Test() {
+    map: Map~[Str~MemManaged, Int];
+
+    for (i in :200) {
+        map[f"{i}"] = i;
+    }
+
+    ;; delete the first element
+    map'del(f"0");
+    (equal) map'len, 199;
+    (assert) map'has(f"0")'not;
+
+    ;; delete random elements
+    map'del(f"10");
+    map'del(f"152");
+    (equal) map'len, 197;
+    (assert) map'has(f"10")'not;
+    (assert) map'has(f"152")'not;
+
+    ;; delete non existant
+    map'del(f"0");
+    map'del(f"not-present");
+    (equal) map'len, 197;
+
+    ;; add missing again
+    map[f"10"] = 10;
+    map[f"152"] = 152;
+    map[f"0"] = 0;
+    (equal) map'len, 200uz;
+    for (i in :200) {
+        (assert) map'has(f"{i}");
+    }
+}
