@@ -3,7 +3,7 @@ import xytest;
 
 
 *func normalUsage~Test() {
-    arr: Array~Int;
+    arr: List~Int;
 
     for (i in :100) {
         arr'append(i);
@@ -39,7 +39,7 @@ func dtor(s: WithDtor) {
 }
 
 *func dtorsAreCalled~Test() {
-    arr: Array~WithDtor;
+    arr: List~WithDtor;
     for (i in :10) {
         arr @= WithDtor{i+1};
     }
@@ -50,7 +50,7 @@ func dtor(s: WithDtor) {
 }
 
 *func insertingItems~Test() {
-    arr : Array~Int;
+    arr : List~Int;
     for (i in :10) {
         arr'insert(0uz, i);
     }
@@ -61,7 +61,7 @@ func dtor(s: WithDtor) {
 
 *func sortingEasy~Test() {
     n := 10;
-    arr : Array~Int;
+    arr : List~Int;
     for (i in :n) {
         arr @= n - i - 1;
     }
@@ -87,7 +87,7 @@ func cmp(p1: Pair, p2: Pair) = cmp(p1.key, p2.key);
 *func stability~Test() {
     n := 1_000;
     max := 10;
-    arr: Array~Pair;
+    arr: List~Pair;
     for (i in :n) {
         arr @= Pair{key=i \rem max, value=i};
     }
@@ -105,7 +105,7 @@ func cmp(p1: Pair, p2: Pair) = cmp(p1.key, p2.key);
 *func unstable~Test() {
     n := 1_000;
     max := 10;
-    arr: Array~Pair;
+    arr: List~Pair;
     for (i in :n) {
         arr @= Pair{key=i \rem max, value=i};
     }
@@ -118,7 +118,7 @@ func cmp(p1: Pair, p2: Pair) = cmp(p1.key, p2.key);
 }
 
 *func swapping~Test() {
-    arr: Array~Int;
+    arr: List~Int;
     arr @= 0;
     arr'swap(0, 0);
     (equal) arr[0], 0;

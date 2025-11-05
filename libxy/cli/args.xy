@@ -8,8 +8,8 @@ import libxy.(string, stdio, array, slice, memory);
     epilog: Str~MemStatic;
     short: Str~MemStatic;
 
-    named: Array~CliParam;
-    positional: Array~CliParam;
+    named: List~CliParam;
+    positional: List~CliParam;
 
     prefixLong: Str~MemStatic;
     prefixShort: Str~MemStatic;
@@ -174,15 +174,15 @@ struct ParsingError {
 
 *func parse(
     schema: CliSchema, rawArgs := [Global~CmdArgs]
-) -> Array~CliArg | ParsingError {
-    stream : Array~CliArg;
+) -> List~CliArg | ParsingError {
+    stream : List~CliArg;
 
     numPositional := schema.positional'len;
     numNamed := schema.named'len;
 
-    nargsPositional : Array~Int;
+    nargsPositional : List~Int;
     nargsPositional'fill(numPositional);
-    nargsNamed: Array~Int;
+    nargsNamed: List~Int;
     nargsNamed'fill(numNamed);
 
     ;; index of current positional param

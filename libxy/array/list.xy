@@ -3,22 +3,22 @@ import libxy.(unit, memory, slice, error);
 import libc~[Clib{}] in c;
 
 ;; A dynamic array. Can grow and shrink as you append and pop elements.
-*struct Array~[elemType: struct] {
+*struct List~[elemType: struct] {
     mem: Memory;
     len: Usize~Count;
 }
 
-*func dtor(arr: mut Array) = -> void {
+*func dtor(arr: mut List) = -> void {
     for (i in :arr'len) {
         arr[i] =< void;
     }
     arr.mem'free();
 };
 
-*func len(a: Array) = a.len;
+*func len(a: List) = a.len;
 
 func ensureCapacity(
-    arr: mut Array,
+    arr: mut List,
     requiredCap: Usize,
     elemSize : Usize = sizeof(arr..elemType)
 ) {
@@ -29,7 +29,7 @@ func ensureCapacity(
 }
 
 *func append(
-    arr: Array, elem: don Any,
+    arr: List, elem: don Any,
     elemPtr: Ptr = elem'addrof, elemSize: Usize = elem'sizeof,
 )
 >> assumeCompatibleTypes(arr..elemType, %elem)
@@ -39,13 +39,13 @@ func ensureCapacity(
     arr.len++;
 }
 
-*func pop(arr: mut Array) = if (arr.len > 0) {
+*func pop(arr: mut List) = if (arr.len > 0) {
     arr[arr.len-1] =< void;
     arr.len--;
 };
 
 *func get(
-    arr: Array, i: (Int, Uint, Long, Ulong),
+    arr: List, i: (Int, Uint, Long, Ulong),
     elemSize : Usize = sizeof(arr..elemType)
 ) -> arr[ Ptr~[^arr..elemType] ]
 >> i'to(Usize) < arr'len
@@ -53,33 +53,33 @@ func ensureCapacity(
     return (arr.mem.addr + i'to(Usize) * elemSize)~void;
 }
 
-struct ArrayIter {
+struct ListIter {
     idx: Usize;
 }
 
-*func iter(arr: Array) -> arr[ ArrayIter ] {
-    return ArrayIter{};
+*func iter(arr: List) -> arr[ ListIter ] {
+    return ListIter{};
 }
 
-*func valid(arr: Array, iter: ArrayIter) = iter.idx < arr'len;
+*func valid(arr: List, iter: ListIter) = iter.idx < arr'len;
 
-*func next(arr: pseudo Array, iter: mut ArrayIter) {
+*func next(arr: pseudo List, iter: mut ListIter) {
    iter.idx++;
 }
 
 *func get(
-    arr: Array, iter: ArrayIter, elemSize : Usize = sizeof(arr..elemType)
+    arr: List, iter: ListIter, elemSize : Usize = sizeof(arr..elemType)
 ) -> arr[ Ptr~[^arr..elemType] ] {
     return (arr.mem.addr + iter.idx * elemSize)~void;
 }
 
-*func fill(arr: mut Array, n: Usize, value: Any = (arr..elemType){}) =
+*func fill(arr: mut List, n: Usize, value: Any = (arr..elemType){}) =
     for (i in :n) {
         arr'append(value);
     };
 
 ;; Clear the array
-*func clear(arr: mut Array) = -> void {
+*func clear(arr: mut List) = -> void {
     for (i in :arr'len) {
         arr[i] =< void;
     }
@@ -87,11 +87,11 @@ struct ArrayIter {
 };
 
 *func sort(
-    arr: mut Array, decreasing := false, stable := true,
+    arr: mut List, decreasing := false, stable := true,
 ) = sort(arr, ^$cmp(arr..elemType, arr..elemType), =decreasing, =stable);
 
 *func sort(
-    arr: mut Array, cmp : FuncDef, decreasing := false, stable := true,
+    arr: mut List, cmp : FuncDef, decreasing := false, stable := true,
 ) =
     if (!decreasing) {
         cmpCb :=(
@@ -282,7 +282,7 @@ func findInsertionPos(
 }
 
 func insert(
-     arr: mut Array, pos: Usize, elem: pseudo Any,
+     arr: mut List, pos: Usize, elem: pseudo Any,
      elemPtr: Ptr = elem'addrof, esize : Usize = elem'sizeof,
 ) -> void
 >> cmpTypes(arr..elemType, elem) >= 0
@@ -298,7 +298,7 @@ func insert(
 }
 
 *func swap(
-    arr: mut Array,
+    arr: mut List,
     i: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong), j: %i,
     esize: Usize = sizeof(arr..elemType)
 ) -> void

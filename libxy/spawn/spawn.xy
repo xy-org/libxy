@@ -38,9 +38,9 @@ import libxy.(fs, binary, error, array);
 
 ;; Don't use directly
 struct SpawnSystem {
-    spawns: Array~Descriptor;
+    spawns: List~Descriptor;
 
-    q: Array~Envelope;
+    q: List~Envelope;
     select: Select;
     qIdx: Uint;
 

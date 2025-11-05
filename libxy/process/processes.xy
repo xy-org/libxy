@@ -9,7 +9,7 @@ struct Process {
 
 *func run(
     path: Str, ;; Path to an executable
-    args: Array~Str, ;; Arguments to pass to the executable
+    args: List~Str, ;; Arguments to pass to the executable
 ) -> Process | SystemError
 >> nullTerminated(args..elemType)
 {
@@ -17,7 +17,7 @@ struct Process {
     if (childPid == 0) {
         ;; child process
         # TODO prealloc args'len + 2 elems in argv
-        argv : Array~Ptr~Byte;
+        argv : List~Ptr~Byte;
         argv'append(path.addr);
         for (arg in args) {
             argv'append(arg.addr);
