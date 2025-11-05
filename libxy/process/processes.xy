@@ -1,7 +1,5 @@
 import posix~[Clib{headers=@{"unistd.h", "sys/wait.h"}}] in c;
-import libxy.string;
-import libxy.array;
-import libxy.error;
+import libxy.(string, list, error);
 
 struct Process {
     pid: Int;

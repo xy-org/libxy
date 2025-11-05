@@ -14,7 +14,7 @@
 ;;    The downside is relying on the OS for entropy.
 
 import posix~[Clib{headers=@{"sys/socket.h", "sys/types.h", "fcntl.h", "unistd.h"}}] in c;
-import libxy.(fs, binary, error, array);
+import libxy.(fs, binary, error, list);
 
 ;; Represent the id (name) of a spawn
 ;; Use one of the spawn funcs to create a Sid instance.

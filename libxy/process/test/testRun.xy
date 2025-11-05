@@ -1,6 +1,6 @@
 import libxy.process;
 import libxy.string;
-import libxy.array;
+import libxy.list;
 import libxy.error;
 import libxy.memory;
 import xytest;

@@ -1,4 +1,4 @@
-import libxy.(array, string);
+import libxy.(list, string);
 import xytest;
 
 
