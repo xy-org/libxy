@@ -1,0 +1,142 @@
+import xy.ctti;
+import libxy.(table, string);
+import xytest;
+
+struct Data {
+    i: Int;
+    u: Ulong;
+    c: Char;
+    f: Float;
+}
+
+*func normalUsage~Test() {
+    table: Table~Data;
+
+    for (i in :100) {
+        table'append(Data{=i});
+    }
+    (equal) table'len, 100;
+
+    for (i in :100) {
+        d: Data;
+        v := get(table, i, 4uz, 0uz);
+        (equal) v.i, i;
+    }
+    (equal) table'len, 100;
+
+    #arr'clear;
+    #(equal) arr'len, 0;
+#
+    #for (i in :200) {
+    #    val := i * 2;
+    #    arr'append(val);
+    #    (equal) arr[i], i * 2;
+    #}
+    #(equal) arr'len, 200;
+}
+
+#struct WithDtor {
+#    id: Int;
+#}
+#
+#struct DtorCounter {
+#    counts: @Int[11];
+#}
+#
+#func dtor(s: WithDtor) {
+#    [Global~DtorCounter].counts[s.id]++;
+#}
+#
+#*func dtorsAreCalled~Test() {
+#    arr: List~WithDtor;
+#    for (i in :10) {
+#        arr @= WithDtor{i+1};
+#    }
+#    arr'clear();
+#    for (i in 1:11) {
+#        (equal) [Global~DtorCounter].counts[i], 1;
+#    }
+#}
+#
+#*func insertingItems~Test() {
+#    arr : List~Int;
+#    for (i in :10) {
+#        arr'insert(0uz, i);
+#    }
+#    for (i in :10) {
+#        (equal) arr[i], 10 - i - 1;
+#    }
+#}
+#
+#*func sortingEasy~Test() {
+#    n := 10;
+#    arr : List~Int;
+#    for (i in :n) {
+#        arr @= n - i - 1;
+#    }
+#
+#    arr'sort;
+#    for (i in :n) {
+#        (equal) arr[i], i;
+#    }
+#
+#    arr'sort(.decreasing);
+#    for (i in :n) {
+#        (equal) arr[i], n - i - 1;
+#    }
+#}
+#
+#struct Pair {
+#    key: Int;
+#    value: Int;
+#}
+#
+#func cmp(p1: Pair, p2: Pair) = cmp(p1.key, p2.key);
+#
+#*func stability~Test() {
+#    n := 1_000;
+#    max := 10;
+#    arr: List~Pair;
+#    for (i in :n) {
+#        arr @= Pair{key=i \rem max, value=i};
+#    }
+#
+#    arr'sort(.stable);
+#
+#    for (i in 1z:arr'len) {
+#        (assert) arr[i-1].key <= arr[i].key;
+#        if (arr[i-1].key == arr[i].key) {
+#            (assert) arr[i-1].value < arr[i].value;
+#        }
+#    }
+#}
+#
+#*func unstable~Test() {
+#    n := 1_000;
+#    max := 10;
+#    arr: List~Pair;
+#    for (i in :n) {
+#        arr @= Pair{key=i \rem max, value=i};
+#    }
+#
+#    arr'sort(stable=false);
+#
+#    for (i in 1z:arr'len) {
+#        (assert) arr[i-1].key <= arr[i].key;
+#    }
+#}
+#
+#*func swapping~Test() {
+#    arr: List~Int;
+#    arr @= 0;
+#    arr'swap(0, 0);
+#    (equal) arr[0], 0;
+#
+#    for (i in 1:10) {
+#        arr @= i;
+#    }
+#    arr'swap(5, 9);
+#    (equal) arr[5], 9;
+#    (equal) arr[9], 5;
+#}
+#

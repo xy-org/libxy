@@ -1,0 +1,67 @@
+import libc~[ Clib{ headers=@{"string.h"} } ] in c;
+import xy.ctti;
+import libxy.memory;
+
+*struct Table~[elemType: Any] {
+    mem: Memory;
+    cap: Usize;
+    len: Usize;
+}
+
+*func len(t: Table) = t.len;
+
+struct FieldDesc {
+    size: Usize;
+    offset: Usize;
+}
+
+*func append(t: Table, elem: don Any) = -> void
+#>> assumeCompatibleTypes(t..elemType, elem)
+{
+    fields := @for (f in elem'fieldsof) FieldDesc{f'sizeof, f'offsetof};
+    append(t, elem'addrof~[to=Byte], elem'sizeof, fields'addrof, fields'len);
+};
+
+func append(
+    t: Table, elem: Ptr~Byte, elemSize: Usize,
+    fields: Ptr~FieldDesc, nfields: Usize
+) {
+    t'ensureCapacity(t'len + 1, ...);
+    for (i in :nfields) {
+        offset := t.cap * fields[i].offset + t.len * fields[i].size;
+        c.memcpy(t.mem.addr + offset, elem + fields[i].offset, fields[i].size);
+    }
+    t.len++;
+}
+
+func ensureCapacity(
+    t: Table, required: Usize,
+    elemSize: Usize, fields: Ptr~FieldDesc, nfields: Usize,
+) {
+    if (t.cap < required) {
+        newCap := max(8uz, max(t.cap * 2, required));
+        t.mem'realloc(newCap * elemSize);
+        for (ifield in :nfields-1) {
+            i := nfields - 1 - ifield;
+            oldData := t.mem.addr + t.cap * fields[i].offset;
+            newData := t.mem.addr + newCap * fields[i].offset;
+            oldSize := t.cap * fields[i].size;
+            if (oldData + oldSize < newData) {
+                c.memcpy(newData, oldData, oldSize);
+            } else {
+                c.memmove(newData, oldData, oldSize);
+            }
+        }
+        t.cap = newCap;
+    }
+}
+
+*func get(
+    t: Table, idx: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong),
+    fieldSize: Usize, fieldOffset: Usize,
+) -> t[ Ptr~[^t..elemType] ] {
+#) -> t[ Ptr~[^t..elemType] ] {
+    return (t.mem.addr + t.cap * fieldOffset + idx'to(Usize) * fieldSize)~[void];
+}
+
+# TODO test with bool fields
