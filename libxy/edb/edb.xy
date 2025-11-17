@@ -1,0 +1,49 @@
+;; Entity Data Base (a.k.a. Entity Component System)
+;; Allows the create of entities and attaching arbitrary data to them.
+
+import xy.ctti;
+import libxy.map;
+
+;; Entity Database - allows attaching arbitrary data to entities
+;; Entities are just placeholders for the data. They don't carry additional
+;; Information
+*struct EntityDb {
+    stores: Map~[Uint, DataStore];
+    nextEntity: Uint;
+}
+
+struct DataStore {
+    data: Map;
+}
+
+;; Create new entity
+*func entity(db: mut EntityDb) -> (entity: Uint) {
+    entity = db.nextEntity;
+    db.nextEntity++;
+}
+
+*func append(
+    db: mut EntityDb, entity: Uint, data: Any,
+) = db'append(entity, staticId(%data), data'addrof, data'sizeof);
+
+func append(
+    db: mut EntityDb, entity: Uint, dataId: Uint, dataPtr: Ptr, dataSize: Usize
+) {
+    #func indirectCmp(a: Ptr, b: Ptr) -> Int {
+    #    return cmp([a~Int], [b~Int]);
+    #}
+    #cb := $indirectCmp(Ptr, Ptr)'toCallback;
+    #db.stores[dataId, default=DataStore].data'setUntyped(
+    #    hash=entity'to(Bits32)'to(Bits64),
+    #    keyPtr=entity'addrof,
+    #    keySize=entity'sizeof,
+    #    valPtr=dataPtr, valSize=dataSize,
+    #    cmp=cb,
+    #);
+}
+
+import libxy.noncrypto.hash;
+
+func hash(num: Uint, :LocalHash) -> Bits64 {
+    return num'to(Bits32)'to(Bits64);
+}

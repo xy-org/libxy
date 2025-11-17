@@ -37,7 +37,7 @@ struct Map~[
 *func len(m: Map) = m.len;
 
 *func set(
-    map: Map, key: don Any, value: don Any,
+    map: mut Map, key: don Any, value: don Any,
     hash: HashBits = ^hash(key, LocalHash{}), # TODO map..hash
     keyPtr: Ptr = key'addrof, keySize: Usize = key'sizeof,
     valPtr: Ptr = value'addrof, valSize: Usize = value'sizeof,
@@ -50,6 +50,16 @@ struct Map~[
 >> assumeCompatibleTypes(map..key, key)
 >> assumeCompatibleTypes(map..value, value)
 {
+    map'setUntyped(hash, keyPtr, keySize, valPtr, valSize, cmp);
+}
+
+func setUntyped(
+    map: mut Map,
+    hash: HashBits, # TODO map..hash
+    keyPtr: Ptr, keySize: Usize,
+    valPtr: Ptr, valSize: Usize,
+    cmp: (:Ptr, :Ptr)->Int
+) {
     idx := map.len + map.lenDeleted;; Add new elements at the end
 
     map'insertIndex(idx'to(Size), ...);

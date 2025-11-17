@@ -1,0 +1,39 @@
+import xytest;
+import libxy.edb;
+
+struct Data1 {
+    x: Int;
+    y: Int;
+}
+
+struct Data2 {
+    weight: Float;
+    age: Int;
+}
+
+*func creatingAndAttaching~Test() {
+    edb: EntityDb;
+
+    entity := edb'entity();
+    edb @= (entity, Data1{10, 20});
+    # (assert) edb'has(entity, Data1);
+    # (assert) edb'has(entity, Data2)'not;
+#
+    # edb @= (entity, Data2);
+    # (assert) edb'has(entity, Data1);
+    # (assert) edb'has(entity, Data2);
+#
+    # (equal) edb[entity, Data1].x, 10;
+    # (equal) edb[entity, Data2].weight, 50;
+}
+
+#func views~Test() {
+#    edb: EntityDb;
+#    view := edb'view()
+#    edb @= (view, Data1);
+#    edb @= (view, Data2);
+#
+#    for (entity in edb'entities(view), data1 in edb'data(view, Data1)) {
+#        # ...
+#    }
+#}
