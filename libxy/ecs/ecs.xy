@@ -1,13 +1,13 @@
-;; Entity Data Base (a.k.a. Entity Component System)
+;; Entity Component Store (a.k.a. Entity Component System w/o the System part)
 ;; Allows the create of entities and attaching arbitrary data to them.
 
 import xy.ctti;
 import libxy.map;
 
-;; Entity Database - allows attaching arbitrary data to entities
+;; Entity Component Store - allows attaching arbitrary data to entities
 ;; Entities are just placeholders for the data. They don't carry additional
 ;; Information
-*struct EntityDb {
+*struct Ecs {
     stores: Map~[Uint, DataStore];
     nextEntity: Uint;
 }
@@ -17,17 +17,17 @@ struct DataStore {
 }
 
 ;; Create new entity
-*func entity(db: mut EntityDb) -> (entity: Uint) {
+*func entity(db: mut Ecs) -> (entity: Uint) {
     entity = db.nextEntity;
     db.nextEntity++;
 }
 
 *func append(
-    db: mut EntityDb, entity: Uint, data: Any,
+    db: mut Ecs, entity: Uint, data: Any,
 ) = db'append(entity, staticId(%data), data'addrof, data'sizeof);
 
 func append(
-    db: mut EntityDb, entity: Uint, dataId: Uint, dataPtr: Ptr, dataSize: Usize
+    db: mut Ecs, entity: Uint, dataId: Uint, dataPtr: Ptr, dataSize: Usize
 ) {
     #func indirectCmp(a: Ptr, b: Ptr) -> Int {
     #    return cmp([a~Int], [b~Int]);

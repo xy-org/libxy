@@ -1,5 +1,5 @@
 import xytest;
-import libxy.edb;
+import libxy.ecs;
 
 struct Data1 {
     x: Int;
@@ -12,7 +12,7 @@ struct Data2 {
 }
 
 *func creatingAndAttaching~Test() {
-    edb: EntityDb;
+    edb: Ecs;
 
     entity := edb'entity();
     edb @= (entity, Data1{10, 20});
@@ -28,7 +28,7 @@ struct Data2 {
 }
 
 #func views~Test() {
-#    edb: EntityDb;
+#    edb: Ecs;
 #    view := edb'view()
 #    edb @= (view, Data1);
 #    edb @= (view, Data2);
