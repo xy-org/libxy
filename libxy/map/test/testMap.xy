@@ -48,6 +48,19 @@ import xytest;
     }
 }
 
+#*func hasInEmptyMap~Test() {
+#    map: Map~[Str~MemStatic, Int];
+#    (assert) map'has("123")'not;
+#}
+
+#*func ensuringValue~Test() {
+#    map: Map~[Str~MemManaged, Int];
+#
+#    (equal) map'ensure("123", 123), 123;
+#    (equal) map'ensure("123", 321), 123;
+#    (assert) map'has("123");
+#}
+
 *func deletingFromMap~Test() {
     map: Map~[Str~MemManaged, Int];
 

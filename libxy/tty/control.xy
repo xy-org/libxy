@@ -4,7 +4,7 @@ import posix~[Clib{headers=@{"unistd.h", "termios.h", "sys/ioctl.h"}}] in c;
 import libxy.(fs, error);
 
 *struct TtyAttrs {
-    native: c."struct termios";
+    native := c."struct termios"{0};
 
     ;; Trun off canonical input, echo. Make characters available immediately.
     ;; Special characters still deliver signals.

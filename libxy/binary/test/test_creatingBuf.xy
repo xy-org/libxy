@@ -10,7 +10,7 @@ import libxy.bitwise;
     blobBe := bf"num={0x12345678}";
     (equal) blobBe, b"num=\x12\x34\x56\x78";
 
-    blobLe := bf"num={0x12345678, Endian.little}";
+    blobLe := bf"num={0x12345678, Endian{.little}}";
     (equal) blobLe, b"num=\x78\x56\x34\x12";
 }
 

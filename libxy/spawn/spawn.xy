@@ -51,7 +51,7 @@ struct SpawnSystem {
 struct Descriptor {
     channel: File;
     secret: Uint;
-    tid: c.pthread_t;
+    tid := c.pthread_t{0};
 }
 
 ;; A structure representing a general message

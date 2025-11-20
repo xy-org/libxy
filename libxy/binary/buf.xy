@@ -1,5 +1,5 @@
 import xy.ctti;
-import libxy.(slice, error);
+import libxy.(slice, error, flag);
 
 ;; Buf - a binary f-string i.e. a binary string that can be modified
 *struct Buf {
@@ -73,17 +73,17 @@ func ensureCap(buf: mut Buf, required: Usize) -> void | SystemError {
 *struct Endian {
     val: Byte;
 
-    big:    pseudo = Endian{0b};
-    little: pseudo = Endian{1b};
-    host:   pseudo = Endian{-1b};
+    big:    pseudo = Enum{ 0 };
+    little: pseudo = Enum{ 1 };
+    host:   pseudo = Enum{ -1 };
 
-    native: pseudo = Endian{-1b};; Synonym for {host}
-    network: pseudo = Endian{-1b};; Synonym for {big}
+    native: pseudo = Enum{ -1 };; Synonym for {host}
+    network: pseudo = Enum{ 0 };; Synonym for {big}
 }
 
-*func get(endian: Endian, test: Endian) endian.val == test.val;
-*func set(endian: mut Endian, new: Endian, set:Bool) {
-    endian.val = if (set) new.val else endian.val;
+*func get(endian: Endian, test: Enum) endian.val == test.value'to(Byte);
+*func set(endian: mut Endian, new: Enum, set: Bool) {
+    endian.val = new.value'to(Byte) * set + endian.val * !set;
 }
 
 -littleEndianHost := true; # TODO Get that from somewhere

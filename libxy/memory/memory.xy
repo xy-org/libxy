@@ -7,7 +7,7 @@ import libxy.error;
 ;; The interpretation of that memory, how it is allocated, how it is to be
 ;; disposed, an so on is left open. There is no dtor as we don't know how the
 ;; memory has been allocated.
-struct Memory {
+*struct Memory {
     addr: Ptr~Byte;
     size: Usize;
 }
