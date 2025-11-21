@@ -91,7 +91,7 @@ struct ListIter {
 ) = sort(arr, ^$cmp(arr..elemType, arr..elemType), =decreasing, =stable);
 
 *func sort(
-    arr: mut List, cmp : FuncDef, decreasing := false, stable := true,
+    arr: mut List, cmp : Func, decreasing := false, stable := true,
 ) =
     if (!decreasing) {
         cmpCb :=(
@@ -320,5 +320,5 @@ func insert(
 }
 
 
--func lessThan(a: Any, b: Any, cmp: FuncDef, decreasing: Bool) =
+-func lessThan(a: Any, b: Any, cmp: Func, decreasing: Bool) =
     (decreasing && [cmp](a, b) > 0) || (decreasing'not && [cmp](a, b) < 0);
