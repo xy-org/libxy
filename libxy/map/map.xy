@@ -7,7 +7,7 @@ import libxy.(stdio, string);
 
 -HashBits := %(Size'toBits);
 
-struct Map~[
+*struct Map~[
     ;; Type of kyes
     key: Any,
 
@@ -17,239 +17,75 @@ struct Map~[
     ;; Hash function to use
     hash: Any = LocalHash{},
 ] {
-    keyArr: Ptr~Byte;
-    valArr: Ptr~Byte;
-    hashArr: Ptr~HashBits;
-    denseCapacity: Usize;; capacity of the buffers above
-
-    indices: Ptr~Size;
-    # TODO indices capacity grows by powers of two so we can store
-    # the capacity in a simple byte
-    indicesCapacity: Usize;; capacity of the indices dynamic array
-
-    ;; number of deleted elements
-    lenDeleted: Usize;
-
-    ;; number of elements in the map
-    len: Usize;
+    untyped: MapUntyped;
 }
 
-*func len(m: Map) = m.len;
+*func len(m: Map) = m.untyped'len;
 
 *func set(
     map: mut Map, key: don Any, value: don Any,
     hash: HashBits = ^hash(key, LocalHash{}), # TODO map..hash
-    keyPtr: Ptr = key'addrof, keySize: Usize = key'sizeof,
-    valPtr: Ptr = value'addrof, valSize: Usize = value'sizeof,
-    cmp: (:Ptr, :Ptr)->Int = (
+    cmp: Func = (
         func indirectCmp(a: Ptr, b: Ptr) = [^$cmp(map..key, map..key)](
             [a~(map..key)], [b~(map..key)]
         )
-    )'toCallback((:Ptr, :Ptr)->Int),
-)
+    ),
+) = -> void
 >> assumeCompatibleTypes(map..key, key)
 >> assumeCompatibleTypes(map..value, value)
 {
-    map'setUntyped(hash, keyPtr, keySize, valPtr, valSize, cmp);
-}
-
-func setUntyped(
-    map: mut Map,
-    hash: HashBits, # TODO map..hash
-    keyPtr: Ptr, keySize: Usize,
-    valPtr: Ptr, valSize: Usize,
-    cmp: (:Ptr, :Ptr)->Int
-) {
-    idx := map.len + map.lenDeleted;; Add new elements at the end
-
-    map'insertIndex(idx'to(Size), ...);
-
-    map'ensureDenseCapacity(map.len + 1, =keySize, =valSize);
-    c.memcpy(map.keyArr + idx * keySize, keyPtr, keySize);
-    c.memcpy(map.valArr + idx * valSize, valPtr, valSize);
-    map.hashArr[idx] = hash;
-    map.len++;
-}
-
-func insertIndex(
-    map: Map, idx: Size, hash: HashBits, keyPtr: Ptr, keySize: Usize,
-    cmp: (:Ptr, :Ptr)->Int,
-) {
-    ;; We always try to keep around 25% free (i.e. 3/4 utilization) b/c
-    ;; insertion/lookup will loop until an empty index is found.
-    ;; If we fill the indices array completely then insertion may hang
-    numEmptyIndices := map.indicesCapacity - map.len - map.lenDeleted;
-    minFree := map.indicesCapacity / 4;
-    if (numEmptyIndices <= minFree) {
-        map'growIndices(keySize, cmp);
-    }
-
-    map'doInsertIndex(...);
-}
-
-func doInsertIndex(
-    map: Map, idx: Size, hash: HashBits, keyPtr: Ptr, keySize: Usize,
-    cmp: (:Ptr, :Ptr)->Int,
-) {
-    bucket : mut = hash'to(Usize) \rem map.indicesCapacity;
-    while (map.indices[bucket] > 0z) {
-        ix := map.indices[bucket] - 1z;
-        alreadyPresent := map.hashArr[ix] == hash &&
-                          [cmp](keyPtr, map.keyArr + ix'to(Usize) * keySize) == 0;
-        if (alreadyPresent) {
-            ;; already present
-            # TODO call dtor
-            break;
-        }
-        bucket = (bucket + 1) \rem map.indicesCapacity;
-    }
-    map.indices[bucket] = idx + 1;
-}
-
-func deleteIndex(
-    map: Map, hash: HashBits, keyPtr: Ptr, keySize: Usize,
-    cmp: (:Ptr, :Ptr)->Int,
-) -> Size {
-    bucket : mut = hash'to(Usize) \rem map.indicesCapacity;
-    while (map.indices[bucket] != 0z) {
-        ix := map.indices[bucket] - 1z;
-        alreadyPresent := ix >= 0z && map.hashArr[ix] == hash &&
-                          [cmp](keyPtr, map.keyArr + ix'to(Usize) * keySize) == 0;
-        if (alreadyPresent) {
-            map.indices[bucket] = -1z;
-            # TODO call dtor
-            return ix;
-        }
-        bucket = (bucket + 1) \rem map.indicesCapacity;
-    }
-    return -1z;
-}
+    map.untyped'set(
+        hash, key'addrof, key'sizeof, value'addrof, value'sizeof,
+        cmp'toCallback((:Ptr, :Ptr)->Int)
+    );
+};
 
 *func get(
     map: Map, key: Any,
     hash: HashBits = ^hash(key, LocalHash{}), # TODO map..hash
-    valSize : Usize = sizeof(map..value),
-    keyPtr: Ptr = key'addrof, keySize: Usize = key'sizeof,
-    cmp: (:Ptr, :Ptr)->Int = (
+    cmp: pseudo Func = (
         func indirectCmp(a: Ptr, b: Ptr) = [^$cmp(map..key, map..key)](
             [a~(map..key)], [b~(map..key)]
         )
-    )'toCallback((:Ptr, :Ptr)->Int),
+    ),
+
+    keyAddr: Ptr = key'addrof, keySize: Usize = key'sizeof,
+    cmpCb: (:Ptr, :Ptr)->Int = cmp'toCallback((:Ptr, :Ptr)->Int),
+    valSize: Usize = sizeof(map..value),
 ) -> map[ Ptr~[^map..value] ]
 >> assumeCompatibleTypes(map..key, key)
 {
-    ix := map'findIndex(hash, keyPtr, keySize, cmp);
-    if (ix >= 0) {
-        return (map.valArr + ix'to(Usize) * valSize)~[void];
-    }
-    return Ptr{};
+    return map.untyped'get(hash, valSize, keyAddr, keySize, cmpCb);
 }
 
 *func del(
     map: Map, key: Any,
     hash: HashBits = ^hash(key, LocalHash{}), # TODO map..hash
-    valSize : Usize = sizeof(map..value),
-    keyPtr: Ptr = key'addrof, keySize: Usize = key'sizeof,
-    cmp: (:Ptr, :Ptr)->Int = (
+    cmp: Func = (
         func indirectCmp(a: Ptr, b: Ptr) = [^$cmp(map..key, map..key)](
             [a~(map..key)], [b~(map..key)]
         )
-    )'toCallback((:Ptr, :Ptr)->Int),
-)
+    ),
+) = -> void
 >> assumeCompatibleTypes(map..key, key)
 {
-    ix := map'deleteIndex(hash, keyPtr, keySize, cmp);
-    if (ix >= 0) {
-        map.len--;
-        map.lenDeleted++;
-        ;; mark the hash in order to know that we are not goint to use this
-        ;; again
-        map.hashArr[ix] = map.hashArr[ix]'not;
-    }
-}
+    map.untyped'del(
+        hash, map..value'sizeof, key'addrof, key'sizeof, cmp'toCallback((:Ptr, :Ptr)->Int)
+    );
+};
 
 *func has(
     map: Map, key: Any,
     hash: HashBits = ^hash(key, LocalHash{}), # TODO map..hash
-    keyPtr: Ptr = key'addrof, keySize: Usize = key'sizeof,
-    cmp: (:Ptr, :Ptr)->Int = (
+    cmp: pseudo Func = (
         func indirectCmp(a: Ptr, b: Ptr) = [^$cmp(map..key, map..key)](
             [a~(map..key)], [b~(map..key)]
         )
-    )'toCallback((:Ptr, :Ptr)->Int),
-) -> Bool
+    ),
+) = -> (res: Bool)
 >> assumeCompatibleTypes(map..key, key)
 {
-    ix := map'findIndex(hash, keyPtr, keySize, cmp);
-    return ix >= 0z;
-}
-
-func findIndex(
-    map: Map, hash: HashBits,
-    keyPtr: Ptr, keySize: Usize,
-    cmp: (:Ptr, :Ptr)->Int,
-) -> Size {
-    bucket : mut = hash'to(Usize) \rem map.indicesCapacity;
-    while (map.indices[bucket] != 0z) {
-        ix := map.indices[bucket] - 1z;
-        alreadyPresent := ix >= 0z && map.hashArr[ix] == hash &&
-                          [cmp](keyPtr, map.keyArr + ix'to(Usize) * keySize) == 0;
-        if (alreadyPresent) {
-            return ix;
-        }
-        bucket = (bucket + 1) \rem map.indicesCapacity;
-    }
-    return -1z;
-}
-
-func growIndices(
-    map: mut Map, keySize: Usize, cmp: (:Ptr, :Ptr)->Int,
-) {
-    capacity := max(8uz, 2 * map.indicesCapacity);
-
-    indMem: Memory;
-    indMem'realloc(capacity * sizeof(Size));
-
-    prevIndices := map.indices;
-    prevIndicesCapacity := map.indicesCapacity;
-
-    map.indices = indMem.addr~[Size];
-    map.indicesCapacity = capacity;
-
-    ;; fill the new indices
-    for (i in :prevIndicesCapacity) {
-        if (prevIndices[i] <= 0z) {
-            continue;
-        }
-        ix := prevIndices[i] - 1z;
-        hash := map.hashArr[ix];
-        keyPtr := map.keyArr + ix'to(Usize) * keySize;
-        map'doInsertIndex(ix, hash, keyPtr, keySize, cmp);
-    }
-
-    oldInd: mut = Memory{prevIndices~Byte, prevIndicesCapacity};
-    oldInd'free();
-}
-
-func ensureDenseCapacity(
-    map: mut Map, required: Usize, keySize: Usize, valSize: Usize
-) {
-    if (required > map.denseCapacity) {
-        capacity := max(8uz, 2 * map.denseCapacity);
-
-        keyMem: mut = Memory{map.keyArr, map.denseCapacity * keySize};
-        keyMem'realloc(capacity * keySize);
-        map.keyArr = keyMem.addr;
-
-        valMem: mut = Memory{map.valArr, map.denseCapacity * valSize};
-        valMem'realloc(capacity * valSize);
-        map.valArr = valMem.addr;
-
-        hashSize := HashBits'sizeof;
-        hashMem: mut = Memory{map.hashArr~[Byte], map.denseCapacity * hashSize};
-        hashMem'realloc(capacity * hashSize);
-        map.hashArr = hashMem.addr~[HashBits];
-
-        map.denseCapacity = capacity;
-    }
-}
+    res = map.untyped'has(
+        hash, key'addrof, key'sizeof, cmp'toCallback((:Ptr, :Ptr)->Int)
+    );
+};
