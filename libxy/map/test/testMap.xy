@@ -48,10 +48,10 @@ import xytest;
     }
 }
 
-#*func hasInEmptyMap~Test() {
-#    map: Map~[Str~MemStatic, Int];
-#    (assert) map'has("123")'not;
-#}
+*func hasInEmptyMap~Test() {
+    map: Map~[Str~MemStatic, Int];
+    (assert) map'has("123")'not;
+}
 
 #*func ensuringValue~Test() {
 #    map: Map~[Str~MemManaged, Int];

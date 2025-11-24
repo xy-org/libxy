@@ -22,9 +22,9 @@ struct MapUntyped {
     len: Usize;
 }
 
-*func len(m: MapUntyped) = m.len;
+func len(m: MapUntyped) = m.len;
 
-*func set(
+func set(
     map: mut MapUntyped,
     hash: HashBits,
     keyPtr: Ptr, keySize: Usize,
@@ -96,7 +96,7 @@ func deleteIndex(
     return -1z;
 }
 
-*func get(
+func get(
     map: MapUntyped,
     hash: HashBits,
     valSize : Usize,
@@ -110,7 +110,7 @@ func deleteIndex(
     return Ptr{};
 }
 
-*func del(
+func del(
     map: MapUntyped,
     hash: HashBits,
     valSize : Usize,
@@ -127,7 +127,7 @@ func deleteIndex(
     }
 }
 
-*func has(
+func has(
     map: MapUntyped,
     hash: HashBits,
     keyPtr: Ptr, keySize: Usize,
@@ -143,6 +143,10 @@ func findIndex(
     keyPtr: Ptr, keySize: Usize,
     cmp: (:Ptr, :Ptr)->Int,
 ) -> Size {
+    if (map.indicesCapacity <= 0) {
+        return -1z;
+    }
+
     bucket : mut = hash'to(Usize) \rem map.indicesCapacity;
     while (map.indices[bucket] != 0z) {
         ix := map.indices[bucket] - 1z;
