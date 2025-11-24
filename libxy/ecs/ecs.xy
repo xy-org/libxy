@@ -13,7 +13,7 @@ import libxy.map;
 }
 
 struct DataStore {
-    data: Map;
+    data: MapUntyped;
 }
 
 ;; Create new entity
@@ -29,17 +29,59 @@ struct DataStore {
 func append(
     db: mut Ecs, entity: Uint, dataId: Uint, dataPtr: Ptr, dataSize: Usize
 ) {
-    #func indirectCmp(a: Ptr, b: Ptr) -> Int {
-    #    return cmp([a~Int], [b~Int]);
-    #}
-    #cb := $indirectCmp(Ptr, Ptr)'toCallback;
-    #db.stores[dataId, default=DataStore].data'setUntyped(
-    #    hash=entity'to(Bits32)'to(Bits64),
-    #    keyPtr=entity'addrof,
-    #    keySize=entity'sizeof,
-    #    valPtr=dataPtr, valSize=dataSize,
-    #    cmp=cb,
-    #);
+
+    # TODO replace this with ensure
+    if (db.stores'has(dataId)'not) {
+        db.stores[dataId] = DataStore;
+    }
+
+    indirectCmp := func indirectCmp(a: Ptr, b: Ptr) -> Int {
+        return cmp([a~Int], [b~Int]);
+    }'toCallback;
+
+    hash: HashBits = entity'to(Ulong)'to(HashBits);
+
+    db.stores[dataId].data'set(
+        hash, entity'addrof, entity'sizeof, dataPtr, dataSize,
+        indirectCmp,
+    );
+}
+
+*func has(ecs: Ecs, entity: Uint, data: Any) =
+    ecs'hasId(entity, staticId(%data));
+
+func hasId(ecs: Ecs, entity: Uint, dataId: Uint) -> Bool {
+    # TODO simplify that
+    indirectCmp := func indirectCmp(a: Ptr, b: Ptr) -> Int {
+        return cmp([a~Int], [b~Int]);
+    }'toCallback;
+    hash: HashBits = entity'to(Ulong)'to(HashBits);
+
+    return ecs.stores'has(dataId) && ecs.stores[dataId].data'has(
+        hash, entity'addrof, entity'sizeof, indirectCmp
+    );
+}
+
+*func get(
+    db: Ecs, entity: Uint, component: Any,
+
+    dataId: Uint = staticId(component),
+    dataSize: Usize = sizeof(component),
+) -> db[ Ptr~[^%component] ] {
+    if (db.stores'has(dataId)'not) {
+        return Ptr;
+    }
+
+    indirectCmp := func indirectCmp(a: Ptr, b: Ptr) -> Int {
+        return cmp([a~Int], [b~Int]);
+    }'toCallback;
+
+    hash: HashBits = entity'to(Ulong)'to(HashBits);
+
+    return db.stores[dataId].data'get(
+        hash, dataSize, entity'addrof, entity'sizeof,
+        indirectCmp,
+    );
 }
 
 import libxy.noncrypto.hash;
