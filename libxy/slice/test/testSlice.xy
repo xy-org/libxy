@@ -1,5 +1,6 @@
-import libxy.(slice, string);
 import xytest;
+import libxy.string;
+import ..;
 
 *func len~Test() {
     (equal) (0:0)'len, 0;

@@ -1,8 +1,7 @@
 import xy.ctti;
-import libxy.stdio;
-import libxy.string;
-import libxy.fs;
 import xytest;
+import libxy.(stdio, string);
+import ..;
 
 *func listing~Test() {
     len : Size;

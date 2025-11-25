@@ -1,6 +1,7 @@
 import xy.ctti;
-import libxy.(table, string);
 import xytest;
+import libxy.string;
+import ..;
 
 struct Data {
     i: Int;

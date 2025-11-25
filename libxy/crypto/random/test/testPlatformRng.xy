@@ -1,6 +1,6 @@
-import libxy.crypto.random;
-import libxy.(binary, slice);
 import xytest;
+import libxy.(binary, slice);
+import ..;
 
 *func sanity~Test() {
     rng : PlatformRng;

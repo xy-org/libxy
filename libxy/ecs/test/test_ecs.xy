@@ -1,6 +1,6 @@
 import xytest;
 import libxy.string;
-import libxy.ecs;
+import ..;
 
 struct Data1 {
     x: Int;

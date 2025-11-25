@@ -1,8 +1,6 @@
 import xytest;
-import libxy.string;
-import libxy.tty;
-import libxy.stdio;
-import libxy.flag;
+import libxy.(string, flag);
+import ..;
 
 *func settingGraphics~Test() {
     (assert) f"{Esc{}}" == "";

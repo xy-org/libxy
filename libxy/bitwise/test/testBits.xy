@@ -1,5 +1,5 @@
 import xytest;
-import libxy.bitwise;
+import ..;
 
 *func gettingBits~Test() {
     num := 011001010100101(2);

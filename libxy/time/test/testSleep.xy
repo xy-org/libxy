@@ -1,6 +1,5 @@
-import libxy.perf;
-import libxy.time;
-import libxy.unit;
+import libxy.(perf, unit);
+import ..;
 
 *func sleeping~Test() {
     duration : Long~ns = 100l;

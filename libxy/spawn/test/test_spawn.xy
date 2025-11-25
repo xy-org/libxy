@@ -1,5 +1,6 @@
 import xytest;
-import libxy.(spawn, time, unit);
+import libxy.(time, unit);
+import ..;
 
 func func1() {
     #env := receive();

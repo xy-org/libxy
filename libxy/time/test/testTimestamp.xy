@@ -1,5 +1,4 @@
 import xytest;
-import libxy.time;
 
 *func timestamping~Test() {
     ts := timestamp();
