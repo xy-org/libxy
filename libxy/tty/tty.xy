@@ -112,15 +112,15 @@ struct bracketedPasteMode {
 ;; Used just for a nice syntax around Color.index
 struct IndexColor8Bit {}
 
-*func get(esc: Color, enum: Enum) =
-    esc.mode.depth4 && esc.r == enum.value'to(%esc.r);
+*func get(esc: Color, enm: Enum) =
+    esc.mode.depth4 && esc.r == enm.value'to(%esc.r);
 
 *func get(esc: Color, :IndexColor8Bit) esc.r;
 
-*func set(esc: mut Color, enum: Enum, on: Bool) {
+*func set(esc: mut Color, enm: Enum, on: Bool) {
     if (on) {
         esc.mode.depth4 = true;
-        esc.r = enum.value'to(%esc.r);
+        esc.r = enm.value'to(%esc.r);
     }
 }
 
@@ -138,8 +138,8 @@ struct IndexColor8Bit {}
     depth24: pseudo = Enum{3};
 }
 
-*func get(cm: ColorMode, enum: Enum) cm.value[enum];
-*func set(cm: mut ColorMode, enum: Enum, on: Bool) cm.value[enum] = on;
+*func get(cm: ColorMode, enm: Enum) cm.value[enm];
+*func set(cm: mut ColorMode, enm: Enum, on: Bool) cm.value[enm] = on;
 
 *func append(fstr: mut Fstr, esc: Esc, enabled: Bool = true) {
     if (!enabled) return;

@@ -1,7 +1,7 @@
 import xytest;
 import ..;
 
-*func enum~Test() {
+*func gettingAndSetting~Test() {
     num : mut = 0;
 
     enum1: pseudo = Enum{0x1};

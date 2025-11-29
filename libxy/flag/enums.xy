@@ -3,11 +3,11 @@
     value: Int;
 }
 
-;; Set {value} to {enum} if {on}
+;; Set {value} to {enm} if {on}
 *func set(
-    value: mut (Byte, Ubyte, Short, Ushort, Int, Uint), enum: Enum, on: Bool
-) if (on) value = enum.value'to(%value);
+    value: mut (Byte, Ubyte, Short, Ushort, Int, Uint), enm: Enum, on: Bool
+) if (on) value = enm.value'to(%value);
 
-;; Check if {value} is equal to the {enum}
-*func get(value: (Byte, Ubyte, Short, Ushort, Int, Uint), enum: Enum) =
-    value == enum.value'to(%value);
+;; Check if {value} is equal to the {enm}
+*func get(value: (Byte, Ubyte, Short, Ushort, Int, Uint), enm: Enum) =
+    value == enm.value'to(%value);
