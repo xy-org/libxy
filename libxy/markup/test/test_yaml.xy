@@ -37,14 +37,13 @@ import libxy.stdio;
     rootIdx := parseYaml(yamlData, ecs);
 
     (assert) rootIdx.type.isArray;
-    # TODO
-    v: ArrayNode = ecs[rootIdx.ent.id'to(Uint), ArrayNode];
+    v :=< ecs[rootIdx.ent.id'to(Uint), ArrayNode];
+
     (equal) v.value.len, 3;
 
-    s1: StrNode = ecs[ v.value[0], StrNode];
-    (equal) s1.value, "Mark McGwire";
-    #(equal) ecs[ v.value[1], StrNode].value, "Sammy Sosa";
-    #(equal) ecs[ v.value[2], StrNode].value, "Ken Griffey";
+    (equal) ecs[v.value[0], StrNode].value, "Mark McGwire";
+    (equal) ecs[v.value[1], StrNode].value, "Sammy Sosa";
+    (equal) ecs[v.value[2], StrNode].value, "Ken Griffey";
 }
 
 *func simpleInput~Test() {
