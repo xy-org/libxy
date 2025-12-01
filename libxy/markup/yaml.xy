@@ -73,12 +73,14 @@ func parseUnknownToken(
 }
 
 func parseArray(src: Str, iter: mut YamlIter, ecs: mut Ecs) -> (res: NodeEnt) {
+    (debug) f"Parsing Array {src, iter}";
+
     res.ent = Ent{ ecs'entity'to(Usize) };
     .res.type.isArray;
 
     node : ArrayNode;
-
     while (src[iter] == `-`) {
+        (debug) f"New array item {src, iter}";
         iter.i++;
         node.value @= parse(src, iter, ecs);
         if (src[iter] == `\n`) {
@@ -113,3 +115,14 @@ func skipEmptyLinesAndSpaces(src: Str, iter: mut YamlIter) {
 func get(src: Str, iter: YamlIter) =
     if (iter.i < src.size) src[iter.i]'to(Char)
     else `\0`;
+
+func append(fstr: mut Fstr, src: Str, iter: YamlIter) {
+    snippetStart := iter.i;
+    snippetEnd := min(iter.i+10, src.size);
+    fstr @= "(\"";
+    fstr @= src[snippetStart:snippetEnd];
+
+    fstr @= "\" :";
+    fstr @= iter.i;
+    fstr @= `)`;
+}

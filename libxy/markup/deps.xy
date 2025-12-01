@@ -1,5 +1,8 @@
 ;; Basic Functionality
 import libxy.(flag, map, string, memory, list, slice);
 
+;; Used for debugging
+import libxy.log;
+
 ;; Output of parsing is into an Ecs
 import libxy.ecs;
