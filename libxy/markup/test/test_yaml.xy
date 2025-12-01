@@ -39,7 +39,7 @@ import libxy.stdio;
     (assert) rootIdx.type.isArray;
     # TODO
     v: ArrayNode = ecs[rootIdx.ent.id'to(Uint), ArrayNode];
-    (equal) v.value.len, 4;
+    (equal) v.value.len, 3;
 
     s1: StrNode = ecs[ v.value[0], StrNode];
     (equal) s1.value, "Mark McGwire";
