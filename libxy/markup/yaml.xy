@@ -1,0 +1,115 @@
+*func parseYaml(yamlData: Str, ecs: mut Ecs) -> NodeEnt {
+    iter: YamlIter;
+    return parse(yamlData, iter, ecs);
+}
+
+struct YamlIter {
+    i: Usize;
+}
+
+import libxy.stdio;
+
+func parse(src: Str, iter: mut YamlIter, ecs: mut Ecs) -> NodeEnt {
+    if ( src[iter] == `-` ) {
+        return parseArray(src, iter, ecs);
+    } elif ( src[iter] == `[` ) {
+        #return parseEmbedArray(src, iter, ecs);
+    }
+
+    token : mut = parseAtom(src, iter);
+    return parseUnknownToken(token, src, iter, ecs);
+}
+
+func parseUnknownToken(
+    token: mut Str, src: Str, iter: mut YamlIter, ecs: mut Ecs
+) -> NodeEnt {
+    nodeIdx : mut = NodeEnt{
+        ent = Ent{ ecs'entity'to(Usize) }
+    };
+
+    #if (state'check(`:`)) {
+    #    #nodeIdx = NodeEnt{
+    #    #    #ent = Ent{ ecs'entity'to(Usize) },
+    #    #    #type = NodeType{.isMap},
+    #    #};
+    #    #nodeIdx = NodeEnt{};
+    #    #.nodeIdx.type.isMap;
+    #} else {
+    #    #nodeIdx = NodeEnt{
+    #    #    ent=Ent{ecs'entity'to(Usize)},
+    #    #    type=NodeType{.isStr}
+    #    #}
+    #    #ecs[nodeIdx.ent] = StrNode{
+    #    #    value =< token,
+    #    #}
+    #}
+
+    # TODO rename res -> isNumber
+    number : Long;
+    fpNumber : Double;
+    isNumber := for (ch in :token.size) -> (res: Bool = true) {
+        if (token[ch] < `0`'to(Byte) || token[ch] > `9`'to(Byte)) {
+            res = false;
+            break;
+        }
+        number = number * 10 + (token[ch] - `0`'to(Byte))'to(Long);
+    };
+
+    if (isNumber) {
+        .nodeIdx.type.isInteger;
+
+        value: LongNode;
+        value.value = number;
+        ecs @= (nodeIdx.ent.id'to(Uint), value);
+    } else {
+        .nodeIdx.type.isStr;
+
+        value: StrNode;
+        value.value =< token;
+        ecs @= (nodeIdx.ent.id'to(Uint), value =>);
+    }
+
+    return nodeIdx;
+}
+
+func parseArray(src: Str, iter: mut YamlIter, ecs: mut Ecs) -> (res: NodeEnt) {
+    res.ent = Ent{ ecs'entity'to(Usize) };
+    .res.type.isArray;
+
+    node : ArrayNode;
+
+    while (src[iter] == `-`) {
+        iter.i++;
+        node.value @= parse(src, iter, ecs);
+        if (src[iter] == `\n`) {
+            iter.i++;
+        } else {
+            break;
+        }
+    }
+
+    ecs @= (res.ent.id'to(Uint), node =>);
+}
+
+func parseAtom(src: Str, iter: mut YamlIter) -> Str~MemManaged {
+    skipEmptyLinesAndSpaces(src, iter);
+
+    start := iter.i;
+    while ( eof(src, iter)'not && src[iter] != `\n` ) {
+        iter.i++;
+    }
+
+    return src[start:iter.i]'copy;
+}
+
+func eof(src: Str, iter: YamlIter) iter.i >= src.size;
+
+func skipEmptyLinesAndSpaces(src: Str, iter: mut YamlIter) {
+    while ( src[iter] == `\n` || src[iter] == ` ` ) {
+        iter.i++;
+    }
+}
+
+func get(src: Str, iter: YamlIter) =
+    if (iter.i < src.size) src[iter.i]'to(Char)
+    else `\0`;

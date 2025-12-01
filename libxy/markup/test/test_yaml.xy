@@ -1,0 +1,75 @@
+import libxy.(string, ecs, flag, list);
+import xytest;
+import ..;
+
+*func simpleString~Test() {
+    yamlData := "John Doe";
+
+    ecs: Ecs;
+    rootIdx := parseYaml(yamlData, ecs);
+
+    (assert) rootIdx.type.isStr;
+    v: StrNode = ecs[rootIdx.ent.id'to(Uint), StrNode];
+    (equal) v.value, "John Doe";
+}
+
+*func simpleInteger~Test() {
+    yamlData := "42";
+
+    ecs: Ecs;
+    rootIdx := parseYaml(yamlData, ecs);
+
+    (assert) rootIdx.type.isInteger;
+    v: LongNode = ecs[rootIdx.ent.id'to(Uint), LongNode];
+    (equal) v.value, 42;
+}
+
+import libxy.stdio;
+
+*func simpleArray~Test() {
+    yamlData := """
+        - Mark McGwire
+        - Sammy Sosa
+        - Ken Griffey
+    ";
+
+    ecs: Ecs;
+    rootIdx := parseYaml(yamlData, ecs);
+
+    (assert) rootIdx.type.isArray;
+    # TODO
+    v: ArrayNode = ecs[rootIdx.ent.id'to(Uint), ArrayNode];
+    (equal) v.value.len, 4;
+
+    s1: StrNode = ecs[ v.value[0], StrNode];
+    (equal) s1.value, "Mark McGwire";
+    #(equal) ecs[ v.value[1], StrNode].value, "Sammy Sosa";
+    #(equal) ecs[ v.value[2], StrNode].value, "Ken Griffey";
+}
+
+*func simpleInput~Test() {
+    yamlData := """
+        name: John Doe
+        age: 30
+    ";
+
+    #ecs: Ecs;
+    #rootIdx := parseYaml(yamlData, ecs);
+#
+    #(assert) rootIdx.type.isMap;
+
+    #mapNode :=< ecs[root.ent, MapNode];
+    #(assert) mapNode.children'has("name");
+    #(assert) mapNode.children'has("age");
+#
+    #nameNode := map.children["name"];
+    #(assert) nameNode.type.isStr;
+    #(equal) ecs[nameNode.ent, StrNode].value, "John Doe";
+#
+    #nameNode := map.children["name"];
+    #(equal) ecs[ nameNode, StrNode ].value, "John Doe";
+#
+    #ageNode := map.children["age"];
+    #(assert) ageNode.type.isInteger;
+    #(equal) ecs[nameNode.ent, LongNode].value, 30;
+}
