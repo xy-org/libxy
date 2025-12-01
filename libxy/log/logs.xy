@@ -1,5 +1,9 @@
 import libxy.(string, fs, error);
 
+;; Disable and compile out messages with level lower than that one
+*minLogLevel := -30;
+
+;; Common log levels
 *logLevelFatal   := 30;
 *logLevelError   := 20;
 *logLevelWarn    := 10;
@@ -7,9 +11,6 @@ import libxy.(string, fs, error);
 *logLevelVerbose := -10;
 *logLevelDebug   := -20;
 *logLevelTrace   := -30;
-
-;; Disable and compile out messages with level lower than that one
-*minLogLevel := logLevelTrace;
 
 *defaultLogLevel := logLevelInfo;
 

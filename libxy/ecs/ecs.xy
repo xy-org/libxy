@@ -12,6 +12,10 @@ import libxy.map;
     nextEntity: Uint;
 }
 
+*struct Ent {
+    id: Usize;
+}
+
 struct DataStore {
     data: MapUntyped;
 }
