@@ -3,25 +3,25 @@ import xy.sys;
 import libxy.(string, stdio, list, slice, memory);
 
 *struct CliSchema {
-    name: Str~MemStatic;
-    desc: Str~MemStatic;
-    epilog: Str~MemStatic;
-    short: Str~MemStatic;
+    name: Str~MemManaged;
+    desc: Str~MemManaged;
+    epilog: Str~MemManaged;
+    short: Str~MemManaged;
 
     named: List~CliParam;
     positional: List~CliParam;
 
-    prefixLong: Str~MemStatic;
-    prefixShort: Str~MemStatic;
+    prefixLong: Str~MemManaged;
+    prefixShort: Str~MemManaged;
 
     noShortGrouping: Bool;
     manualHelp: Bool;
 }
 
 *struct CliParam {
-    name: Str~MemStatic;
-    desc: Str~MemStatic;
-    arg: Str~MemStatic;
+    name: Str~MemManaged;
+    desc: Str~MemManaged;
+    arg: Str~MemManaged;
     short: Char;
     nargs: RangeInt;
     positional: Bool;
@@ -30,37 +30,39 @@ import libxy.(string, stdio, list, slice, memory);
 }
 
 *func config(
-    schema: mut CliSchema, prefixLong := "--", prefixShort := "-",
+    schema: mut CliSchema, prefixLong: Str = "--", prefixShort: Str = "-",
     manualHelp := false
 ) {
     schema .= {
-        =prefixLong, =prefixShort, =manualHelp,
+        prefixLong=prefixLong'copy, prefixShort=prefixShort'copy, =manualHelp,
         noShortGrouping= prefixLong != prefixShort,
     };
 }
 
 *func prog(
-    schema: mut CliSchema, name := "", short := "", desc := "", epilog := ""
+    schema: mut CliSchema, name: Str = "", short: Str = "", desc: Str = "", epilog: Str = "",
 ) {
-    schema.name = name;
-    schema.desc = desc;
-    schema.epilog = epilog;
-    schema.short = short;
-    schema.named'append(CliParam{"help", desc="show this help message and exit"});
+    schema.name =< name'copy;
+    schema.desc =< desc'copy;
+    schema.epilog =< epilog'copy;
+    schema.short =< short'copy;
+    schema.named'append(CliParam{"help"'copy, desc="show this help message and exit"'copy});
 }
 
 *func param(
     schema: mut CliSchema,
-    name := "",
+    name: Str = "",
     short := Char{},
-    desc := "",
-    arg := "value",
+    desc: Str = "",
+    arg: Str = "value",
     positional := false,
     nargs : RangeInt = if (positional) 1:2 else 0:1,
     greedy := false,
     command := false,
 ) {
-    field := CliParam{=name, =short, =desc, =arg, =nargs, =greedy, =command};
+    field := CliParam{
+        name=name'copy, =short, desc=desc'copy, arg=arg'copy, =nargs, =greedy, =command
+    };
 
     if (positional) {
         schema.positional'append(field =>);
@@ -71,7 +73,7 @@ import libxy.(string, stdio, list, slice, memory);
 
 func command(
     schema: mut CliSchema,
-    name: Str~MemStatic,
+    name: Str,
     desc := "",
 ) {
     # TODO implement
@@ -215,7 +217,7 @@ struct ParsingError {
 
             if (schema.named[paramIdx].arg'empty) {
                 stream @= CliArg {
-                    name=schema.named[paramIdx].name,
+                    name=schema.named[paramIdx].name'copy,
                     value=""~MemExt,
                     # dataIdx=schema.named[paramIdx].dataIdx,
                 };
@@ -237,7 +239,7 @@ struct ParsingError {
 
                 if (schema.named[paramIdx].arg'empty) {
                     stream'append(CliArg{
-                        name=schema.named[paramIdx].name,
+                        name=schema.named[paramIdx].name'copy,
                         value=""~MemExt,
                         # dataIdx=schema.named[paramIdx].dataIdx,
                     });
@@ -249,8 +251,8 @@ struct ParsingError {
         } elif (namedParamIdx >= 0) {
             ;; value of named
             stream'append(CliArg{
-                name=schema.named[namedParamIdx].name,
-                value=arg,
+                name=schema.named[namedParamIdx].name'copy,
+                value=Str~MemExt{addr=arg.addr, size=arg.size},
                 # dataIdx=schema.named[namedParamIdx].dataIdx,
             });
             nargsNamed[namedParamIdx]++;
@@ -266,8 +268,8 @@ struct ParsingError {
             }
 
             stream'append(CliArg{
-                name=schema.positional[posParamIdx].name,
-                value=arg,
+                name=schema.positional[posParamIdx].name'copy,
+                value=Str~MemExt{addr=arg.addr, size=arg.size},
                 # dataIdx=schema.positional[posParamIdx].dataIdx,
             });
             nargsPositional[posParamIdx]++;
@@ -301,7 +303,7 @@ struct ParsingError {
 }
 
 *struct CliArg {
-    name: Str~MemStatic;
+    name: Str~MemManaged;
     value: Str~MemExt;
     # dataIdx: Size;
 }

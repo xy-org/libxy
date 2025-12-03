@@ -4,7 +4,7 @@ import libxy.(string, log, fs);
 *func logginDefaultConfig~Test() {
     tmpFile := openTmp();
     [Global~Log] = Log {
-        file=tmpFile,
+        file=tmpFile'copy,
     };
 
 
@@ -20,7 +20,7 @@ import libxy.(string, log, fs);
     tmpFile := openTmp();
     [Global~Log] = Log {
         level=logLevelVerbose,
-        file=tmpFile,
+        file=tmpFile'copy,
     };
 
     (v) "Verbose Msg1";
