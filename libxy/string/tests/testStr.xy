@@ -80,3 +80,19 @@ import xytest;
     wordLen := i;
     (equal) wordLen, expLen;
 }
+
+*func finding~Test() {
+    haystack := "haystacks are easy to search";
+
+    (equal) haystack'find("hay"), 0z;
+    (equal) haystack'find(haystack), 0z;
+    (equal) haystack'find("stack"), 3z;
+    (equal) haystack'find(" easy"), 13z;
+
+    (equal) haystack'find("not-present"), -1z;
+
+    longStr := "haystackshaystackshaystackshaystackshaystackshaystackshaystac";
+    (equal) haystack'find(longStr), -1z;
+
+    (equal) haystack'find(""), 0z;
+}

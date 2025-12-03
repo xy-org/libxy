@@ -238,10 +238,16 @@ struct SplitIter {
 }
 
 *func find(haystack: Str, needle: Str) -> Size {
+    if (needle.size == 0) return 0z;; memmem is inconsistent if needle is empty
+
     location: Ptr~Byte = c.memmem(
         haystack.addr, haystack.size, needle.addr, needle.size
     );
-    s := haystack.addr;
-    # TODO replace that with pointer arithmatic
-    return Size{ inlinec"({location} - {s})" };
+    if (location >= haystack.addr) {
+        # TODO use pointer arithmatic
+        s := haystack.addr;
+        return Size{ inlinec"({location} - {s})" };
+    } else {
+        return -1z;
+    }
 }
