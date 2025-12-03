@@ -237,7 +237,12 @@ struct SplitIter {
     return ch == `\n` || ch == ` `;
 }
 
-*func find(haystack: Str, needle: Str) -> Size {
+
+;; Search for {needle} in {haystack}.
+*func find(haystack: Str, needle: Str, reverse := false) =
+    if (reverse'not) ffind(haystack, needle) else rfind(haystack, needle);
+
+-func ffind(haystack: Str, needle: Str) -> Size {
     if (needle.size == 0) return 0z;; memmem is inconsistent if needle is empty
 
     location: Ptr~Byte = c.memmem(
@@ -250,4 +255,26 @@ struct SplitIter {
     } else {
         return -1z;
     }
+}
+
+-func rfind(haystack: Str, needle: Str) -> Size {
+    if (needle.size == 0) return 0z;
+
+    res: mut = -1z;
+
+    text: mut = Str~MemExt{haystack.addr, haystack.size};
+    offset: Usize;
+    while (true) {
+        loc := find(text, needle);
+        if (loc >= 0) {
+            res = offset'to(Size) + loc;
+            text.addr += loc'to(Usize) + 1uz;
+            text.size -= loc'to(Usize) + 1uz;
+            offset += loc'to(Usize) + 1uz;
+        } else {
+            break;
+        }
+    }
+
+    return res;
 }
