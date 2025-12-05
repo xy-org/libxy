@@ -24,7 +24,7 @@ import libxy.memory;
 
 ;; Info about a node on a filesystem
 *struct Node {
-    name: Str~MemManaged;
+    name: Str;
     type: NodeType;
     size: Size;
     atime: Timestamp;
@@ -62,7 +62,7 @@ struct Listing {
 *func ls~IterCtor(
     path: Str, flags: LsFlags,
 ) -> [ Listing ] | SystemError
->> nullTerminated(path)
+>> isNullTerminated(path)
 {
     dirfd : Int = c.open(path.addr~[c.char], inlinec"O_RDONLY | O_DIRECTORY");
     pDir :  mut Ptr~[c.DIR] = c.fdopendir(dirfd);
@@ -99,9 +99,9 @@ func loadNodeInfo(
     d: mut Listing,
     dirent: Ptr~[c."struct dirent"]
 ) -> Bool {
-    name := Str~MemExt{
+    name := Str~Shared{
         Ptr~Byte{inlinec"{dirent}->d_name"},
-        c.strlen(inlinec"{dirent}->d_name")
+        Usize{c.strlen(inlinec"{dirent}->d_name")},
     };
 
     ;; check if we can early skip the file

@@ -59,7 +59,7 @@ import libxy.(string, binary, flag, error);
 *func open(
     path: Str, flags: OpenFlags, mode := 0644
 ) -> File | SystemError
->> nullTerminated(path)
+>> isNullTerminated(path)
 {
     fd : Int = c.open(path.addr~[c.char], flags.value, mode);
     if (fd < 0) {
@@ -202,7 +202,7 @@ inlinec"""
 }
 
 *func mkdir(path: Str, mode := 0755, parents := false) -> void | SystemError
->> nullTerminated(path)
+>> isNullTerminated(path)
 {
     c.mkdir(path.addr~[c.char], mode);
 }

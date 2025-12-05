@@ -50,6 +50,6 @@ func path~[StrCtor{prefix="path", interpolation=true, to=Str}](addr: Ptr, len: U
     path.fstr'append(cstr, len);
 }
 
-*func to(path: mut PathStr, :Str) -> Str~MemManaged {
+*func to(path: mut PathStr, :Str) -> Str {
     return path.fstr'to(Str);
 }

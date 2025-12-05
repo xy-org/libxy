@@ -93,7 +93,7 @@ func parseArray(src: Str, iter: mut YamlIter, ecs: mut Ecs) -> (res: NodeEnt) {
     ecs @= (res.ent.id'to(Uint), node =>);
 }
 
-func parseAtom(src: Str, iter: mut YamlIter) -> Str~MemManaged {
+func parseAtom(src: Str, iter: mut YamlIter) -> Str {
     skipEmptyLinesAndSpaces(src, iter);
 
     start := iter.i;

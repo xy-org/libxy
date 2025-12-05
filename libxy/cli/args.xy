@@ -3,25 +3,25 @@ import xy.sys;
 import libxy.(string, stdio, list, slice, memory);
 
 *struct CliSchema {
-    name: Str~MemManaged;
-    desc: Str~MemManaged;
-    epilog: Str~MemManaged;
-    short: Str~MemManaged;
+    name: Str;
+    desc: Str;
+    epilog: Str;
+    short: Str;
 
     named: List~CliParam;
     positional: List~CliParam;
 
-    prefixLong: Str~MemManaged;
-    prefixShort: Str~MemManaged;
+    prefixLong: Str;
+    prefixShort: Str;
 
     noShortGrouping: Bool;
     manualHelp: Bool;
 }
 
 *struct CliParam {
-    name: Str~MemManaged;
-    desc: Str~MemManaged;
-    arg: Str~MemManaged;
+    name: Str;
+    desc: Str;
+    arg: Str;
     short: Char;
     nargs: RangeInt;
     positional: Bool;
@@ -162,7 +162,7 @@ func command(
 }
 
 struct ParsingError {
-    msg: Str~MemManaged;
+    msg: Str;
 }
 
 *func to(pe: ParsingError, :Bool) pe.msg.size > 0;
@@ -196,7 +196,7 @@ struct ParsingError {
 
     for (i in 1:rawArgs.argc) {
         tmp : Ptr = rawArgs.argv[i];
-        arg := Str~MemExt{tmp, c.strlen(rawArgs.argv[i])};
+        arg := str(tmp, Usize{c.strlen(rawArgs.argv[i])}, false);
 
         if (!greedyPosParam && arg'startswith("--")) {
             ;; long form
@@ -215,10 +215,10 @@ struct ParsingError {
                 error ParsingError{f"Unknown argument {arg}"};
             }
 
-            if (schema.named[paramIdx].arg'empty) {
+            if (schema.named[paramIdx].arg'isEmpty) {
                 stream @= CliArg {
                     name=schema.named[paramIdx].name'copy,
-                    value=""~MemExt,
+                    value=""~Shared,
                     # dataIdx=schema.named[paramIdx].dataIdx,
                 };
                 nargsNamed[paramIdx]++;
@@ -237,10 +237,10 @@ struct ParsingError {
                     error ParsingError{f"Unknown argument '-{short}'"};
                 }
 
-                if (schema.named[paramIdx].arg'empty) {
+                if (schema.named[paramIdx].arg'isEmpty) {
                     stream'append(CliArg{
                         name=schema.named[paramIdx].name'copy,
-                        value=""~MemExt,
+                        value=""~Shared,
                         # dataIdx=schema.named[paramIdx].dataIdx,
                     });
                     nargsNamed[paramIdx]++;
@@ -252,7 +252,7 @@ struct ParsingError {
             ;; value of named
             stream'append(CliArg{
                 name=schema.named[namedParamIdx].name'copy,
-                value=Str~MemExt{addr=arg.addr, size=arg.size},
+                value=Str~Shared{addr=arg.addr, size=arg.size},
                 # dataIdx=schema.named[namedParamIdx].dataIdx,
             });
             nargsNamed[namedParamIdx]++;
@@ -269,7 +269,7 @@ struct ParsingError {
 
             stream'append(CliArg{
                 name=schema.positional[posParamIdx].name'copy,
-                value=Str~MemExt{addr=arg.addr, size=arg.size},
+                value=Str~Shared{addr=arg.addr, size=arg.size},
                 # dataIdx=schema.positional[posParamIdx].dataIdx,
             });
             nargsPositional[posParamIdx]++;
@@ -303,8 +303,8 @@ struct ParsingError {
 }
 
 *struct CliArg {
-    name: Str~MemManaged;
-    value: Str~MemExt;
+    name: Str;
+    value: Str~Shared;
     # dataIdx: Size;
 }
 

@@ -81,36 +81,19 @@ import xytest;
     (equal) wordLen, expLen;
 }
 
-*func finding~Test() {
+*func checkingForSubstring~Test() {
     haystack := "haystacks are easy to search";
 
-    (equal) haystack'find("hay"), 0z;
-    (equal) haystack'find(haystack), 0z;
-    (equal) haystack'find("stack"), 3z;
-    (equal) haystack'find(" easy"), 13z;
+    (assert) haystack'has("hay");
+    (assert) haystack'has(haystack);
+    (assert) haystack'has("stack");
+    (assert) haystack'has(" easy");
 
-    (equal) haystack'find("not-present"), -1z;
-
-    longStr := "haystackshaystackshaystackshaystackshaystackshaystackshaystac";
-    (equal) haystack'find(longStr), -1z;
-
-    (equal) haystack'find(""), 0z;
-    (equal) ""'find(""), 0z;
-}
-
-*func findingReverse~Test() {
-    haystack := "haystacks are haystacks";
-
-    (equal) haystack'find("hay", .reverse), 14z;
-    (equal) haystack'find("s", .reverse), haystack.size - 1;
-    (equal) haystack'find("stack", .reverse), 17z;
-    (equal) "aaaa"'find("aaa", .reverse), 1z;
-
-    (equal) haystack'find("not-present", .reverse), -1z;
+    (assert) haystack'has("not-present")'not;
 
     longStr := "haystackshaystackshaystackshaystackshaystackshaystackshaystac";
-    (equal) haystack'find(longStr, .reverse), -1z;
+    (assert) haystack'has(longStr)'not;
 
-    (equal) haystack'find("", .reverse), 0z;
-    (equal) ""'find("", .reverse), 0z;
+    (assert) haystack'has("");
+    (assert) ""'has("");
 }

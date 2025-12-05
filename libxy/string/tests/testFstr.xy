@@ -20,13 +20,16 @@ import ..;
     # (assert) f"{str, fill=`*`, width=10, .center}" == "***John***";
 }
 
-#*func strInterpolationUnicode~Test() {
-#    str := "Йоан";
-#    (assert) "My name is {str}" == "My name is Йоан";
-#    (assert) "My name is {str, .upper}" == "My name is ЙОАН";
-#    (assert) "My name is {str, .lower}" == "My name is йоан";
-#    (assert) "{str, fill=`⁈`, width=6, .center}" == "⁈Йоан⁈";
-#}
+*func strInterpolationUnicode~Test() {
+    str := "Йоан";
+    (equal) f"My name is {str}", "My name is Йоан";
+
+    # Case folding in unicode is a mess. For now I am going to
+    # not bother implementing it.
+    # (equal) "My name is {str, .upper}", "My name is ЙОАН";
+    # (equal) "My name is {str, .lower}", "My name is йоан";
+    # (equal) "{str, fill=`⁈`, width=6, .center}", "⁈Йоан⁈";
+}
 
 *func interpolatingInt~Test() {
     (equal) f"{1b}", "1";

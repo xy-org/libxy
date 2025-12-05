@@ -263,11 +263,11 @@ func unsigned(a: Bits64) a'to(Ulong);
     }
 }
 
-*func to(builder: mut Fstr, :Str) -> Str~MemManaged {
+*func to(builder: mut Fstr, :Str) -> Str {
     builder'ensureCap(1uz);
     ;; not really needed but better safe than sorry
     [builder.mem.addr~[c.char] + builder.fill] = 0;
-    res := Str{builder.mem.addr, builder.fill};
+    res := str(builder.mem.addr, builder.fill, true);
     builder.mem =< Memory{};
     return res;
 }

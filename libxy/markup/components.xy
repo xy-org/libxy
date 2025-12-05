@@ -24,7 +24,7 @@
 }
 
 *struct MapNode {
-    value: Map~[Str~MemManaged, NodeEnt];
+    value: Map~[Str, NodeEnt];
 }
 
 *struct ArrayNode {
@@ -32,7 +32,7 @@
 }
 
 *struct StrNode {
-    value: Str~MemManaged;
+    value: Str;
 }
 
 *struct LongNode {

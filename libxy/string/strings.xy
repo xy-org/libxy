@@ -6,38 +6,61 @@ func cstr~[StrCtor{prefix="c", interpolation=false}] (
 )
     addr~[c.char];
 
-;; A UTF-8 encoded string
-*struct Str~[
-    ;; Strings tagged with {MemManaged} have memory managed by {Str} itself
-    ;; and have a trailing zero byte.
-    ;;
-    ;; Strings tagged with {MemExt} have memory not managed by {Str}
-    ;; and no assumptions about the existence of a trailing zero byte.
-    ;;
-    ;; Strings tagged with {MemStatic} are allocated in static memory,
-    ;; and have a trailing zero byte.
-    memory : Any = void
-] {
+;; A Unicode String
+*struct Str {
     addr: Ptr~Byte;
-    size: Usize;; The byte-length of the string as encoding in UTF-8
+
+    size: pseudo = SizeField{};
+
+    isOwn: pseudo = OwnField{};
+
+    ;; The byte-length of the string as encoding in UTF-8
+    ;; + a flag if the memory is owned or not
+    packedSize: %Usize'toBits;
 }
 
-*func dtor(str: Str) dtor(str, str..memory);
+;; Tag strings that share memory with other strings
+*struct Shared~[xyTag := TagCtor{label="shared"}] {}
 
-func dtor(str: Str, :MemManaged) {
-    c.free(str.addr);
+*func dtor(str: Str) {
+    if (str.isOwn) {
+        c.free(str.addr);
+    }
 }
 
-func dtor(str: Str, :MemExt) {}
+;; Construct a string from memory buffer
+;;
+;; The memory pointed to by {addr} should have a length of {size},
+;; be UTF-8, and NULL terminated.
+;;
+;; {takeOwnership} controls if we own the string and if we should call free
+;; when we are done with it.
+;;
+;; Two string sharing memory is possible and requires extra caution.
+;; Consider labelling such strings {Shared} in order to add a layer of
+;; static type safety.
+*func str~[StrCtor{prefix="", interpolation=false}] (
+    addr: Ptr, size: Usize, takeOwnership := false,
+) Str{
+    addr=addr,
+    packedSize=size'toBits'shiftl(1) || (Usize + takeOwnership)'toBits
+};
 
-func dtor(str: Str, :MemStatic) {}
+
+struct OwnField {}
+
+func get(str: Str, :OwnField) = ( str.packedSize && 1uz'toBits )'to(Usize)'to(Bool);
 
 
-func str~[StrCtor{prefix="", interpolation=false}] (
-    addr: Ptr, size: Usize
-) Str~MemStatic{addr, size};
+struct SizeField {}
 
-*func get(s: Str, i: Usize) -> Byte
+func get(str: Str, :SizeField) = str.packedSize'shiftr(1)'to(Usize);
+
+func set(str: Str, :SizeField, new: Usize) =
+    str.packedSize = new'toBits'shiftl(1) || (str.packedSize && 1uz'toBits);
+
+
+func get(s: Str, i: Usize) -> Byte
 >> i < s.size
 {
     return [(s.addr)~[to=Byte] + i];
@@ -72,16 +95,16 @@ func str~[StrCtor{prefix="", interpolation=false}] (
     return res;
 }
 
-*func get(s: Str, int: (RangeInt, RangeUint, RangeUlong)) -> Str~MemExt
+*func get(s: Str, int: (RangeInt, RangeUint, RangeUlong)) -> Str~Shared
 >> int.start >= 0 && int.start <= int.end
 {
     start := min(int.start'to(Usize), s.size);
     end := min(int.end'to(Usize), s.size);
-    return Str~MemExt{s.addr + start, end - start};
+    return Str{s.addr + start, end - start};
 }
 
 ;; Return true if string is empty
-*func empty(s: Str) s.size == 0;
+*func isEmpty(s: Str) s.size == 0;
 
 ;; Retrun true if string is not empty
 *func any(s: Str) s.size != 0;
@@ -111,22 +134,22 @@ func str~[StrCtor{prefix="", interpolation=false}] (
     return strncmpRes == 0;
 }
 
-*func ensureNullTerminated(str: Str) ensureNullTerminated(str, str..memory);
-func ensureNullTerminated(str: Str, :MemManaged) str;
-func ensureNullTerminated(str: Str, :MemStatic) str;
-func ensureNullTerminated(str: Str, :MemExt) str'copy();
+-struct NotShared~[xyTag := TagCtor{label="shared"}] {}
 
-*func nullTerminated(str: Str) nullTerminated(str, str..(memory, MemExt));
-func nullTerminated(str: Str, :MemManaged) true;
-func nullTerminated(str: Str, :MemStatic) true;
-func nullTerminated(str: Str, :MemExt) false;
+*func ensureNullTerminated(str: Str) ensureNullTerminated(str, str..(share, NotShared));
+func ensureNullTerminated(str: Str, :NotShared) str;
+func ensureNullTerminated(str: Str, :Shared) str'copy();
 
-*func copy(str: Str) -> Str~MemManaged {
+*func isNullTerminated(str: Str) isNullTerminated(str, str..(shared, NotShared));
+func isNullTerminated(str: Str, :NotShared) true;
+func isNullTerminated(str: Str, :Shared) false;
+
+*func copy(str: Str) -> Str {
     newmem : Memory;
     newmem'realloc(str.size + 1);
     c.memcpy(newmem.addr, str.addr, str.size);
     [newmem.addr + str.size] = 0;; add terminating \0
-    return Str{addr=newmem.addr, size=str.size};
+    return str(newmem.addr, str.size, true);
 }
 
 struct CharIter {
@@ -224,12 +247,12 @@ func decode(s: Str, i: mut Usize) -> Char {
         }
     } while (!str[iter.ichar]'space);
 
-    iter.word = Str~MemExt{str.addr + istart, iend - istart};
+    iter.word = Str~Shared{str.addr + istart, iend - istart};
 }
 
 struct SplitIter {
     ichar: CharIter;
-    word: Str~MemExt;
+    word: Str~Shared;
     valid: Bool;
 }
 
@@ -237,9 +260,12 @@ struct SplitIter {
     return ch == `\n` || ch == ` `;
 }
 
+;; Return true if {needle} is found in {haystack}
+*func has(haystack: Str, needle: Str) = haystack'find(needle) >= 0z;
+
 
 ;; Search for {needle} in {haystack}.
-*func find(haystack: Str, needle: Str, reverse := false) =
+-func find(haystack: Str, needle: Str, reverse := false) =
     if (reverse'not) ffind(haystack, needle) else rfind(haystack, needle);
 
 -func ffind(haystack: Str, needle: Str) -> Size {
@@ -262,7 +288,7 @@ struct SplitIter {
 
     res: mut = -1z;
 
-    text: mut = Str~MemExt{haystack.addr, haystack.size};
+    text: mut = Str{haystack.addr, haystack.size};
     offset: Usize;
     while (true) {
         loc := find(text, needle);
