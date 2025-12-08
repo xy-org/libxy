@@ -10,7 +10,7 @@ func cstr~[StrCtor{prefix="c", interpolation=false}] (
 ;;
 ;; The string in stored in UTF-8 wich means access to individual chars
 ;; is only sequential and not random.
-*struct Str {
+*struct String {
 -:
     addr: Ptr~Byte;
     size: pseudo = SizeField{};
@@ -25,7 +25,7 @@ func cstr~[StrCtor{prefix="c", interpolation=false}] (
 ;; Tag strings that share memory with other strings
 *struct Shared~[xyTag := TagCtor{label="shared"}] {}
 
-*func dtor(str: Str) {
+*func dtor(str: String) {
     if (str.isOwn) {
         c.free(str.addr);
     }
@@ -44,7 +44,7 @@ func cstr~[StrCtor{prefix="c", interpolation=false}] (
 ;; static type safety.
 *func str~[StrCtor{prefix="", interpolation=false}] (
     addr: Ptr, size: Usize, takeOwnership := false,
-) Str{
+) String{
     addr=addr,
     packedSize=size'toBits'shiftl(1) || (Usize + takeOwnership)'toBits
 };
@@ -52,18 +52,18 @@ func cstr~[StrCtor{prefix="c", interpolation=false}] (
 
 -struct OwnField {}
 
-func get(str: Str, :OwnField) = ( str.packedSize && 1uz'toBits )'to(Usize)'to(Bool);
+func get(str: String, :OwnField) = ( str.packedSize && 1uz'toBits )'to(Usize)'to(Bool);
 
 
 -struct SizeField {}
 
-func get(str: Str, :SizeField) = str.packedSize'shiftr(1)'to(Usize);
+func get(str: String, :SizeField) = str.packedSize'shiftr(1)'to(Usize);
 
-func set(str: Str, :SizeField, new: Usize) =
+func set(str: String, :SizeField, new: Usize) =
     str.packedSize = new'toBits'shiftl(1) || (str.packedSize && 1uz'toBits);
 
 
-func get(s: Str, i: Usize) -> Byte
+func get(s: String, i: Usize) -> Byte
 >> i < s.size
 {
     return [(s.addr)~[to=Byte] + i];
@@ -71,7 +71,7 @@ func get(s: Str, i: Usize) -> Byte
 
 ;; Count the number of unicode code points (chars) in the string
 ;; Illegal byte sequences are counted as 1 code point
-*func count(s: Str) -> Usize {
+*func count(s: String) -> Usize {
     res : Usize;
     i : Usize;
     while (i < s.size) {
@@ -98,21 +98,21 @@ func get(s: Str, i: Usize) -> Byte
     return res;
 }
 
-*func get(s: Str, int: (RangeInt, RangeUint, RangeUlong)) -> Str~Shared
+*func get(s: String, int: (RangeInt, RangeUint, RangeUlong)) -> String~Shared
 >> int.start >= 0 && int.start <= int.end
 {
     start := min(int.start'to(Usize), s.size);
     end := min(int.end'to(Usize), s.size);
-    return Str{s.addr + start, end - start};
+    return String{s.addr + start, end - start};
 }
 
 ;; Return true if string is empty
-*func isEmpty(s: Str) s.size == 0;
+*func isEmpty(s: String) s.size == 0;
 
 ;; Retrun true if string is not empty
-*func any(s: Str) s.size != 0;
+*func any(s: String) s.size != 0;
 
-*func cmp(str1: Str, str2: Str) -> Int {
+*func cmp(str1: String, str2: String) -> Int {
     if (str1.size > str2.size) {
         return 1;
     } elif (str1.size < str2.size) {
@@ -121,7 +121,7 @@ func get(s: Str, i: Usize) -> Byte
     return c.strncmp(str1.addr~[c.char], str2.addr~[c.char], str1.size);
 }
 
-*func startswith(str: Str, prefix: Str) -> Bool {
+*func startswith(str: String, prefix: String) -> Bool {
     if (prefix.size > str.size) {
         return false;
     }
@@ -129,7 +129,7 @@ func get(s: Str, i: Usize) -> Byte
     return strncmpRes == 0;
 }
 
-*func endswith(str: Str, suffix: Str) -> Bool {
+*func endswith(str: String, suffix: String) -> Bool {
     if (suffix.size > str.size) {
         return false;
     }
@@ -139,15 +139,15 @@ func get(s: Str, i: Usize) -> Byte
 
 -struct NotShared~[xyTag := TagCtor{label="shared"}] {}
 
-*func ensureNullTerminated(str: Str) ensureNullTerminated(str, str..(share, NotShared));
-func ensureNullTerminated(str: Str, :NotShared) str;
-func ensureNullTerminated(str: Str, :Shared) str'copy();
+*func ensureNullTerminated(str: String) ensureNullTerminated(str, str..(share, NotShared));
+func ensureNullTerminated(str: String, :NotShared) str;
+func ensureNullTerminated(str: String, :Shared) str'copy();
 
-*func isNullTerminated(str: Str) isNullTerminated(str, str..(shared, NotShared));
-func isNullTerminated(str: Str, :NotShared) true;
-func isNullTerminated(str: Str, :Shared) false;
+*func isNullTerminated(str: String) isNullTerminated(str, str..(shared, NotShared));
+func isNullTerminated(str: String, :NotShared) true;
+func isNullTerminated(str: String, :Shared) false;
 
-*func copy(str: Str) -> Str {
+*func copy(str: String) -> String {
     newmem : Memory;
     newmem'realloc(str.size + 1);
     c.memcpy(newmem.addr, str.addr, str.size);
@@ -160,24 +160,24 @@ struct CharIter {
     char: Char;; character at that offset
 }
 
-*func get(str: Str, charIter: CharIter) = charIter.char;
+*func get(str: String, charIter: CharIter) = charIter.char;
 
 ;; Iterate of the unicode characters (code points) in {str}
 ;; Illegal byte sequences are replaced by U+FFFD
-*func chars~IterCtor(str: Str) -> str[ CharIter ] {
+*func chars~IterCtor(str: String) -> str[ CharIter ] {
     iter : CharIter;
     next(str, iter);
     return iter;
 }
 
-*func valid(str: Str, iter: CharIter) iter.char'to(Int) >= 0;
+*func valid(str: String, iter: CharIter) iter.char'to(Int) >= 0;
 
-*func next(str: Str, iter: mut CharIter) {
+*func next(str: String, iter: mut CharIter) {
     cp := decode(str, iter.i);
     iter.char = cp;
 }
 
-func decode(s: Str, i: mut Usize) -> Char {
+func decode(s: String, i: mut Usize) -> Char {
     if (i >= s.size) {
         return (-1)'to(Char);
     }
@@ -220,52 +220,52 @@ func decode(s: Str, i: mut Usize) -> Char {
     return cp'to(Char);
 }
 
-;; Expose the underlying memory managed by Str
+;; Expose the underlying memory managed by String
 ;;
 ;; The memory contains the string UTF-8 encoded. The momory's size is the size
 ;; in bytes. The existance of a terminating null character can be determined by
 ;; {isNullTerminated}. If present it is NOT counted in the memory size.
-*func memory(s: Str) = Memory{s.addr, s.size};
+*func memory(s: String) = Memory{s.addr, s.size};
 
 -struct BytesField {}
 
-;; Expose a pointer to the memory manged by Str
+;; Expose a pointer to the memory manged by String
 ;;
 ;; The momory is UTF-8 encoded. This method exist simply to provided better
 ;; interface for access to individual bytes and slices based on byte offsets
-*func bytes(s: Str) -> s[ BytesField, ... ] {
+*func bytes(s: String) -> s[ BytesField, ... ] {
     return BytesField;
 }
 
-*func get(s: Str, :BytesField) = s.addr;
+*func get(s: String, :BytesField) = s.addr;
 
 *func get(
-    str: Str, :BytesField,
+    str: String, :BytesField,
     range: (RangeByte, RangeUbyte, RangeShort, RangeUshort, RangeInt, RangeUint, RangeLong, RangeUlong),
-) -> Str~Shared
+) -> String~Shared
 >> range.start >= 0
 >> range.start'to(Usize) < str.size && range.end'to(Usize) <= str.size
 {
     if (range.start <= range.end) {
-        return Str~Shared{str.addr + range.start, range'len'to(Usize)};
+        return String~Shared{str.addr + range.start, range'len'to(Usize)};
     } else {
-        return Str~Shared{Ptr, 0uz};
+        return String~Shared{Ptr, 0uz};
     }
 }
 
 
 ;; Split by (white)space characters
-*func split~IterCtor(str: Str) -> str[ SplitIter ] {
+*func split~IterCtor(str: String) -> str[ SplitIter ] {
     si: mut = SplitIter{.valid};
     next(str, si);
     return si;
 }
 
-*func valid(str: Str, iter: SplitIter) = iter.valid;
+*func valid(str: String, iter: SplitIter) = iter.valid;
 
-*func get(str: Str, iter: SplitIter) = iter.word;
+*func get(str: String, iter: SplitIter) = iter.word;
 
-*func next(str: Str, iter: mut SplitIter) {
+*func next(str: String, iter: mut SplitIter) {
     istart := do -> (istart: Usize) {
         istart = iter.ichar.i;
         next(str, iter.ichar);
@@ -283,12 +283,12 @@ func decode(s: Str, i: mut Usize) -> Char {
         }
     } while (!str[iter.ichar]'space);
 
-    iter.word = Str~Shared{str.addr + istart, iend - istart};
+    iter.word = String~Shared{str.addr + istart, iend - istart};
 }
 
 struct SplitIter {
     ichar: CharIter;
-    word: Str~Shared;
+    word: String~Shared;
     valid: Bool;
 }
 
@@ -297,14 +297,14 @@ struct SplitIter {
 }
 
 ;; Return true if {needle} is found in {haystack}
-*func has(haystack: Str, needle: Str) = haystack'find(needle) >= 0z;
+*func has(haystack: String, needle: String) = haystack'find(needle) >= 0z;
 
 
 ;; Search for {needle} in {haystack}.
--func find(haystack: Str, needle: Str, reverse := false) =
+-func find(haystack: String, needle: String, reverse := false) =
     if (reverse'not) ffind(haystack, needle) else rfind(haystack, needle);
 
--func ffind(haystack: Str, needle: Str) -> Size {
+-func ffind(haystack: String, needle: String) -> Size {
     if (needle.size == 0) return 0z;; memmem is inconsistent if needle is empty
 
     location: Ptr~Byte = c.memmem(
@@ -319,12 +319,12 @@ struct SplitIter {
     }
 }
 
--func rfind(haystack: Str, needle: Str) -> Size {
+-func rfind(haystack: String, needle: String) -> Size {
     if (needle.size == 0) return 0z;
 
     res: mut = -1z;
 
-    text: mut = Str{haystack.addr, haystack.size};
+    text: mut = String{haystack.addr, haystack.size};
     offset: Usize;
     while (true) {
         loc := find(text, needle);

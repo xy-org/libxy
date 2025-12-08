@@ -2,7 +2,7 @@ import libxy.(string, noncrypto.hash, map, memory);
 import xytest;
 
 *func simpleInsertion~Test() {
-    map : Map~[Str, Str];
+    map : Map~[String, String];
     map["one"] = "1";
     map["two"] = "2";
     map["three"] = "3";
@@ -22,7 +22,7 @@ import xytest;
 }
 
 *func insertingAndOverwriting~Test() {
-    map: Map~[Str, Int];
+    map: Map~[String, Int];
 
     for (i in :256) {
         map[f"{i}"] = i;
@@ -40,7 +40,7 @@ import xytest;
 }
 
 *func lookupNonExistant~Test() {
-    map: Map~[Str, Int];
+    map: Map~[String, Int];
     for (i in :128) {
         map[f"{i}"] = i;
 
@@ -49,12 +49,12 @@ import xytest;
 }
 
 *func hasInEmptyMap~Test() {
-    map: Map~[Str, Int];
+    map: Map~[String, Int];
     (assert) map'has("123")'not;
 }
 
 #*func ensuringValue~Test() {
-#    map: Map~[Str~MemManaged, Int];
+#    map: Map~[String~MemManaged, Int];
 #
 #    (equal) map'ensure("123", 123), 123;
 #    (equal) map'ensure("123", 321), 123;
@@ -62,7 +62,7 @@ import xytest;
 #}
 
 *func deletingFromMap~Test() {
-    map: Map~[Str, Int];
+    map: Map~[String, Int];
 
     for (i in :200) {
         map[f"{i}"] = i;

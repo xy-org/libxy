@@ -141,7 +141,7 @@ struct IndexColor8Bit {}
 *func get(cm: ColorMode, enm: Enum) cm.value[enm];
 *func set(cm: mut ColorMode, enm: Enum, on: Bool) cm.value[enm] = on;
 
-*func append(fstr: mut Fstr, esc: Esc, enabled: Bool = true) {
+*func append(fstr: mut Fstring, esc: Esc, enabled: Bool = true) {
     if (!enabled) return;
 
     esc'appendSgr(fstr);
@@ -151,7 +151,7 @@ struct IndexColor8Bit {}
     esc'appendPasteMode(fstr);
 }
 
--func appendSgr(esc: Esc, fstr: mut Fstr) {
+-func appendSgr(esc: Esc, fstr: mut Fstring) {
     if (esc.sgrFlags == 0 && esc.bg.mode.none && esc.fg.mode.none) return;
 
     fstr'append("\033[");
@@ -207,7 +207,7 @@ struct IndexColor8Bit {}
 
 -func abs(i: Int) if (i >= 0) i else -i;
 
--func appendCursorControl(esc: Esc, fstr: mut Fstr) {
+-func appendCursorControl(esc: Esc, fstr: mut Fstring) {
     if (esc.cursor.up != 0) {
         fstr @= {
             "\033[", esc.cursor.up'abs,
@@ -237,7 +237,7 @@ struct IndexColor8Bit {}
     }
 }
 
--func appendClearMode(esc: Esc, fstr: mut Fstr) {
+-func appendClearMode(esc: Esc, fstr: mut Fstring) {
     if (esc.clear.toEndOfScreen) {
         fstr @= "\033[0J";
     }
@@ -262,7 +262,7 @@ struct IndexColor8Bit {}
     }
 }
 
--func appendScreenBuffer(esc: Esc, fstr: mut Fstr) {
+-func appendScreenBuffer(esc: Esc, fstr: mut Fstring) {
     if (esc.screenBuffer.alternative) {
         fstr @= "\033[?1049h";
     }
@@ -271,7 +271,7 @@ struct IndexColor8Bit {}
     }
 }
 
--func appendPasteMode(esc: Esc, fstr: mut Fstr) {
+-func appendPasteMode(esc: Esc, fstr: mut Fstring) {
     if (esc.bracketedPaste.on) {
         fstr @= "\033[?2004h";
     }

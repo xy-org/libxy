@@ -78,8 +78,8 @@ import libxy.slice;
 }
 
 -func testSplitIter(
-    str: Str, exp: pseudo @Str[],
-    expAddr : Ptr~Str = exp'addrof, expLen : Usize = exp'len
+    str: String, exp: pseudo @String[],
+    expAddr : Ptr~String = exp'addrof, expLen : Usize = exp'len
 ) -> void {
     i : Size;
     for (word in str'split) {

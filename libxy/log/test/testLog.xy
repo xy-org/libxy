@@ -34,7 +34,7 @@ struct Marker {
     touched : Bool;
 }
 
-func append(fstr: mut Fstr, m: mut Marker) {
+func append(fstr: mut Fstring, m: mut Marker) {
     m.touched = true;
 }
 

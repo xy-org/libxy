@@ -3,25 +3,25 @@ import xy.sys;
 import libxy.(string, stdio, list, slice, memory);
 
 *struct CliSchema {
-    name: Str;
-    desc: Str;
-    epilog: Str;
-    short: Str;
+    name: String;
+    desc: String;
+    epilog: String;
+    short: String;
 
     named: List~CliParam;
     positional: List~CliParam;
 
-    prefixLong: Str;
-    prefixShort: Str;
+    prefixLong: String;
+    prefixShort: String;
 
     noShortGrouping: Bool;
     manualHelp: Bool;
 }
 
 *struct CliParam {
-    name: Str;
-    desc: Str;
-    arg: Str;
+    name: String;
+    desc: String;
+    arg: String;
     short: Char;
     nargs: RangeInt;
     positional: Bool;
@@ -30,7 +30,7 @@ import libxy.(string, stdio, list, slice, memory);
 }
 
 *func config(
-    schema: mut CliSchema, prefixLong: Str = "--", prefixShort: Str = "-",
+    schema: mut CliSchema, prefixLong: String = "--", prefixShort: String = "-",
     manualHelp := false
 ) {
     schema .= {
@@ -40,7 +40,7 @@ import libxy.(string, stdio, list, slice, memory);
 }
 
 *func prog(
-    schema: mut CliSchema, name: Str = "", short: Str = "", desc: Str = "", epilog: Str = "",
+    schema: mut CliSchema, name: String = "", short: String = "", desc: String = "", epilog: String = "",
 ) {
     schema.name =< name'copy;
     schema.desc =< desc'copy;
@@ -51,10 +51,10 @@ import libxy.(string, stdio, list, slice, memory);
 
 *func param(
     schema: mut CliSchema,
-    name: Str = "",
+    name: String = "",
     short := Char{},
-    desc: Str = "",
-    arg: Str = "value",
+    desc: String = "",
+    arg: String = "value",
     positional := false,
     nargs : RangeInt = if (positional) 1:2 else 0:1,
     greedy := false,
@@ -73,13 +73,13 @@ import libxy.(string, stdio, list, slice, memory);
 
 func command(
     schema: mut CliSchema,
-    name: Str,
+    name: String,
     desc := "",
 ) {
     # TODO implement
 }
 
-*func append(fstr: mut Fstr, schema: CliSchema) {
+*func append(fstr: mut Fstring, schema: CliSchema) {
     if (schema.short'any) {
         fstr @= { schema.name, schema.short, "\n\n" };
     }
@@ -162,7 +162,7 @@ func command(
 }
 
 struct ParsingError {
-    msg: Str;
+    msg: String;
 }
 
 *func to(pe: ParsingError, :Bool) pe.msg'isEmpty'not;
@@ -252,7 +252,7 @@ struct ParsingError {
             ;; value of named
             stream'append(CliArg{
                 name=schema.named[namedParamIdx].name'copy,
-                value=Str~Shared{addr=arg'memory.addr, size=arg'memory.size},
+                value=String~Shared{addr=arg'memory.addr, size=arg'memory.size},
                 # dataIdx=schema.named[namedParamIdx].dataIdx,
             });
             nargsNamed[namedParamIdx]++;
@@ -269,7 +269,7 @@ struct ParsingError {
 
             stream'append(CliArg{
                 name=schema.positional[posParamIdx].name'copy,
-                value=Str~Shared{addr=arg'memory.addr, size=arg'memory.size},
+                value=String~Shared{addr=arg'memory.addr, size=arg'memory.size},
                 # dataIdx=schema.positional[posParamIdx].dataIdx,
             });
             nargsPositional[posParamIdx]++;
@@ -303,12 +303,12 @@ struct ParsingError {
 }
 
 *struct CliArg {
-    name: Str;
-    value: Str~Shared;
+    name: String;
+    value: String~Shared;
     # dataIdx: Size;
 }
 
--func findParam(schema: CliSchema, name: Str) -> Int {
+-func findParam(schema: CliSchema, name: String) -> Int {
     for (idx in :, param in schema.named) {
         if (param.name == name) {
             return idx'to(Int);

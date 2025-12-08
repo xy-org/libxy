@@ -45,7 +45,7 @@ import libxy.(string, binary, flag, error);
 ;; Open a file
 ;; See {OpenFlags} for explanation of what all the toggles mean
 * func open(
-    path: Str,
+    path: String,
     append := false, create := false, directory := false, readOnly := false,
     writeOnly := false, readWrite := false, truncate := false,
     exclusive := false,
@@ -57,7 +57,7 @@ import libxy.(string, binary, flag, error);
 
 ;; Open a file
 *func open(
-    path: Str, flags: OpenFlags, mode := 0644
+    path: String, flags: OpenFlags, mode := 0644
 ) -> File | SystemError
 >> isNullTerminated(path)
 {
@@ -99,7 +99,7 @@ inlinec"""
     return File{newFd};
 }
 
-*func write(file: File, str: Str) -> void | SystemError {
+*func write(file: File, str: String) -> void | SystemError {
     total : mut Usize;
     do {
         # TODO use c.ssize_t
@@ -130,7 +130,7 @@ inlinec"""
 }
 
 ;; Read from {file} into {fstr} untile EoF, EAGAIN, EWOULDBLOCK
-*func read(file: File, fstr: mut Fstr) -> void | SystemError {
+*func read(file: File, fstr: mut Fstring) -> void | SystemError {
     res : c.ssize_t;
     do {
         fstr'ensureCap(4098uz);
@@ -146,7 +146,7 @@ inlinec"""
 }
 
 ;; ...
-*func append(fstr: mut Fstr, file: File) = file'read(fstr);
+*func append(fstr: mut Fstring, file: File) = file'read(fstr);
 
 ;; Read from {file} exactly {nbyte} bytes into {buf}
 ;; {file} must be either blocking or have atleast {nbytes} available for read
@@ -201,7 +201,7 @@ inlinec"""
     f'close;
 }
 
-*func mkdir(path: Str, mode := 0755, parents := false) -> void | SystemError
+*func mkdir(path: String, mode := 0755, parents := false) -> void | SystemError
 >> isNullTerminated(path)
 {
     c.mkdir(path'memory.addr~[c.char], mode);

@@ -3,7 +3,7 @@
 ;; Concatenate and print files
 #struct ProgramArgs {
 #    ;; path to files
-#    files : List~Str;
+#    files : List~String;
 #
 #    ;; Display line count
 #    lineCount: Bool;

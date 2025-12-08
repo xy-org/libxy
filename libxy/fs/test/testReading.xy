@@ -7,7 +7,7 @@ import libxy.memory;
     checkContent(content);
 }
 
-func checkContent(content: Str) {
+func checkContent(content: String) {
     (assert) content'memory.size > 100;
     (assert) content'startswith("import");
 }
@@ -15,7 +15,7 @@ func checkContent(content: Str) {
 #func mmapFile~Test() {
 #    file := open('fileof, .read);
 #    mem := file'mmap;
-#    content := Str~External{mem, mem.size};
+#    content := String~External{mem, mem.size};
 #    # ...
 #}
 #

@@ -1,22 +1,22 @@
 import xy.ctti;
 import libxy.bitwise;
 
-*struct Fstr {
+*struct Fstring {
     mem: Memory;
     fill: Usize;
 }
 
-*func dtor(builder: mut Fstr) {
+*func dtor(builder: mut Fstring) {
     builder.mem'free();
 }
 
-*func fstr~[StrCtor{prefix="f", interpolation=true, to=Str}] (
+*func fstr~[StrCtor{prefix="f", interpolation=true, to=String}] (
     addr: pseudo Ptr, size: Usize
-) -> Fstr {
-    return Fstr{};
+) -> Fstring {
+    return Fstring{};
 }
 
-func ensureCap(builder: mut Fstr, requiredCap: Usize) {
+func ensureCap(builder: mut Fstring, requiredCap: Usize) {
     minSize := builder.fill + requiredCap;
     if (builder.mem.size < minSize) {
         newSize : mut = 2 * builder.mem.size;
@@ -27,17 +27,17 @@ func ensureCap(builder: mut Fstr, requiredCap: Usize) {
     }
 }
 
-*func append(builder: mut Fstr, addr: Ptr, size: Usize) {
+*func append(builder: mut Fstring, addr: Ptr, size: Usize) {
     builder'ensureCap(size);
     c.memcpy(builder.mem.addr + builder.fill, addr, size);
     builder.fill += size;
 }
 
 *func append(
-    builder: mut Fstr, str: Str,
+    builder: mut Fstring, str: String,
     width := Int'max, minWidth := width, maxWidth := width,
     fill := ` `, left := false, center := false,
-    clip: Str = "...",
+    clip: String = "...",
 )
 >> !(left && center)
 >> if (minWidth != Int'max) maxWidth >= minWidth else true
@@ -80,15 +80,15 @@ func ensureCap(builder: mut Fstr, requiredCap: Usize) {
     }
 }
 
-*func append(builder: mut Fstr, str: Fstr) =
+*func append(builder: mut Fstring, str: Fstring) =
     builder'append(str.mem.addr, str.fill);
 
 ;; Number of available bytes in builder
-func capacity(fstr: Fstr) fstr.mem.size - fstr.fill;
+func capacity(fstr: Fstring) fstr.mem.size - fstr.fill;
 
 ;; Stringify and append {num}
 *func append(
-    fstr: mut Fstr,
+    fstr: mut Fstring,
     num: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong),
     base := 10,
 )
@@ -105,7 +105,7 @@ func capacity(fstr: Fstr) fstr.mem.size - fstr.fill;
 }
 
 -func appendDigits(
-    fstr: mut Fstr,
+    fstr: mut Fstring,
     num:(Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong),
     base: Int,
 ) {
@@ -127,7 +127,7 @@ func capacity(fstr: Fstr) fstr.mem.size - fstr.fill;
 }
 
 ;; Stringify and append {bits}
-*func append(fstr: mut Fstr, bits: (Bits8, Bits16, Bits32, Bits64)) {
+*func append(fstr: mut Fstring, bits: (Bits8, Bits16, Bits32, Bits64)) {
     fstr'ensureCap(2 + bits'sizeof * 2);
     fstr'append("0x");
     letters := c"0123456789ABCDEF";
@@ -155,7 +155,7 @@ func unsigned(a: Bits64) a'to(Ulong);
 
 ;; ...
 *func append(
-    fstr: mut Fstr,
+    fstr: mut Fstring,
     num: (Float, Double),
     precision := -1,
     scientific := false,
@@ -200,8 +200,8 @@ func unsigned(a: Bits64) a'to(Ulong);
 
 ;; ...
 *func append(
-    builder: mut Fstr, flag: Bool,
-    falseStr : Str = "false", trueStr : Str = "true",
+    builder: mut Fstring, flag: Bool,
+    falseStr : String = "false", trueStr : String = "true",
 ) {
     if (flag) {
         builder @= trueStr;
@@ -210,12 +210,12 @@ func unsigned(a: Bits64) a'to(Ulong);
     }
 }
 
-*func backtrack(builder: mut Fstr, num: Uint) {
+*func backtrack(builder: mut Fstring, num: Uint) {
     builder.fill -= num'to(Usize);
 }
 
 ;; Encode {char} to utf-8 and append to str. Invalid chars are ignored.
-*func append(builder: mut Fstr, char: Char) {
+*func append(builder: mut Fstring, char: Char) {
     builder'ensureCap(4uz);
     nchar := char'to(Uint);
     if (nchar <= 0x7F) {
@@ -241,7 +241,7 @@ func unsigned(a: Bits64) a'to(Ulong);
 }
 
 ;; ...
-*func append(fstr: mut Fstr, char: Char, repeat: Uint) {
+*func append(fstr: mut Fstring, char: Char, repeat: Uint) {
     if (repeat > 0) {
         addedBytes := -> (added: Usize) {
             added = fstr.fill;
@@ -263,7 +263,7 @@ func unsigned(a: Bits64) a'to(Ulong);
     }
 }
 
-*func to(builder: mut Fstr, :Str) -> Str {
+*func to(builder: mut Fstring, :String) -> String {
     builder'ensureCap(1uz);
     ;; not really needed but better safe than sorry
     [builder.mem.addr~[c.char] + builder.fill] = 0;

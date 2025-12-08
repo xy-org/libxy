@@ -46,7 +46,7 @@ import libxy.(slice, error, flag);
 
 
 ;; Append {str} to the buffer
-*func append(buf: mut Buf, str: Str, nullTerminate := false) =
+*func append(buf: mut Buf, str: String, nullTerminate := false) =
     buf'append(str'memory, nullTerminate);
 
 *func append(buf: mut Buf, mem: Memory, nullTerminate := false) {

@@ -35,7 +35,7 @@ import posix~[Clib{}] in c;
     return c.memcmp(lhs.addr~[c.char], rhs.addr~[c.char], lhs.size);
 }
 
-*func append(fstr: mut Fstr, blob: Blob~void, prefix:="\\x", sep:="") -> void | SystemError {
+*func append(fstr: mut Fstring, blob: Blob~void, prefix:="\\x", sep:="") -> void | SystemError {
     for (i in :blob.size) {
         byte := [blob.addr + i];
         fstr'append(prefix);
@@ -53,7 +53,7 @@ import posix~[Clib{}] in c;
     }
 }
 
-*func append(fstr: mut Fstr, blob: Blob~void, ascii: Bool) -> void | SystemError {
+*func append(fstr: mut Fstring, blob: Blob~void, ascii: Bool) -> void | SystemError {
     if (!ascii) {
         fstr'append(blob);
     }

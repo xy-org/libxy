@@ -6,7 +6,7 @@ struct LocalHash {
     seed : %(Size'toBits);; You can specify this to add some extra entropy
 }
 
-*func hash(str: Str, hash: LocalHash) = hash(str'memory.addr, str'memory.size, hash);
+*func hash(str: String, hash: LocalHash) = hash(str'memory.addr, str'memory.size, hash);
 
 *func hash(blob: Blob, hash: LocalHash) = hash(blob.addr, blob.size, hash);
 

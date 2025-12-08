@@ -28,41 +28,41 @@ import libxy.(string, fs, error);
     }
 }
 
-*func fatal(^msg: Str, log := [Global~Log]) =
+*func fatal(^msg: String, log := [Global~Log]) =
     log(log, logLevelFatal, msg);
 
-*func err(^msg: Str, log := [Global~Log]) =
+*func err(^msg: String, log := [Global~Log]) =
     log(log, logLevelError, msg);
 
-*func warn(^msg: Str, log := [Global~Log]) =
+*func warn(^msg: String, log := [Global~Log]) =
     log(log, logLevelWarn, msg);
 
-*func info(^msg: Str, log := [Global~Log]) =
+*func info(^msg: String, log := [Global~Log]) =
     log(log, logLevelInfo, msg);
 
-*func verbose(^msg: Str, log := [Global~Log]) =
+*func verbose(^msg: String, log := [Global~Log]) =
     log(log, logLevelVerbose, msg);
 
-*func v(^msg: Str, log := [Global~Log]) =
+*func v(^msg: String, log := [Global~Log]) =
     log(log, logLevelVerbose, msg);
 
-*func vv(^msg: Str, log := [Global~Log]) =
+*func vv(^msg: String, log := [Global~Log]) =
     log(log, logLevelVerbose - 1, msg);
 
-*func vvv(^msg: Str, log := [Global~Log]) =
+*func vvv(^msg: String, log := [Global~Log]) =
     log(log, logLevelVerbose - 2, msg);
 
-*func debug(^msg: Str, log := [Global~Log]) =
+*func debug(^msg: String, log := [Global~Log]) =
     log(log, logLevelDebug, msg);
 
 
-func log(log: Log, level: Int, ^msg: Str) =
+func log(log: Log, level: Int, ^msg: String) =
 if (log.level <= level) {
     log'doLog(level, msg);
 };
 
 # TODO make this private
-func doLog(log: Log, level: Int, msg: Str) {
+func doLog(log: Log, level: Int, msg: String) {
     log.file'write(msg);
     log.file'write("\n");
 }

@@ -1,4 +1,4 @@
-*func parseYaml(yamlData: Str, ecs: mut Ecs) -> NodeEnt {
+*func parseYaml(yamlData: String, ecs: mut Ecs) -> NodeEnt {
     iter: YamlIter;
     return parse(yamlData, iter, ecs);
 }
@@ -9,7 +9,7 @@ struct YamlIter {
 
 import libxy.stdio;
 
-func parse(src: Str, iter: mut YamlIter, ecs: mut Ecs) -> NodeEnt {
+func parse(src: String, iter: mut YamlIter, ecs: mut Ecs) -> NodeEnt {
     if ( src[iter] == `-` ) {
         return parseArray(src, iter, ecs);
     } elif ( src[iter] == `[` ) {
@@ -21,7 +21,7 @@ func parse(src: Str, iter: mut YamlIter, ecs: mut Ecs) -> NodeEnt {
 }
 
 func parseUnknownToken(
-    token: mut Str, src: Str, iter: mut YamlIter, ecs: mut Ecs
+    token: mut String, src: String, iter: mut YamlIter, ecs: mut Ecs
 ) -> NodeEnt {
     nodeIdx : mut = NodeEnt{
         ent = Ent{ ecs'entity'to(Usize) }
@@ -72,7 +72,7 @@ func parseUnknownToken(
     return nodeIdx;
 }
 
-func parseArray(src: Str, iter: mut YamlIter, ecs: mut Ecs) -> (res: NodeEnt) {
+func parseArray(src: String, iter: mut YamlIter, ecs: mut Ecs) -> (res: NodeEnt) {
     (debug) f"Parsing Array {src, iter}";
 
     res.ent = Ent{ ecs'entity'to(Usize) };
@@ -93,7 +93,7 @@ func parseArray(src: Str, iter: mut YamlIter, ecs: mut Ecs) -> (res: NodeEnt) {
     ecs @= (res.ent.id'to(Uint), node =>);
 }
 
-func parseAtom(src: Str, iter: mut YamlIter) -> Str {
+func parseAtom(src: String, iter: mut YamlIter) -> String {
     skipEmptyLinesAndSpaces(src, iter);
 
     start := iter.i;
@@ -104,19 +104,19 @@ func parseAtom(src: Str, iter: mut YamlIter) -> Str {
     return src[start:iter.i]'copy;
 }
 
-func eof(src: Str, iter: YamlIter) iter.i >= src'memory.size;
+func eof(src: String, iter: YamlIter) iter.i >= src'memory.size;
 
-func skipEmptyLinesAndSpaces(src: Str, iter: mut YamlIter) {
+func skipEmptyLinesAndSpaces(src: String, iter: mut YamlIter) {
     while ( src[iter] == `\n` || src[iter] == ` ` ) {
         iter.i++;
     }
 }
 
-func get(src: Str, iter: YamlIter) =
+func get(src: String, iter: YamlIter) =
     if (iter.i < src'memory.size) src[iter.i]'to(Char)
     else `\0`;
 
-func append(fstr: mut Fstr, src: Str, iter: YamlIter) {
+func append(fstr: mut Fstring, src: String, iter: YamlIter) {
     snippetStart := iter.i;
     snippetEnd := min(iter.i+10, src'memory.size);
     fstr @= "(\"";

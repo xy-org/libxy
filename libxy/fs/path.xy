@@ -8,7 +8,7 @@ pathSeparator := `/`;
 ;; If input contains no /'s, return empty interval (i.e. empty string)
 *func dirname(
     ;; What to strip
-    path: Str,
+    path: String,
     ;; Separator symbol to tokenize {path} by.
     ;; ascii code-point is required for performance reasons.
     separator: Byte = pathSeparator'to(Byte)
@@ -32,14 +32,14 @@ pathSeparator := `/`;
 }
 
 struct PathStr {
-    fstr: Fstr;
+    fstr: Fstring;
 }
 
-func path~[StrCtor{prefix="path", interpolation=true, to=Str}](addr: Ptr, len: Usize) -> PathStr{
+func path~[StrCtor{prefix="path", interpolation=true, to=String}](addr: Ptr, len: Usize) -> PathStr{
     return PathStr{fstr(addr, len)};
 }
 
-*func append(path: mut PathStr, str: Str) {
+*func append(path: mut PathStr, str: String) {
     if (str'startswith("/")) {
         path.fstr.fill = 0;
     }
@@ -50,6 +50,6 @@ func path~[StrCtor{prefix="path", interpolation=true, to=Str}](addr: Ptr, len: U
     path.fstr'append(cstr, len);
 }
 
-*func to(path: mut PathStr, :Str) -> Str {
-    return path.fstr'to(Str);
+*func to(path: mut PathStr, :String) -> String {
+    return path.fstr'to(String);
 }

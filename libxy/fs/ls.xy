@@ -4,7 +4,7 @@ import libxy.memory;
 
 ;; List directory content
 *func ls(
-    path: Str,
+    path: String,
     hidden := false, ;; want all the files in a dir including hidden ones
     type  := false, ;; want the type of each directory entry
     size  := false, ;; want the size of each directory entry
@@ -24,7 +24,7 @@ import libxy.memory;
 
 ;; Info about a node on a filesystem
 *struct Node {
-    name: Str;
+    name: String;
     type: NodeType;
     size: Size;
     atime: Timestamp;
@@ -60,7 +60,7 @@ struct Listing {
 }
 
 *func ls~IterCtor(
-    path: Str, flags: LsFlags,
+    path: String, flags: LsFlags,
 ) -> [ Listing ] | SystemError
 >> isNullTerminated(path)
 {
@@ -99,7 +99,7 @@ func loadNodeInfo(
     d: mut Listing,
     dirent: Ptr~[c."struct dirent"]
 ) -> Bool {
-    name := Str~Shared{
+    name := String~Shared{
         Ptr~Byte{inlinec"{dirent}->d_name"},
         Usize{c.strlen(inlinec"{dirent}->d_name")},
     };

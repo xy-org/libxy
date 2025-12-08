@@ -3,7 +3,7 @@ import libxy.(string, list, error, memory);
 import ..;
 
 *func runningLs~Test() {
-    args : List~Str;
+    args : List~String;
     args'append("Echoing from test");
     p := run("echo", args);
     _ = p'wait();
