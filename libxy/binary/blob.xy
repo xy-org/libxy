@@ -47,7 +47,7 @@ import posix~[Clib{}] in c;
                 fstr'append((`a`'to(Byte) + nibble - 10b)'to(Char));
             }
         }
-        if (sep.size > 0 && i < blob.size-1) {
+        if (sep'isEmpty'not && i < blob.size-1) {
             fstr'append(sep);
         }
     }

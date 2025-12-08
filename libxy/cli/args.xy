@@ -115,7 +115,7 @@ func command(
     }
     fstr @= "\n";
 
-    if (schema.desc.size > 0) {
+    if (schema.desc'isEmpty'not) {
         fstr @= { "\n", schema.desc, "\n" };
     }
 
@@ -125,10 +125,10 @@ func command(
     }
     for (param in schema.positional) {
         fstr @= "  ";
-        if (param.arg.size > 0) {
+        if (param.arg'isEmpty'not) {
             fstr @= { "<", param.name, ">" };
         }
-        if (param.desc.size > 0) {
+        if (param.desc'isEmpty'not) {
             fstr @= { " - ", param.desc };
         }
         fstr @= "\n";
@@ -149,14 +149,14 @@ func command(
         if (param.name'any) {
             fstr @= { "--", param.name };
         }
-        if (param.arg.size > 0) {
+        if (param.arg'isEmpty'not) {
             fstr @= { " <", param.arg, ">" };
         }
         fstr @= "\n";
     }
 
     ;; epilog if any
-    if (schema.epilog.size > 0) {
+    if (schema.epilog'isEmpty'not) {
         fstr @= { "\n", schema.epilog, "\n" };
     }
 }
@@ -165,7 +165,7 @@ struct ParsingError {
     msg: Str;
 }
 
-*func to(pe: ParsingError, :Bool) pe.msg.size > 0;
+*func to(pe: ParsingError, :Bool) pe.msg'isEmpty'not;
 
 *func unhandled(pe: ParsingError) {
     print(pe.msg);
@@ -252,7 +252,7 @@ struct ParsingError {
             ;; value of named
             stream'append(CliArg{
                 name=schema.named[namedParamIdx].name'copy,
-                value=Str~Shared{addr=arg.addr, size=arg.size},
+                value=Str~Shared{addr=arg'memory.addr, size=arg'memory.size},
                 # dataIdx=schema.named[namedParamIdx].dataIdx,
             });
             nargsNamed[namedParamIdx]++;
@@ -269,7 +269,7 @@ struct ParsingError {
 
             stream'append(CliArg{
                 name=schema.positional[posParamIdx].name'copy,
-                value=Str~Shared{addr=arg.addr, size=arg.size},
+                value=Str~Shared{addr=arg'memory.addr, size=arg'memory.size},
                 # dataIdx=schema.positional[posParamIdx].dataIdx,
             });
             nargsPositional[posParamIdx]++;

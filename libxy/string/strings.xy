@@ -7,9 +7,12 @@ func cstr~[StrCtor{prefix="c", interpolation=false}] (
     addr~[c.char];
 
 ;; A Unicode String
+;;
+;; The string in stored in UTF-8 wich means access to individual chars
+;; is only sequential and not random.
 *struct Str {
+-:
     addr: Ptr~Byte;
-
     size: pseudo = SizeField{};
 
     isOwn: pseudo = OwnField{};
@@ -47,12 +50,12 @@ func cstr~[StrCtor{prefix="c", interpolation=false}] (
 };
 
 
-struct OwnField {}
+-struct OwnField {}
 
 func get(str: Str, :OwnField) = ( str.packedSize && 1uz'toBits )'to(Usize)'to(Bool);
 
 
-struct SizeField {}
+-struct SizeField {}
 
 func get(str: Str, :SizeField) = str.packedSize'shiftr(1)'to(Usize);
 
@@ -216,6 +219,13 @@ func decode(s: Str, i: mut Usize) -> Char {
 
     return cp'to(Char);
 }
+
+;; Expose the underlying memory managed by Str
+;;
+;; The memory contains the string UTF-8 encoded. The momory's size is the size
+;; in bytes. The existance of a terminating null character can be determined by
+;; {isNullTerminated}. If present it is NOT counted in the memory size.
+*func memory(s: Str) = Memory{s.addr, s.size};
 
 
 ;; Split by (white)space characters

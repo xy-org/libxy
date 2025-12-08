@@ -46,10 +46,13 @@ import libxy.(slice, error, flag);
 
 
 ;; Append {str} to the buffer
-*func append(buf: mut Buf, str: Str, nullTerminate := false) {
-    buf'ensureCap(str.size + nullTerminate'to(%str.size));
-    buf.mem[buf.fill +: str.size] = str.addr;
-    buf.fill += str.size;
+*func append(buf: mut Buf, str: Str, nullTerminate := false) =
+    buf'append(str'memory, nullTerminate);
+
+*func append(buf: mut Buf, mem: Memory, nullTerminate := false) {
+    buf'ensureCap(mem.size + nullTerminate'to(Usize));
+    buf.mem[buf.fill +: mem.size] = mem.addr;
+    buf.fill += mem.size;
     if (nullTerminate) {
         buf.mem.addr[buf.fill] = 0;
         buf.fill++;

@@ -16,13 +16,13 @@ struct Process {
         ;; child process
         # TODO prealloc args'len + 2 elems in argv
         argv : List~Ptr~Byte;
-        argv'append(path.addr);
+        argv'append(path'memory.addr);
         for (arg in args) {
-            argv'append(arg.addr);
+            argv'append(arg'memory.addr);
         }
         argv'append(Ptr{});
 
-        err: Int = c.execvp(path.addr~[c.char], argv.mem.addr~Ptr~[c.char]);
+        err: Int = c.execvp(path'memory.addr~[c.char], argv.mem.addr~Ptr~[c.char]);
 
         ;; If this code is reached then exec failed
         error SystemError{c.errno};

@@ -8,7 +8,7 @@ import libxy.memory;
 }
 
 func checkContent(content: Str) {
-    (assert) content.size > 100;
+    (assert) content'memory.size > 100;
     (assert) content'startswith("import");
 }
 

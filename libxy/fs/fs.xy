@@ -61,7 +61,7 @@ import libxy.(string, binary, flag, error);
 ) -> File | SystemError
 >> isNullTerminated(path)
 {
-    fd : Int = c.open(path.addr~[c.char], flags.value, mode);
+    fd : Int = c.open(path'memory.addr~[c.char], flags.value, mode);
     if (fd < 0) {
         error SystemError{c.errno};
     }
@@ -104,13 +104,13 @@ inlinec"""
     do {
         # TODO use c.ssize_t
         written : c.ssize_t = c.write(
-            file.fd, str.addr + total, str.size - total
+            file.fd, str'memory.addr + total, str'memory.size - total
         );
         if (inlinec"{written} < 0") {
             error SystemError{c.errno};
         }
         inlinec"{total} += {written}";
-    } while (total < str.size);
+    } while (total < str'memory.size);
 }
 
 *func seek(file: File, offset: (Int, Size)) -> void | SystemError {
@@ -204,5 +204,5 @@ inlinec"""
 *func mkdir(path: Str, mode := 0755, parents := false) -> void | SystemError
 >> isNullTerminated(path)
 {
-    c.mkdir(path.addr~[c.char], mode);
+    c.mkdir(path'memory.addr~[c.char], mode);
 }

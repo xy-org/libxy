@@ -47,7 +47,7 @@ func parseUnknownToken(
     # TODO rename res -> isNumber
     number : Long;
     fpNumber : Double;
-    isNumber := for (ch in :token.size) -> (res: Bool = true) {
+    isNumber := for (ch in :token'memory.size) -> (res: Bool = true) {
         if (token[ch] < `0`'to(Byte) || token[ch] > `9`'to(Byte)) {
             res = false;
             break;
@@ -104,7 +104,7 @@ func parseAtom(src: Str, iter: mut YamlIter) -> Str {
     return src[start:iter.i]'copy;
 }
 
-func eof(src: Str, iter: YamlIter) iter.i >= src.size;
+func eof(src: Str, iter: YamlIter) iter.i >= src'memory.size;
 
 func skipEmptyLinesAndSpaces(src: Str, iter: mut YamlIter) {
     while ( src[iter] == `\n` || src[iter] == ` ` ) {
@@ -113,12 +113,12 @@ func skipEmptyLinesAndSpaces(src: Str, iter: mut YamlIter) {
 }
 
 func get(src: Str, iter: YamlIter) =
-    if (iter.i < src.size) src[iter.i]'to(Char)
+    if (iter.i < src'memory.size) src[iter.i]'to(Char)
     else `\0`;
 
 func append(fstr: mut Fstr, src: Str, iter: YamlIter) {
     snippetStart := iter.i;
-    snippetEnd := min(iter.i+10, src.size);
+    snippetEnd := min(iter.i+10, src'memory.size);
     fstr @= "(\"";
     fstr @= src[snippetStart:snippetEnd];
 

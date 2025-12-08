@@ -11,7 +11,7 @@ import libxy.string;
     0x4b33a62ed433d4a3ul'to(Bits64),
 };
 
-*func hash(s: Str, hash: RapidHash64) = hash(s.addr, s.size, hash);
+*func hash(s: Str, hash: RapidHash64) = hash(s'memory.addr, s'memory.size, hash);
 
 *func hash(data: Ptr, len: Usize, hash: RapidHash64)-> Bits64 {
     ;; See https://github.com/Nicoshev/rapidhash
