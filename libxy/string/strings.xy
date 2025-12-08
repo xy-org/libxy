@@ -227,6 +227,32 @@ func decode(s: Str, i: mut Usize) -> Char {
 ;; {isNullTerminated}. If present it is NOT counted in the memory size.
 *func memory(s: Str) = Memory{s.addr, s.size};
 
+-struct BytesField {}
+
+;; Expose a pointer to the memory manged by Str
+;;
+;; The momory is UTF-8 encoded. This method exist simply to provided better
+;; interface for access to individual bytes and slices based on byte offsets
+*func bytes(s: Str) -> s[ BytesField, ... ] {
+    return BytesField;
+}
+
+*func get(s: Str, :BytesField) = s.addr;
+
+*func get(
+    str: Str, :BytesField,
+    range: (RangeByte, RangeUbyte, RangeShort, RangeUshort, RangeInt, RangeUint, RangeLong, RangeUlong),
+) -> Str~Shared
+>> range.start >= 0
+>> range.start'to(Usize) < str.size && range.end'to(Usize) <= str.size
+{
+    if (range.start <= range.end) {
+        return Str~Shared{str.addr + range.start, range'len'to(Usize)};
+    } else {
+        return Str~Shared{Ptr, 0uz};
+    }
+}
+
 
 ;; Split by (white)space characters
 *func split~IterCtor(str: Str) -> str[ SplitIter ] {

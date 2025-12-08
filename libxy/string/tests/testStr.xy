@@ -1,4 +1,5 @@
 import xytest;
+import libxy.slice;
 
 *func charLen~Test() {
     (assert) ""'memory.size == 0;
@@ -44,6 +45,14 @@ import xytest;
     }
     charLen := i;
     (equal) charLen, 4;
+}
+
+*func slicing~Test() {
+    ;; U+0041 U+0042 U+304F
+    str := "ABく";
+    (equal) str'bytes[0:1], "A";
+    (equal) str'bytes[1:2], "B";
+    (equal) str'bytes[2+:3], "く";
 }
 
 *func iteratingWords~Test() {
