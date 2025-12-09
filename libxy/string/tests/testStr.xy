@@ -125,4 +125,5 @@ import libxy.slice;
     (equal) s'count("Not-Present"), 0;
 
     (equal) "aaaa" 'count("aa"), 2;
+    (equal) "aaaaa" 'count("aa"), 2;
 }
