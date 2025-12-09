@@ -55,6 +55,14 @@ import libxy.slice;
     (equal) str'bytes[2+:3], "く";
 }
 
+*func slicingOutOfBounds~Test() {
+    str := "ABく";
+    (equal) str'bytes[-10:20], str;
+    (equal) str'bytes[Int'min:Int'max], str;
+    (equal) str'bytes[0:Int'max], str;
+    (equal) str'bytes[Int'max:Int'min], "";
+}
+
 *func iteratingWords~Test() {
     testSplitIter("word1 word2\nword3", @{"word1", "word2", "word3"});
 }
