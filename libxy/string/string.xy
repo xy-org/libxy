@@ -1,6 +1,3 @@
-import libc~[Clib{headers=@{"string.h", "stdio.h", "inttypes.h"}}] in c;
-import libxy.(memory, error, slice, bitwise);
-
 func cstr~[StrCtor{prefix="c", interpolation=false}] (
     addr: Ptr, size: Usize
 )
@@ -15,20 +12,31 @@ func cstr~[StrCtor{prefix="c", interpolation=false}] (
     addr: Ptr~Byte;
     size: pseudo = SizeField{};
 
-    isOwn: pseudo = OwnField{};
+    isMananaged: pseudo = OwnField{};
 
     ;; The byte-length of the string as encoding in UTF-8
     ;; + a flag if the memory is owned or not
     packedSize: %Usize'toBits;
 }
 
-;; Tag strings that share memory with other strings
+;; Tag strings that share memory with other strings.
+;;
+;; Shared strings don't free the memory they use.
 *struct Shared~[xyTag := TagCtor{label="shared"}] {}
 
-*func dtor(str: String) {
-    if (str.isOwn) {
+;; Used internally to differentiate between shared and proper strings
+-struct NotShared~[xyTag := TagCtor{label="shared"}] {}
+
+*func dtor(str: String) = dtor(str, str..(shared, NotShared));
+
+func dtor(str: String, :NotShared) {
+    if (str.isMananaged) {
         c.free(str.addr);
     }
+}
+
+func dtor(str: String, :Shared) {
+    # noop. Ignore ownershipt information.
 }
 
 ;; Construct a string from memory buffer
@@ -44,7 +52,7 @@ func cstr~[StrCtor{prefix="c", interpolation=false}] (
 ;; static type safety.
 *func str~[StrCtor{prefix="", interpolation=false}] (
     addr: Ptr, size: Usize, takeOwnership := false,
-) String{
+) = String {
     addr=addr,
     packedSize=size'toBits'shiftl(1) || (Usize + takeOwnership)'toBits
 };
@@ -136,8 +144,6 @@ func get(s: String, i: Usize) -> Byte
     strncmpRes: Int = c.strncmp(str.addr~[c.char] + (str.size - suffix.size), suffix.addr~[c.char], suffix.size);
     return strncmpRes == 0;
 }
-
--struct NotShared~[xyTag := TagCtor{label="shared"}] {}
 
 *func ensureNullTerminated(str: String) ensureNullTerminated(str, str..(share, NotShared));
 func ensureNullTerminated(str: String, :NotShared) str;
@@ -231,8 +237,8 @@ func decode(s: String, i: mut Usize) -> Char {
 
 ;; Expose a pointer to the memory manged by String
 ;;
-;; The momory is UTF-8 encoded. This method exist simply to provided better
-;; interface for access to individual bytes and slices based on byte offsets
+;; This method exist simply to provided better interface for access to
+;; individual bytes and slices based on byte offsets
 *func bytes(s: String) -> s[ BytesField, ... ] {
     return BytesField;
 }

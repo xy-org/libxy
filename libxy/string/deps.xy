@@ -1,0 +1,6 @@
+import xy.ctti;
+
+import libxy.(memory, error, slice, bitwise);
+import libxy.bitwise;
+
+import libc~[Clib{headers=@{"string.h", "stdio.h", "inttypes.h"}}] in c;
