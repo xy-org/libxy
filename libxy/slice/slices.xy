@@ -4,51 +4,51 @@
 
 *func slice() = AllSlice{};
 
-;; Range is an half-open interval [start, end}. A step of 1 is implied
+;; Range is an half-open interval [begin, end}. A step of 1 is implied
 *struct RangeByte {
-    start: Byte;
+    begin: Byte;
     end: Byte;
 }
 
 ;; ...
 *struct RangeUbyte {
-    start: Ubyte;
+    begin: Ubyte;
     end: Ubyte;
 }
 
 ;; ...
 *struct RangeShort {
-    start: Short;
+    begin: Short;
     end: Short;
 }
 
 ;; ...
 *struct RangeUshort {
-    start: Ushort;
+    begin: Ushort;
     end: Ushort;
 }
 
 ;; ...
 *struct RangeInt {
-    start: Int;
+    begin: Int;
     end: Int;
 }
 
 ;; ...
 *struct RangeUint {
-    start: Uint;
+    begin: Uint;
     end: Uint;
 }
 
 ;; ...
 *struct RangeLong {
-    start: Long;
+    begin: Long;
     end: Long;
 }
 
 ;; ...
 *struct RangeUlong {
-    start: Ulong;
+    begin: Ulong;
     end: Ulong;
 }
 
@@ -56,19 +56,19 @@
 
 ;; Range is an half-open interval [start, end}.
 *struct RangeFloat {
-    start: Float;
+    begin: Float;
     end: Float;
 }
 
 ;; ...
 *struct RangeDouble {
-    start: Double;
+    begin: Double;
     end: Double;
 }
 
 ;; A slice represent the list of values in [{start}, {end}) separated by {step}
 *struct SliceInt {
-    start: Int;
+    begin: Int;
     end: Int;
     step: Int;
 }
@@ -77,18 +77,18 @@
 
 ;; Construct a slice
 *func slice(
-    start: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong)
-) = rangeType(start){start, (%start)'max};
+    begin: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong)
+) = rangeType(begin){begin, (%begin)'max};
 
 *func slice(
     end: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong),
-    start := 0'to(%end)
-) = rangeType(start){start, end};
+    begin := 0'to(%end)
+) = rangeType(begin){begin, end};
 
 *func slice(
     step: (Byte, Ubyte, Short, Ushort, Int, Uint, Long, Ulong),
-    end := (%step)'max, start := 0'to(%end)
-) = sliceType(start){start, end, step};
+    end := (%step)'max, begin := 0'to(%end)
+) = sliceType(begin){begin, end, step};
 
 -func rangeType(:Byte)   = RangeByte;
 -func rangeType(:Ubyte)  = RangeUbyte;
@@ -108,16 +108,21 @@
 -func sliceType(:Long)   = SliceLong;
 -func sliceType(:Ulong)  = SliceUlong;
 
+;; Return length of the {range}
+;; The returned value is always positive. If begin > end then a 0 is returned.
+;; This behavior helps avoid overflow errors. Also in expressions like
+;; for (i in a:b) you would expect the loop to not enter even once when a >= b
 *func len(
     range: (RangeUbyte, RangeUshort, RangeUint, RangeUlong)
 ) =
-    if (range.end > range.start) range.end - range.start
+    if (range.end > range.begin) range.end - range.begin
     else 0'to(%range.end);
 
+;; ...
 *func len(
     range: (RangeByte, RangeShort, RangeInt, RangeLong)
 ) =
-    if (range.end > range.start) range.end'unsign - range.start'unsign
+    if (range.end > range.begin) range.end'unsign - range.begin'unsign
     else 0'to(%range.end'unsign);
 
 -func unsign(a: Byte) a'to(Ubyte);
@@ -126,10 +131,10 @@
 -func unsign(a: Long) a'to(Ulong);
 
 ;; Construct a slice
-*func slice(start: Float) = RangeFloat{start, Float'inf};
-*func slice(end: Float, start := 0.0) = RangeFloat{start, end};
+*func slice(begin: Float) = RangeFloat{begin, Float'inf};
+*func slice(end: Float, begin := 0.0) = RangeFloat{begin, end};
 
-*func slice(start: Double) = RangeDouble{start, Double'inf};
-*func slice(end: Double, start := 0.0d) = RangeDouble{start, end};
+*func slice(begin: Double) = RangeDouble{begin, Double'inf};
+*func slice(end: Double, begin := 0.0d) = RangeDouble{begin, end};
 
-*func len(range: (RangeFloat, RangeDouble)) = range.end - range.start;
+*func len(range: (RangeFloat, RangeDouble)) = range.end - range.begin;

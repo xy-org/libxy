@@ -60,11 +60,11 @@ struct MemStatic {}
 
 *func set(mem: Memory, interval: (RangeUlong, RangeUint), ptr: Ptr)
 # >> (
-#     (ptr + interval'len) <= (mem + interval.start) |
+#     (ptr + interval'len) <= (mem + interval.begin) |
 #     (mem + interval.end) <= ptr
 # ) ;; assume no overlap
 {
-    c.memcpy(mem.addr + interval.start, ptr, interval'len);
+    c.memcpy(mem.addr + interval.begin, ptr, interval'len);
 }
 
 #*func set(mem: Memory, interval: RangeSize, ptr: Ptr) break "sdfsdf";

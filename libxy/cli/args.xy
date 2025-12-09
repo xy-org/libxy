@@ -88,7 +88,7 @@ func command(
 
     for (param in schema.named) {
         fstr @= " ";
-        if (param.nargs.start == 0) {
+        if (param.nargs.begin == 0) {
             fstr @= "[";
         }
         if (param.short != Char{}) {
@@ -99,17 +99,17 @@ func command(
         if (param.arg'any) {
             fstr @= { " <", param.arg, ">" };
         }
-        if (param.nargs.start == 0) {
+        if (param.nargs.begin == 0) {
             fstr @= "]";
         }
     }
     for (param in schema.positional) {
         fstr @= " ";
-        if (param.nargs.start == 0) {
+        if (param.nargs.begin == 0) {
             fstr @= "[";
         }
         fstr @= { "<", param.name, ">" };
-        if (param.nargs.start == 0) {
+        if (param.nargs.begin == 0) {
             fstr @= "]";
         }
     }
@@ -284,7 +284,7 @@ struct ParsingError {
 
     ;; Check for unsatisifed params
     for (i in :numPositional) {
-        if (nargsPositional[i] < schema.positional[i].nargs.start) {
+        if (nargsPositional[i] < schema.positional[i].nargs.begin) {
             error ParsingError{
                 f"Missing positional parameter '{schema.positional[i].name}'"
             };
@@ -292,7 +292,7 @@ struct ParsingError {
     }
 
     for (i in :numNamed) {
-        if (nargsNamed[i] < schema.named[i].nargs.start) {
+        if (nargsNamed[i] < schema.named[i].nargs.begin) {
             error ParsingError{
                 f"Missing parameter '{schema.named[i].name}'"
             };

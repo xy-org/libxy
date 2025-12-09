@@ -2,7 +2,7 @@ import xytest;
 import libxy.string;
 import ..;
 
-*func len~Test() {
+*func lenIntegerRanges~Test() {
     (equal) (0:0)'len, 0;
     (equal) (0:1)'len, 1;
     (equal) (0:-1)'len, 0;
@@ -13,4 +13,12 @@ import ..;
     (equal) ( Int'min:0 )'len, Int'min'to(Uint);
     (equal) ( Int'min:1 )'len, Int'min'to(Uint) + 1;
     (equal) ( Int'min:Int'max )'len, Uint'max;
+}
+
+*func lenFloatingRanges~Test() {
+    (equal) (.0:.0)'len, .0;
+    (equal) (.0:3.14)'len, 3.14;
+
+    ;; NOTE! Floating Pointe ranges can have negative length
+    (equal) (3.0:1.0)'len, -2.0;
 }

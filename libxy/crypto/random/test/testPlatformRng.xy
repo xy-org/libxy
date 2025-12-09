@@ -57,7 +57,7 @@ import ..;
 ) {
     for (i in :100) {
         fp := rng'random(range);
-        (assert) fp >= range.start;
+        (assert) fp >= range.begin;
         (assert) fp < range.end;
     }
 }
@@ -120,7 +120,7 @@ import ..;
     range := 100:110;
     for (i in :10) {
         rand := rng'random(range);
-        (assert) rand >= range.start;
+        (assert) rand >= range.begin;
         (assert) rand < range.end;
     }
 }

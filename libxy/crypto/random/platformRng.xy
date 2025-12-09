@@ -53,7 +53,7 @@ import libc~[Clib{headers=@{"stdlib.h", "math.h"}}] in c;
     precision := 24;; IEEE754 single has 24-bit precision
     rand := ( rng'random(Uint)'to(Bits32)'shiftr(32 - precision) )'to(Uint);
     norm : Float = c.ldexpf(range'len, -precision);
-    return range.start + rand'to(Float) * norm;
+    return range.begin + rand'to(Float) * norm;
 }
 
 *func random(rng: PlatformRng, :Double) = random(rng, 0.0d:1.0d);
@@ -62,7 +62,7 @@ import libc~[Clib{headers=@{"stdlib.h", "math.h"}}] in c;
     precision := 53;; IEEE754 double has 53-bit precision
     rand := ( rng'random(Ulong)'to(Bits64)'shiftr(64 - precision) )'to(Ulong);
     norm : Double = c.ldexp(range'len, -precision);
-    return range.start + rand'to(Double) * norm;
+    return range.begin + rand'to(Double) * norm;
 }
 
 ;; Generate a random integer uniformly distributed in {range}
@@ -72,7 +72,7 @@ import libc~[Clib{headers=@{"stdlib.h", "math.h"}}] in c;
     ;; Also inspired by freebsd-src/lib/libc/gen/arc4random_uniform.c
 
     upperBound := range'len;
-	if (upperBound <= 1) return range.start;
+	if (upperBound <= 1) return range.begin;
 
 	product : mut = upperBound'to(Ulong) * rng'random(Uint)'to(Ulong);
 	if (product'to(Uint) < upperBound) {
@@ -82,7 +82,7 @@ import libc~[Clib{headers=@{"stdlib.h", "math.h"}}] in c;
         }
 	}
 
-	return range.start + product'to(Bits64)'shiftr(32)'to(Bits32)'to(Int);
+	return range.begin + product'to(Bits64)'shiftr(32)'to(Bits32)'to(Int);
 }
 
 *func append(buf: mut Buf, rng: PlatformRng, size: Usize) -> void {

@@ -71,9 +71,9 @@ func set(str: String, :SizeField, new: Usize) =
 
 
 *func get(s: String, int: (RangeInt, RangeUint, RangeUlong)) -> String~Shared
->> int.start >= 0 && int.start <= int.end
+>> int.begin >= 0 && int.begin <= int.end
 {
-    start := min(int.start'to(Usize), s.size);
+    start := min(int.begin'to(Usize), s.size);
     end := min(int.end'to(Usize), s.size);
     return String{s.addr + start, end - start};
 }
@@ -198,8 +198,8 @@ func decode(s: String, i: mut Usize) -> Char {
     range: (RangeByte, RangeUbyte, RangeShort, RangeUshort, RangeInt, RangeUint, RangeLong, RangeUlong),
 ) -> String~Shared
 {
-    if (range.start <= range.end) {
-        begin := min(max(range.start, %range.start)'to(Usize), str.size);
+    if (range.begin <= range.end) {
+        begin := min(max(range.begin, %range.begin)'to(Usize), str.size);
         end := min(max(range.end, %range.end)'to(Usize), str.size);
         return String~Shared{str.addr + begin, (end - begin)'to(Usize)};
     } else {
