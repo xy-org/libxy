@@ -18,7 +18,50 @@
     return strncmpRes == 0;
 }
 
-# TODO count
+;; Count the number of unicode code points (chars) in the string
+;; Illegal byte sequences are counted as 1 code point
+*func count(s: String) -> Usize {
+    res : Usize;
+    i : Usize;
+    while (i < s.size) {
+        leadingOnes := s.addr[i]'bits'countLeadingOnes;
+        res++;
+        i++;
+        if (leadingOnes >= 2 && leadingOnes <= 4) {
+            contBytes := min((leadingOnes - 1)'to(Usize), s.size - i);
+            for (_ in 0:contBytes) {
+                contOnes := s.addr[i]'bits'countLeadingOnes;
+                if (contOnes != 1 && contOnes <= 4) {
+                    # premature end of current sequence. Break b/c
+                    # a new sequence is following
+                    break;
+                }
+                # else if {contOnes} == 1 then we have a valid seq
+                # if {contOnes} is > 4 then we have a broken byte and we want
+                # to skip it
+                i++;
+            }
+        }
+        ;; if {leadingOnes == 0} then ascii otherwise broken byte
+    }
+    return res;
+}
+
+;; Count the number of non-overlapping occurances of {pattern} in {text}
+;; If {pattern} is empty then the number of characters in {text} is returned.
+*func count(text: String, pattern: String) -> (res: Usize) {
+    if (pattern.size == 0) return text'count;
+
+    nextStart: Usize;
+    idx: mut = text'find(pattern);
+    while (idx >= 0) {
+        res++;
+        nextStart += idx'to(Usize) + pattern.size;
+        idx = find(text'bytes[nextStart:], pattern);
+    }
+}
+
+
 # TODO replace
 
 ;; === Splitting and Joining ===

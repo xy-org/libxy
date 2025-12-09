@@ -106,3 +106,15 @@ import libxy.slice;
     (assert) haystack'has("");
     (assert) ""'has("");
 }
+
+*func countingSubstrings~Test() {
+    s := "A unicode ♡String🍏, and another String";
+    (equal) s'count("String"), 2;
+    (equal) s'count("String🍏"), 1;
+    (equal) s'count("S"), 2;
+    (equal) s'count(""), 38;
+
+    (equal) s'count("Not-Present"), 0;
+
+    (equal) "aaaa" 'count("aa"), 2;
+}

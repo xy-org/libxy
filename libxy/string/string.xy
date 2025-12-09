@@ -70,35 +70,6 @@ func set(str: String, :SizeField, new: Usize) =
     str.packedSize = new'toBits'shiftl(1) || (str.packedSize && 1uz'toBits);
 
 
-;; Count the number of unicode code points (chars) in the string
-;; Illegal byte sequences are counted as 1 code point
-*func count(s: String) -> Usize {
-    res : Usize;
-    i : Usize;
-    while (i < s.size) {
-        leadingOnes := s.addr[i]'bits'countLeadingOnes;
-        res++;
-        i++;
-        if (leadingOnes >= 2 && leadingOnes <= 4) {
-            contBytes := min((leadingOnes - 1)'to(Usize), s.size - i);
-            for (_ in 0:contBytes) {
-                contOnes := s.addr[i]'bits'countLeadingOnes;
-                if (contOnes != 1 && contOnes <= 4) {
-                    # premature end of current sequence. Break b/c
-                    # a new sequence is following
-                    break;
-                }
-                # else if {contOnes} == 1 then we have a valid seq
-                # if {contOnes} is > 4 then we have a broken byte and we want
-                # to skip it
-                i++;
-            }
-        }
-        ;; if {leadingOnes == 0} then ascii otherwise broken byte
-    }
-    return res;
-}
-
 *func get(s: String, int: (RangeInt, RangeUint, RangeUlong)) -> String~Shared
 >> int.start >= 0 && int.start <= int.end
 {
@@ -226,11 +197,11 @@ func decode(s: String, i: mut Usize) -> Char {
     str: String, :BytesField,
     range: (RangeByte, RangeUbyte, RangeShort, RangeUshort, RangeInt, RangeUint, RangeLong, RangeUlong),
 ) -> String~Shared
->> range.start >= 0
->> range.start'to(Usize) < str.size && range.end'to(Usize) <= str.size
 {
     if (range.start <= range.end) {
-        return String~Shared{str.addr + range.start, range'len'to(Usize)};
+        begin := min(max(range.start, %range.start)'to(Usize), str.size);
+        end := min(max(range.end, %range.end)'to(Usize), str.size);
+        return String~Shared{str.addr + begin, (end - begin)'to(Usize)};
     } else {
         return String~Shared{Ptr, 0uz};
     }
