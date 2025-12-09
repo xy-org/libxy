@@ -1,7 +1,3 @@
-import libxy.(memory, string, bitwise);
-
-import posix~[Clib{}] in c;
-
 ;; Blob - a binary string. The intended purpose of this struct is to be used
 ;; as-is without modifying it.
 ;;
@@ -33,40 +29,6 @@ import posix~[Clib{}] in c;
         return -1;
     }
     return c.memcmp(lhs.addr~[c.char], rhs.addr~[c.char], lhs.size);
-}
-
-*func append(fstr: mut Fstring, blob: Blob~void, prefix:="\\x", sep:="") -> void | SystemError {
-    for (i in :blob.size) {
-        byte := [blob.addr + i];
-        fstr'append(prefix);
-        for (j in :2) {
-            nibble := byte'nibbles[1 - j];
-            if (nibble <= 9) {
-                fstr'append((`0`'to(Byte) + nibble)'to(Char));
-            } else {
-                fstr'append((`a`'to(Byte) + nibble - 10b)'to(Char));
-            }
-        }
-        if (sep'isEmpty'not && i < blob.size-1) {
-            fstr'append(sep);
-        }
-    }
-}
-
-*func append(fstr: mut Fstring, blob: Blob~void, ascii: Bool) -> void | SystemError {
-    if (!ascii) {
-        fstr'append(blob);
-    }
-
-    for (i in :blob.size) {
-        byte := [blob.addr + i];
-        printableAscii := byte >= 32b && byte <= 126b;
-        if (printableAscii) {
-            fstr'append(byte'to(Char));
-        } else {
-            fstr'append(`.`);
-        }
-    }
 }
 
 ;;

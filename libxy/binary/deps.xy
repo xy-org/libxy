@@ -1,0 +1,3 @@
+import libxy.(memory, bitwise, slice, error, flag);
+
+import posix~[Clib{}] in c;

@@ -53,16 +53,33 @@
     if (pattern.size == 0) return text'count;
 
     nextStart: Usize;
-    idx: mut = text'find(pattern);
+    idx: mut = text'blob'find(pattern'blob);
     while (idx >= 0) {
         res++;
         nextStart += idx'to(Usize) + pattern.size;
-        idx = find(text'bytes[nextStart:], pattern);
+        idx = text'bytes[nextStart:]'blob'find(pattern'blob);
     }
 }
 
+;; Replace the first {count} occurances of {old} in {text} with {new}
+;; If {count} is negative then an unmodified copy of {text} is returned
+*func replace(
+    text: String, old: String, new: String, count := Size'max,
+) -> String {
+    if (count <= 0) return text'copy;
 
-# TODO replace
+    #maxSubs := min(text'count(old), count'to(Usize));
+    #newMem: Memory;
+    #newMem'realloc(text.size - maxSubs * old.size + maxSubs * new.size + 1);
+#
+    #mem: mut = text.addr;
+    #size: mut = text.size;
+    #numSubs: %maxSubs;
+    #while (numSubs < maxSubs) {
+    #    numSubs++;
+    #    idx := find()
+    #}
+}
 
 ;; === Splitting and Joining ===
 # TODO split

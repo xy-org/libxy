@@ -1,6 +1,4 @@
 import xy.ctti;
-import libxy.(slice, error, flag);
-
 ;; Buf - a binary f-string i.e. a binary string that can be modified
 *struct Buf {
     mem: Memory;
@@ -43,11 +41,6 @@ import libxy.(slice, error, flag);
 *func append(buf: mut Buf, bits: Bits16) = buf'append(bits'to(Ushort));
 *func append(buf: mut Buf, bits: Bits32) = buf'append(bits'to(Uint));
 *func append(buf: mut Buf, bits: Bits64) = buf'append(bits'to(Ulong));
-
-
-;; Append {str} to the buffer
-*func append(buf: mut Buf, str: String, nullTerminate := false) =
-    buf'append(str'memory, nullTerminate);
 
 *func append(buf: mut Buf, mem: Memory, nullTerminate := false) {
     buf'ensureCap(mem.size + nullTerminate'to(Usize));
