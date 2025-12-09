@@ -48,11 +48,11 @@ func parseUnknownToken(
     number : Long;
     fpNumber : Double;
     isNumber := for (ch in :token'memory.size) -> (res: Bool = true) {
-        if (token[ch] < `0`'to(Byte) || token[ch] > `9`'to(Byte)) {
+        if (token'memory.addr[ch] < `0`'to(Byte) || token'memory.addr[ch] > `9`'to(Byte)) {
             res = false;
             break;
         }
-        number = number * 10 + (token[ch] - `0`'to(Byte))'to(Long);
+        number = number * 10 + (token'memory.addr[ch] - `0`'to(Byte))'to(Long);
     };
 
     if (isNumber) {
@@ -113,7 +113,7 @@ func skipEmptyLinesAndSpaces(src: String, iter: mut YamlIter) {
 }
 
 func get(src: String, iter: YamlIter) =
-    if (iter.i < src'memory.size) src[iter.i]'to(Char)
+    if (iter.i < src'memory.size) src'memory.addr[iter.i]'to(Char)
     else `\0`;
 
 func append(fstr: mut Fstring, src: String, iter: YamlIter) {

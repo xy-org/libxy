@@ -1,0 +1,50 @@
+;; === Searching and Replacing ===
+
+;; Retrun true if {str} starts with the prefix {prefix}
+*func startswith(str: String, prefix: String) -> Bool {
+    if (prefix.size > str.size) {
+        return false;
+    }
+    strncmpRes: Int = c.strncmp(str.addr~[c.char], prefix.addr~[c.char], prefix.size);
+    return strncmpRes == 0;
+}
+
+;; Retrun true if {str} ends with the suffix {suffix}
+*func endswith(str: String, suffix: String) -> Bool {
+    if (suffix.size > str.size) {
+        return false;
+    }
+    strncmpRes: Int = c.strncmp(str.addr~[c.char] + (str.size - suffix.size), suffix.addr~[c.char], suffix.size);
+    return strncmpRes == 0;
+}
+
+# TODO count
+# TODO replace
+
+;; === Splitting and Joining ===
+# TODO split
+# TODO splitlines
+# TODO join
+
+
+;; === String Classification ===
+# TODO str.isAlpha
+# TODO str.isDecimal
+# TODO str.isDigit
+# TODO str.isNumeric
+# TODO str.isAlnum
+# TODO str.isLower
+# TODO str.isUpper
+# TODO str.isTitle
+# TODO str.isSpace
+# TODO isPrintable(str and char)
+
+;; === Case Manipulation ===
+# TODO toLowerCase
+# TODO toUpperCase
+# TODO toTitleCase
+# TODO capitalize
+
+;; === Padding and Stripping ===
+
+#TODO strip(chars)

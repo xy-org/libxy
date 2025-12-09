@@ -1,7 +1,6 @@
 func cstr~[StrCtor{prefix="c", interpolation=false}] (
     addr: Ptr, size: Usize
-)
-    addr~[c.char];
+) = addr~[c.char];
 
 ;; A Unicode String
 ;;
@@ -71,25 +70,19 @@ func set(str: String, :SizeField, new: Usize) =
     str.packedSize = new'toBits'shiftl(1) || (str.packedSize && 1uz'toBits);
 
 
-func get(s: String, i: Usize) -> Byte
->> i < s.size
-{
-    return [(s.addr)~[to=Byte] + i];
-}
-
 ;; Count the number of unicode code points (chars) in the string
 ;; Illegal byte sequences are counted as 1 code point
 *func count(s: String) -> Usize {
     res : Usize;
     i : Usize;
     while (i < s.size) {
-        leadingOnes := s[i]'bits'countLeadingOnes;
+        leadingOnes := s.addr[i]'bits'countLeadingOnes;
         res++;
         i++;
         if (leadingOnes >= 2 && leadingOnes <= 4) {
             contBytes := min((leadingOnes - 1)'to(Usize), s.size - i);
             for (_ in 0:contBytes) {
-                contOnes := s[i]'bits'countLeadingOnes;
+                contOnes := s.addr[i]'bits'countLeadingOnes;
                 if (contOnes != 1 && contOnes <= 4) {
                     # premature end of current sequence. Break b/c
                     # a new sequence is following
@@ -127,22 +120,6 @@ func get(s: String, i: Usize) -> Byte
         return -1;
     }
     return c.strncmp(str1.addr~[c.char], str2.addr~[c.char], str1.size);
-}
-
-*func startswith(str: String, prefix: String) -> Bool {
-    if (prefix.size > str.size) {
-        return false;
-    }
-    strncmpRes: Int = c.strncmp(str.addr~[c.char], prefix.addr~[c.char], prefix.size);
-    return strncmpRes == 0;
-}
-
-*func endswith(str: String, suffix: String) -> Bool {
-    if (suffix.size > str.size) {
-        return false;
-    }
-    strncmpRes: Int = c.strncmp(str.addr~[c.char] + (str.size - suffix.size), suffix.addr~[c.char], suffix.size);
-    return strncmpRes == 0;
 }
 
 *func ensureNullTerminated(str: String) ensureNullTerminated(str, str..(share, NotShared));
@@ -189,7 +166,7 @@ func decode(s: String, i: mut Usize) -> Char {
     }
 
     cp : Int;
-    leadingByte := s[i];
+    leadingByte := s.addr[i];
     leadingOnes := leadingByte'bits'countLeadingOnes;
     i++;
 
@@ -197,9 +174,9 @@ func decode(s: String, i: mut Usize) -> Char {
         cp'bits = 0xFF'bits'shiftr(leadingOnes+1) && leadingByte'bits'to(Bits32);
         contBytes := min((leadingOnes - 1)'to(Usize), s.size - i);
         for (_ in 0:contBytes) {
-            contOnes := s[i]'bits'countLeadingOnes;
+            contOnes := s.addr[i]'bits'countLeadingOnes;
             if (contOnes == 1) {
-                cp'bits = cp'bits'shiftl(6) || (0x3Fub'bits && s[i]'bits)'to(Bits32);
+                cp'bits = cp'bits'shiftl(6) || (0x3Fub'bits && s.addr[i]'bits)'to(Bits32);
             } elif (contOnes != 1 && contOnes <= 4) {
                 # premature end of current sequence. Break b/c
                 # a new sequence is following
