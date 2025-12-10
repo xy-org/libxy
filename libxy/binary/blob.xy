@@ -31,6 +31,9 @@
     return c.memcmp(lhs.addr~[c.char], rhs.addr~[c.char], lhs.size);
 }
 
+;; Expose {Blob}'s underlying memory
+*func memory(blob: Blob~void) = Memory{blob.addr, blob.size};
+
 ;;
 ;; Unstr functionality
 ;;

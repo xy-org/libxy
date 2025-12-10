@@ -120,10 +120,22 @@ import libxy.slice;
     (equal) s'count("String"), 2;
     (equal) s'count("String🍏"), 1;
     (equal) s'count("S"), 2;
-    (equal) s'count(""), 38;
+    (equal) s'count(""), 39;
 
     (equal) s'count("Not-Present"), 0;
 
     (equal) "aaaa" 'count("aa"), 2;
     (equal) "aaaaa" 'count("aa"), 2;
+}
+
+*func replacing~Test() {
+    s : mut = "A unicode ♡String🍏, and another String";
+    (equal) s'replace("String", "Ping"), "A unicode ♡Ping🍏, and another Ping";
+    (equal) s'replace("🍏", "♡"), "A unicode ♡String♡, and another String";
+
+    s = "AB🍏";
+    (equal) s'replace("", "♡"), "♡A♡B♡🍏♡";
+
+    s = "";
+    (equal) s'replace("", "♡"), "♡";
 }

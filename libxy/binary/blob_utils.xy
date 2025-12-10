@@ -3,9 +3,20 @@
 
 ;; Search for {needle} in {haystack}.
 *func find(haystack: Blob~void, needle: Blob~void, reverse := false) =
-    if (reverse'not) ffind(haystack, needle) else rfind(haystack, needle);
+    if (reverse'not) ffind(haystack'memory, needle'memory)
+    else rfind(haystack'memory, needle'memory);
 
--func ffind(haystack: Blob~void, needle: Blob~void) -> Size {
+
+;; Return true if {needle} is found in {haystack}
+*func has(haystack: Memory, needle: Memory) = haystack'find(needle) >= 0z;
+
+;; Search for {needle} in {haystack}.
+*func find(haystack: Memory, needle: Memory, reverse := false) =
+    if (reverse'not) ffind(haystack, needle)
+    else rfind(haystack, needle);
+
+
+-func ffind(haystack: Memory, needle: Memory) -> Size {
     if (needle.size == 0) return 0z;; memmem is inconsistent if needle is empty
 
     location: Ptr~Byte = c.memmem(
@@ -20,12 +31,12 @@
     }
 }
 
--func rfind(haystack: Blob~void, needle: Blob~void) -> Size {
+-func rfind(haystack: Memory, needle: Memory) -> Size {
     if (needle.size == 0) return 0z;
 
     res: mut = -1z;
 
-    text: mut = Blob{haystack.addr, haystack.size};
+    text: mut = Memory{haystack.addr, haystack.size};
     offset: Usize;
     while (true) {
         loc := find(text, needle);

@@ -48,9 +48,12 @@
 }
 
 ;; Count the number of non-overlapping occurances of {pattern} in {text}
-;; If {pattern} is empty then the number of characters in {text} is returned.
+;;
+;; If {pattern} is empty then the number of chars in {text} + 1 is returned.
+;; The idea being that an empty string can be found between any two chars
+;; and between the beginning/end and first/last char
 *func count(text: String, pattern: String) -> (res: Usize) {
-    if (pattern.size == 0) return text'count;
+    if (pattern.size == 0) return text'count + 1;
 
     nextStart: Usize;
     idx: mut = text'blob'find(pattern'blob);
@@ -68,17 +71,44 @@
 ) -> String {
     if (count <= 0) return text'copy;
 
-    #maxSubs := min(text'count(old), count'to(Usize));
-    #newMem: Memory;
-    #newMem'realloc(text.size - maxSubs * old.size + maxSubs * new.size + 1);
-#
-    #mem: mut = text.addr;
-    #size: mut = text.size;
-    #numSubs: %maxSubs;
-    #while (numSubs < maxSubs) {
-    #    numSubs++;
-    #    idx := find()
-    #}
+    numSubs := min(text'count(old), count'to(Usize));
+    res: Fstring;
+    res'ensureCap(text.size - numSubs * old.size + numSubs * new.size + 1);
+
+    ;; old being empty is a degenerate case and we handle it differently
+    if (old'isEmpty) {
+        replaceEmpty(text, new, numSubs, res);
+        return res'to(String);
+    }
+
+    textPos: Usize;
+    for (i in :numSubs) {
+        idx := text'bytes[textPos:]'memory'find(old'memory);
+        if (idx >= 0) {
+            newPos := textPos + idx'to(%textPos);
+            res'append(text'bytes[textPos:newPos]);
+            res'append(new);
+            textPos = newPos + max(old.size, 1uz);
+        }
+    }
+    res'append(text'bytes[textPos:]);
+
+    return res'to(String);
+}
+
+;; Handle the degenerate case of replacing an empty string
+-func replaceEmpty(text: String, new: String, numSubs: Usize, res: Fstring) {
+    i: %numSubs;
+    for (char in text'chars) {
+        if (i < numSubs) {
+            res'append(new);
+            i++;
+        }
+        res'append(char);
+    }
+    if (i < numSubs) {
+        res'append(new);
+    }
 }
 
 ;; === Splitting and Joining ===
