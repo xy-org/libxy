@@ -4,4 +4,6 @@ import libxy.(memory, error, slice, bitwise);
 
 import libxy.binary;; Used for searching in memory
 
+import libxy.list;; Used for splitting and joining
+
 import libc~[Clib{headers=@{"string.h", "stdio.h", "inttypes.h"}}] in c;

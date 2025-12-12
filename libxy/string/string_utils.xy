@@ -83,7 +83,45 @@
 *func count(text: String, pattern: String) = count(text'str, pattern'str);
 
 ;; === Splitting and Joining ===
-# TODO split
+
+;; Split {text} into words using {sep} as the delimiter string
+;;
+;; if {ignoreEmpty} is true then repeating {sep}s are group together and
+;; threated as a single sepratator i.e. there are not empty strings in the result
+*func split(
+    text: String, sep := " ", maxsplit := Usize'max, ignoreEmpty := false
+) -> List~String {
+    res: List~String;
+
+    ;; check for the degenerate case of {sep} being empty
+    if (sep'isEmpty) {
+        if (!ignoreEmpty) res'append(String);
+        for (char in text'chars) {
+            res @= f"{char}";
+        }
+        if (!ignoreEmpty && text'isEmpty'not) res'append(String);
+        return res;
+    }
+
+    iter: mut = text'str;
+    for (i in :maxsplit) {
+        idx := iter'find(sep'str);
+        if (idx >= 0) {
+            if (idx > 0 || ignoreEmpty'not) {
+                res @= iter[:idx]'to(String);
+            }
+        } else {
+            break;
+        }
+        iter.addr += idx'to(Usize) + sep.size;
+        iter.size -= idx'to(Usize) + sep.size;
+    }
+    if (iter.size > 0 || ignoreEmpty'not) {
+        res @= iter'to(String);
+    }
+    return res;
+}
+
 # TODO splitlines
 # TODO join
 

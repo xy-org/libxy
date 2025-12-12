@@ -1,5 +1,6 @@
 import xytest;
 import libxy.slice;
+import libxy.list;; For split/join tests
 
 *func charLen~Test() {
     (assert) ""'memory.size == 0;
@@ -63,39 +64,45 @@ import libxy.slice;
     (equal) str'str[Int'max:Int'min], ""'str;
 }
 
-*func iteratingWords~Test() {
-    testSplitIter("word1 word2\nword3", @{"word1", "word2", "word3"});
-}
-
 *func splitting~Test() {
-    i : Size;
-    for (word in ""'split) {
-        i++;
-    }
-    (equal) i, 0z;
+    (equal) "word1 word2 word3"'split, @{"word1", "word2", "word3"};
 
-    for (word in "   "'split) {
-        i++;
-    }
-    (equal) i, 0z;
+    (equal) "1,2,3"'split(","), @{"1", "2", "3"};
+    (equal) "1,2,,3"'split(","), @{"1", "2", "", "3"};
+    (equal) "1,2,,3"'split(",", .ignoreEmpty), @{"1", "2", "3"};
+    (equal) "1,2,,"'split(","), @{"1", "2", "", ""};
+    (equal) ",1,2,"'split(","), @{"", "1", "2", ""};
+    (equal) ",1,2,"'split(",", .ignoreEmpty), @{"1", "2"};
 
-    for (word in "\{\n}?"'split) {
-        i++;
-    }
-    (equal) i, 2z;
+    (equal) ""'split'len, 1z;
+    (equal) ""'split(.ignoreEmpty)'len, 0z;
+
+    (equal) ",,,"'split(",")'len, 4z;
+    (equal) ",,,"'split(",", .ignoreEmpty)'len, 0z;
+
+    (equal) "\{ }?"'split'len, 2z;
+    (equal) "\{ }?"'split(.ignoreEmpty)'len, 2z;
+
+    (equal) "1,2,3"'split(""), @{"", "1", ",", "2", ",", "3", ""};
+    (equal) "1,2,3"'split("", .ignoreEmpty), @{"1", ",", "2", ",", "3"};
+
+    (equal) ""'split(""), @{""};
+    (equal) ""'split("", .ignoreEmpty)'len, 0;
+
+    (equal) "🍏♡🍏♡🍏"'split("♡"), @{"🍏", "🍏", "🍏"};
 }
 
--func testSplitIter(
-    str: String, exp: pseudo @String[],
+-func equal(
+    actual: List~String, exp: pseudo @String[],
     expAddr : Ptr~String = exp'addrof, expLen : Usize = exp'len
 ) -> void {
+    (equal) actual'len, expLen;
+
     i : Size;
-    for (word in str'split) {
+    for (word in actual) {
         (equal) [expAddr + i], word;
         i++;
     }
-    wordLen := i;
-    (equal) wordLen, expLen;
 }
 
 *func checkingForSubstring~Test() {

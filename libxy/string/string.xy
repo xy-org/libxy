@@ -31,6 +31,20 @@ func cstring~[StrCtor{prefix="c", interpolation=false}] (
     }
 }
 
+;; Search for {needle} in {haystack} return byte offset
+*func find(haystack: Str, needle: Str, reverse := false) =
+    haystack'memory'find(needle'memory, reverse);
+
+;; Allocate a new {String} object and fill it with the data from {str}
+*func to(str: Str, :String) -> (res: String) {
+    if (str.size > 0) {
+        mem := malloc(str.size + 1);
+        mem[:str.size] = str.addr;
+        mem.addr[str.size] = 0;
+        return string(mem.addr, mem.size - 1, true);
+    }
+}
+
 
 ;; A managed String
 ;;
@@ -208,49 +222,6 @@ func decode(s: String, i: mut Usize) -> Char {
 *func blob(s: don String) -> (res: Blob~MemManaged) {
     res = Blob~MemManaged{s.addr, s.size};
     s =< void;
-}
-
-
-;; Split by (white)space characters
-*func split~IterCtor(str: String) -> str[ SplitIter ] {
-    si: mut = SplitIter{.valid};
-    next(str, si);
-    return si;
-}
-
-*func valid(str: String, iter: SplitIter) = iter.valid;
-
-*func get(str: String, iter: SplitIter) = iter.word;
-
-*func next(str: String, iter: mut SplitIter) {
-    istart := do -> (istart: Usize) {
-        istart = iter.ichar.i;
-        next(str, iter.ichar);
-        if (!valid(str, iter.ichar)) {
-            !.iter.valid;
-            return;
-        }
-    } while (str[iter.ichar]'space);
-
-    iend := do -> (iend: Usize) {
-        iend = iter.ichar.i;
-        next(str, iter.ichar);
-        if (!valid(str, iter.ichar)) {
-            break;
-        }
-    } while (!str[iter.ichar]'space);
-
-    iter.word = String~Shared{str.addr + istart, iend - istart};
-}
-
-struct SplitIter {
-    ichar: CharIter;
-    word: String~Shared;
-    valid: Bool;
-}
-
-*func space(ch: Char) -> Bool {
-    return ch == `\n` || ch == ` `;
 }
 
 ;; Return true if {pattern} is found in {text}
