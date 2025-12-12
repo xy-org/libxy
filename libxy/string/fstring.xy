@@ -30,6 +30,10 @@ func ensureCap(builder: mut Fstring, requiredCap: Usize) {
     builder.fill += size;
 }
 
+*func append(builder: Fstring, str: Str) {
+    builder'append(str.addr, str.size);
+}
+
 *func append(
     builder: mut Fstring, str: String,
     width := Int'max, minWidth := width, maxWidth := width,
@@ -300,7 +304,56 @@ func unsigned(a: Bits64) a'to(Ulong);
     builder'ensureCap(1uz);
     ;; not really needed but better safe than sorry
     [builder.mem.addr~[c.char] + builder.fill] = 0;
-    res := str(builder.mem.addr, builder.fill, true);
+    res := string(builder.mem.addr, builder.fill, true);
     builder.mem =< Memory{};
     return res;
+}
+
+;; Replace the first {count} occurances of {old} in {text} with {new}
+;; If {count} is negative then {text} is simply appended to {fstring}
+*func append(
+    res: Fstring, text: String, replace: String, by: String, count := Size'max,
+) {
+    if (count <= 0) {
+        res'append(text);
+        return;
+    }
+
+    numSubs := min(text'count(replace), count'to(Usize));
+    res'ensureCap(text.size - numSubs * replace.size + numSubs * by.size + 1);
+
+    ;; replace being empty is a degenerate case and we handle it differently
+    if (replace'isEmpty) {
+        replaceEmpty(text, by, numSubs, res);
+        return;
+    }
+
+    textPos: Usize;
+    for (i in :numSubs) {
+        idx := text'str[textPos:]'memory'find(replace'memory);
+        if (idx >= 0) {
+            newPos := textPos + idx'to(%textPos);
+            res'append(text'str[textPos:newPos]);
+            res'append(by);
+            textPos = newPos + max(replace.size, 1uz);
+        }
+    }
+    res'append(text'str[textPos:]);
+}
+
+;; Handle the degenerate case of replacing an empty string
+-func replaceEmpty(
+    text: String, new: String, numSubs: Usize, res: Fstring
+) {
+    i: %numSubs;
+    for (char in text'chars) {
+        if (i < numSubs) {
+            res'append(new);
+            i++;
+        }
+        res'append(char);
+    }
+    if (i < numSubs) {
+        res'append(new);
+    }
 }

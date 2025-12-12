@@ -196,7 +196,7 @@ struct ParsingError {
 
     for (i in 1:rawArgs.argc) {
         tmp : Ptr = rawArgs.argv[i];
-        arg := str(tmp, Usize{c.strlen(rawArgs.argv[i])}, false);
+        arg := string(tmp, Usize{c.strlen(rawArgs.argv[i])}, false);
 
         if (!greedyPosParam && arg'startswith("--")) {
             ;; long form

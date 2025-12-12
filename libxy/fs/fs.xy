@@ -59,7 +59,6 @@ import libxy.(string, binary, flag, error);
 *func open(
     path: String, flags: OpenFlags, mode := 0644
 ) -> File | SystemError
->> isNullTerminated(path)
 {
     fd : Int = c.open(path'memory.addr~[c.char], flags.value, mode);
     if (fd < 0) {
@@ -202,7 +201,6 @@ inlinec"""
 }
 
 *func mkdir(path: String, mode := 0755, parents := false) -> void | SystemError
->> isNullTerminated(path)
 {
     c.mkdir(path'memory.addr~[c.char], mode);
 }

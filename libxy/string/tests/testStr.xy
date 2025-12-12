@@ -50,17 +50,17 @@ import libxy.slice;
 *func slicing~Test() {
     ;; U+0041 U+0042 U+304F
     str := "ABく";
-    (equal) str'bytes[0:1], "A";
-    (equal) str'bytes[1:2], "B";
-    (equal) str'bytes[2+:3], "く";
+    (equal) str'str[0:1], "A"'str;
+    (equal) str'str[1:2], "B"'str;
+    (equal) str'str[2+:3], "く"'str;
 }
 
 *func slicingOutOfBounds~Test() {
     str := "ABく";
-    (equal) str'bytes[-10:20], str;
-    (equal) str'bytes[Int'min:Int'max], str;
-    (equal) str'bytes[0:Int'max], str;
-    (equal) str'bytes[Int'max:Int'min], "";
+    (equal) str'str[-10:20], str'str;
+    (equal) str'str[Int'min:Int'max], str'str;
+    (equal) str'str[0:Int'max], str'str;
+    (equal) str'str[Int'max:Int'min], ""'str;
 }
 
 *func iteratingWords~Test() {
@@ -126,16 +126,4 @@ import libxy.slice;
 
     (equal) "aaaa" 'count("aa"), 2;
     (equal) "aaaaa" 'count("aa"), 2;
-}
-
-*func replacing~Test() {
-    s : mut = "A unicode ♡String🍏, and another String";
-    (equal) s'replace("String", "Ping"), "A unicode ♡Ping🍏, and another Ping";
-    (equal) s'replace("🍏", "♡"), "A unicode ♡String♡, and another String";
-
-    s = "AB🍏";
-    (equal) s'replace("", "♡"), "♡A♡B♡🍏♡";
-
-    s = "";
-    (equal) s'replace("", "♡"), "♡";
 }

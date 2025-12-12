@@ -62,7 +62,6 @@ struct Listing {
 *func ls~IterCtor(
     path: String, flags: LsFlags,
 ) -> [ Listing ] | SystemError
->> isNullTerminated(path)
 {
     dirfd : Int = c.open(path'memory.addr~[c.char], inlinec"O_RDONLY | O_DIRECTORY");
     pDir :  mut Ptr~[c.DIR] = c.fdopendir(dirfd);

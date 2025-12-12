@@ -1,26 +1,37 @@
 ;; === Searching and Replacing ===
 
-;; Retrun true if {str} starts with the prefix {prefix}
-*func startswith(str: String, prefix: String) -> Bool {
-    if (prefix.size > str.size) {
+;; Retrun true if {text} starts with the prefix {prefix}
+*func startswith(text: Str, prefix: Str) -> Bool {
+    if (prefix.size > text.size) {
         return false;
     }
-    strncmpRes: Int = c.strncmp(str.addr~[c.char], prefix.addr~[c.char], prefix.size);
+    strncmpRes: Int = c.strncmp(text.addr~[c.char], prefix.addr~[c.char], prefix.size);
     return strncmpRes == 0;
 }
 
-;; Retrun true if {str} ends with the suffix {suffix}
-*func endswith(str: String, suffix: String) -> Bool {
-    if (suffix.size > str.size) {
+;; ...
+*func startswith(text: String, prefix: String) =
+    startswith(text'str, prefix'str);
+
+
+;; Retrun true if {text} ends with the suffix {suffix}
+*func endswith(text: Str, suffix: Str) -> Bool {
+    if (suffix.size > text.size) {
         return false;
     }
-    strncmpRes: Int = c.strncmp(str.addr~[c.char] + (str.size - suffix.size), suffix.addr~[c.char], suffix.size);
+    strncmpRes: Int = c.strncmp(
+        text.addr~[c.char] + (text.size - suffix.size),
+        suffix.addr~[c.char], suffix.size
+    );
     return strncmpRes == 0;
 }
+
+;; ...
+*func endswith(str: String, suffix: String) = endswith(str'str, suffix'str);
 
 ;; Count the number of unicode code points (chars) in the string
 ;; Illegal byte sequences are counted as 1 code point
-*func count(s: String) -> Usize {
+*func count(s: Str) -> Usize {
     res : Usize;
     i : Usize;
     while (i < s.size) {
@@ -47,69 +58,29 @@
     return res;
 }
 
+;; ...
+*func count(s: String) = s'str'count;
+
+
 ;; Count the number of non-overlapping occurances of {pattern} in {text}
 ;;
 ;; If {pattern} is empty then the number of chars in {text} + 1 is returned.
 ;; The idea being that an empty string can be found between any two chars
 ;; and between the beginning/end and first/last char
-*func count(text: String, pattern: String) -> (res: Usize) {
+*func count(text: Str, pattern: Str) -> (res: Usize) {
     if (pattern.size == 0) return text'count + 1;
 
     nextStart: Usize;
-    idx: mut = text'blob'find(pattern'blob);
+    idx: mut = text'memory'find(pattern'memory);
     while (idx >= 0) {
         res++;
         nextStart += idx'to(Usize) + pattern.size;
-        idx = text'bytes[nextStart:]'blob'find(pattern'blob);
+        idx = text[nextStart:]'memory'find(pattern'memory);
     }
 }
 
-;; Replace the first {count} occurances of {old} in {text} with {new}
-;; If {count} is negative then an unmodified copy of {text} is returned
-*func replace(
-    text: String, old: String, new: String, count := Size'max,
-) -> String {
-    if (count <= 0) return text'copy;
-
-    numSubs := min(text'count(old), count'to(Usize));
-    res: Fstring;
-    res'ensureCap(text.size - numSubs * old.size + numSubs * new.size + 1);
-
-    ;; old being empty is a degenerate case and we handle it differently
-    if (old'isEmpty) {
-        replaceEmpty(text, new, numSubs, res);
-        return res'to(String);
-    }
-
-    textPos: Usize;
-    for (i in :numSubs) {
-        idx := text'bytes[textPos:]'memory'find(old'memory);
-        if (idx >= 0) {
-            newPos := textPos + idx'to(%textPos);
-            res'append(text'bytes[textPos:newPos]);
-            res'append(new);
-            textPos = newPos + max(old.size, 1uz);
-        }
-    }
-    res'append(text'bytes[textPos:]);
-
-    return res'to(String);
-}
-
-;; Handle the degenerate case of replacing an empty string
--func replaceEmpty(text: String, new: String, numSubs: Usize, res: Fstring) {
-    i: %numSubs;
-    for (char in text'chars) {
-        if (i < numSubs) {
-            res'append(new);
-            i++;
-        }
-        res'append(char);
-    }
-    if (i < numSubs) {
-        res'append(new);
-    }
-}
+;; ...
+*func count(text: String, pattern: String) = count(text'str, pattern'str);
 
 ;; === Splitting and Joining ===
 # TODO split

@@ -1,11 +1,41 @@
-func cstr~[StrCtor{prefix="c", interpolation=false}] (
+func cstring~[StrCtor{prefix="c", interpolation=false}] (
     addr: Ptr, size: Usize
 ) = addr~[c.char];
 
-;; A Unicode String
+
+;; A pointer to a unicode (UTF-8) encoded string
 ;;
-;; The string in stored in UTF-8 wich means access to individual chars
-;; is only sequential and not random.
+;; The memory is not owned and will not be freed.
+;; No guarantee of a terminating null character.
+;;
+;; Generally speaking {String} is what you are looking for unless you want
+;; to do your own memory management
+*struct Str {
+    addr: Ptr~Byte;
+    size: Usize;
+}
+
+;; Get a slice of {str}. The result shares memory with the original string.
+;; Slicing is byte based.
+*func get(
+    str: Str,
+    range: (RangeByte, RangeUbyte, RangeShort, RangeUshort, RangeInt, RangeUint, RangeLong, RangeUlong),
+) -> Str
+{
+    if (range.begin <= range.end) {
+        begin := min(max(range.begin, %range.begin)'to(Usize), str.size);
+        end := min(max(range.end, %range.end)'to(Usize), str.size);
+        return Str{str.addr + begin, (end - begin)'to(Usize)};
+    } else {
+        return Str{Ptr, 0uz};
+    }
+}
+
+
+;; A managed String
+;;
+;; String is a Str, but it's owned and managed by the struct, also there is a
+;; terminating null character.
 *struct String {
 -:
     addr: Ptr~Byte;
@@ -23,19 +53,10 @@ func cstr~[StrCtor{prefix="c", interpolation=false}] (
 ;; Shared strings don't free the memory they use.
 *struct Shared~[xyTag := TagCtor{label="shared"}] {}
 
-;; Used internally to differentiate between shared and proper strings
--struct NotShared~[xyTag := TagCtor{label="shared"}] {}
-
-*func dtor(str: String) = dtor(str, str..(shared, NotShared));
-
-func dtor(str: String, :NotShared) {
-    if (str.isMananaged) {
-        c.free(str.addr);
+*func dtor(string: String) {
+    if (string.isMananaged) {
+        c.free(string.addr);
     }
-}
-
-func dtor(str: String, :Shared) {
-    # noop. Ignore ownershipt information.
 }
 
 ;; Construct a string from memory buffer
@@ -49,7 +70,7 @@ func dtor(str: String, :Shared) {
 ;; Two string sharing memory is possible and requires extra caution.
 ;; Consider labelling such strings {Shared} in order to add a layer of
 ;; static type safety.
-*func str~[StrCtor{prefix="", interpolation=false}] (
+*func string~[StrCtor{prefix="", interpolation=false}] (
     addr: Ptr, size: Usize, takeOwnership := false,
 ) = String {
     addr=addr,
@@ -84,7 +105,9 @@ func set(str: String, :SizeField, new: Usize) =
 ;; Retrun true if string is not empty
 *func any(s: String) s.size != 0;
 
-*func cmp(str1: String, str2: String) -> Int {
+*func cmp(str1: String, str2: String) = cmp(str1'str, str2'str);
+
+*func cmp(str1: Str, str2: Str) -> Int {
     if (str1.size > str2.size) {
         return 1;
     } elif (str1.size < str2.size) {
@@ -93,20 +116,12 @@ func set(str: String, :SizeField, new: Usize) =
     return c.strncmp(str1.addr~[c.char], str2.addr~[c.char], str1.size);
 }
 
-*func ensureNullTerminated(str: String) ensureNullTerminated(str, str..(share, NotShared));
-func ensureNullTerminated(str: String, :NotShared) str;
-func ensureNullTerminated(str: String, :Shared) str'copy();
-
-*func isNullTerminated(str: String) isNullTerminated(str, str..(shared, NotShared));
-func isNullTerminated(str: String, :NotShared) true;
-func isNullTerminated(str: String, :Shared) false;
-
 *func copy(str: String) -> String {
     newmem : Memory;
     newmem'realloc(str.size + 1);
     c.memcpy(newmem.addr, str.addr, str.size);
     [newmem.addr + str.size] = 0;; add terminating \0
-    return str(newmem.addr, str.size, true);
+    return string(newmem.addr, str.size, true);
 }
 
 struct CharIter {
@@ -174,42 +189,25 @@ func decode(s: String, i: mut Usize) -> Char {
     return cp'to(Char);
 }
 
+;; Convert {String} to {Str}
+;; The returned value shared memory with {s}
+*func str(s: String) = Str{s.addr, s.size};
+
 ;; Expose the underlying memory managed by String
 ;;
 ;; The memory contains the string UTF-8 encoded. The momory's size is the size
-;; in bytes. The existance of a terminating null character can be determined by
-;; {isNullTerminated}. If present it is NOT counted in the memory size.
+;; in bytes. The terminating null character is not counted in the size.
 *func memory(s: String) = Memory{s.addr, s.size};
 
-;; Expose the underlying memory managed by String as a shared Blob
+;; ...
+*func memory(s: Str) = Memory{s.addr, s.size};
+
+;; Convert the string to a Blob
 ;;
-;; See {memory} for specifics
-*func blob(s: String) = Blob~MemExt{s.addr, s.size};
-
--struct BytesField {}
-
-;; Expose a pointer to the memory manged by String
-;;
-;; This method exist simply to provided better interface for access to
-;; individual bytes and slices based on byte offsets
-*func bytes(s: String) -> s[ BytesField, ... ] {
-    return BytesField;
-}
-
-*func get(s: String, :BytesField) = s.addr;
-
-*func get(
-    str: String, :BytesField,
-    range: (RangeByte, RangeUbyte, RangeShort, RangeUshort, RangeInt, RangeUint, RangeLong, RangeUlong),
-) -> String~Shared
-{
-    if (range.begin <= range.end) {
-        begin := min(max(range.begin, %range.begin)'to(Usize), str.size);
-        end := min(max(range.end, %range.end)'to(Usize), str.size);
-        return String~Shared{str.addr + begin, (end - begin)'to(Usize)};
-    } else {
-        return String~Shared{Ptr, 0uz};
-    }
+;; The terminating null character is counted in the resulting blob size.
+*func blob(s: don String) -> (res: Blob~MemManaged) {
+    res = Blob~MemManaged{s.addr, s.size};
+    s =< void;
 }
 
 
@@ -256,7 +254,7 @@ struct SplitIter {
 }
 
 ;; Return true if {pattern} is found in {text}
-*func has(text: String, pattern: String) = text'blob'find(pattern'blob) >= 0z;
+*func has(text: String, pattern: String) = text'memory'find(pattern'memory) >= 0z;
 
 ;; === Encoding into a Blog ===
 

@@ -117,3 +117,15 @@ import ..;
     (equal) f"{`😊`, repeat=7u}", "😊😊😊😊😊😊😊";
     (equal) f"{`!`, repeat=0u}", "";
 }
+
+*func replacing~Test() {
+    s : mut = "A unicode ♡String🍏, and another String";
+    (equal) f"{s, replace="String", by="Ping"}", "A unicode ♡Ping🍏, and another Ping";
+    (equal) f"{s, replace="🍏", by="♡"}", "A unicode ♡String♡, and another String";
+
+    s = "AB🍏";
+    (equal) f"{s, replace="", by="♡"}", "♡A♡B♡🍏♡";
+
+    s = "";
+    (equal) f"{s, replace="", by="♡"}", "♡";
+}

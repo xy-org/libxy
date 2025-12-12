@@ -9,7 +9,6 @@ struct Process {
     path: String, ;; Path to an executable
     args: List~String, ;; Arguments to pass to the executable
 ) -> Process | SystemError
->> isNullTerminated(args..elemType)
 {
     childPid : Int = c.fork();
     if (childPid == 0) {
