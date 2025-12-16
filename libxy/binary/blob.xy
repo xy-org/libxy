@@ -7,8 +7,8 @@
 ;;
 ;; When tagged with {MemStatic}, the memory needs no deallocation
 *struct Blob~[memory := MemManaged] {
-    addr: Ptr~Byte;
-    size: Usize;
+    addr: Ptr~Byte,
+    size: Usize,
 }
 
 *func bstr~[StrCtor{prefix="b"}](addr: Ptr~Byte, size: Usize) =
@@ -39,8 +39,8 @@
 ;;
 
 struct UnstrIter {
-    offset: Usize;
-    endian: Endian;
+    offset: Usize,
+    endian: Endian,
 }
 
 *func read(

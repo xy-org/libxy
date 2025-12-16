@@ -3,16 +3,16 @@ import xy.ctti;
 import libxy.memory;
 
 *struct Table~[elemType: Any] {
-    mem: Memory;
-    cap: Usize;
-    len: Usize;
+    mem: Memory,
+    cap: Usize,
+    len: Usize,
 }
 
 *func len(t: Table) = t.len;
 
 struct FieldDesc {
-    size: Usize;
-    offset: Usize;
+    size: Usize,
+    offset: Usize,
 }
 
 *func append(t: Table, elem: don Any) = -> void

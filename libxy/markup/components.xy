@@ -1,44 +1,44 @@
 *struct NodeEnt {
-    ent: Ent;
-    type: NodeType;
+    ent: Ent,
+    type: NodeType,
 }
 
 *func get(ecs: Ecs, ne: NodeEnt, comp: Any) = ecs[ne.ent.id'to(Uint), comp];
 
 *struct NodeType {
-    value: Int;
+    value: Int,
 
-    isMap : pseudo = Enum{1};
-    isArray : pseudo = Enum{2};
-    isStr : pseudo = Enum{3};
-    isInteger : pseudo = Enum{4};
-    isFloating : pseudo = Enum{5};
+    isMap : pseudo = Enum{1},
+    isArray : pseudo = Enum{2},
+    isStr : pseudo = Enum{3},
+    isInteger : pseudo = Enum{4},
+    isFloating : pseudo = Enum{5},
 }
 
 *func get(nt: NodeType, e: Enum) nt.value[e];
 *func set(nt: NodeType, e: Enum, on: Bool) set(nt.value, e, on);
 
 *struct MarkupNode {
-    parent: NodeEnt;
-    type: NodeType;
+    parent: NodeEnt,
+    type: NodeType,
 }
 
 *struct MapNode {
-    value: Map~[String, NodeEnt];
+    value: Map~[String, NodeEnt],
 }
 
 *struct ArrayNode {
-    value: List~NodeEnt;
+    value: List~NodeEnt,
 }
 
 *struct StrNode {
-    value: String;
+    value: String,
 }
 
 *struct LongNode {
-    value: Long;
+    value: Long,
 }
 
 *struct FloatNode {
-    value: Long;
+    value: Long,
 }

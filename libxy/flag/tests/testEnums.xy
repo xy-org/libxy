@@ -18,10 +18,10 @@ import ..;
 }
 
 struct StructEnum {
-    value: Ubyte;
+    value: Ubyte,
 
-    enum1: pseudo = Enum{0x1};
-    enum2: pseudo = Enum{0x20};
+    enum1: pseudo = Enum{0x1},
+    enum2: pseudo = Enum{0x20},
 }
 
 func get(s: StructEnum, f: Enum) = s.value[f];

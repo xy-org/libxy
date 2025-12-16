@@ -16,10 +16,10 @@ import libxy.(string, fs, error);
 
 *struct Log {
     ;; The higher the more importaint the log message
-    level: Int = logLevelInfo;
+    level: Int = logLevelInfo,
 
-    file: File = File{1};
-    fileOwned: Bool;
+    file: File = File{1},
+    fileOwned: Bool,
 }
 
 *func dtor(log: mut Log) {

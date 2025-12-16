@@ -27,11 +27,11 @@ import xytest;
 }
 
 struct WithDtor {
-    id: Int;
+    id: Int,
 }
 
 struct DtorCounter {
-    counts: @Int[11];
+    counts: @Int[11],
 }
 
 func dtor(s: WithDtor) {
@@ -78,8 +78,8 @@ func dtor(s: WithDtor) {
 }
 
 struct Pair {
-    key: Int;
-    value: Int;
+    key: Int,
+    value: Int,
 }
 
 func cmp(p1: Pair, p2: Pair) = cmp(p1.key, p2.key);

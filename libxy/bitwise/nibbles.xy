@@ -2,10 +2,10 @@
 struct Nibbles {}
 
 ;; Struct representing a fixed number of nibbles
-struct Nibbles2 { bits: Bits8; }
-struct Nibbles4 { bits: Bits16; }
-struct Nibbles8 { bits: Bits32; }
-struct Nibbles16 { bits: Bits64; }
+struct Nibbles2 { bits: Bits8 }
+struct Nibbles4 { bits: Bits16 }
+struct Nibbles8 { bits: Bits32 }
+struct Nibbles16 { bits: Bits64 }
 
 # Nibble length
 func len(b: Nibbles2)   2;

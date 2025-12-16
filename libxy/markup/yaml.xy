@@ -4,7 +4,7 @@
 }
 
 struct YamlIter {
-    i: Usize;
+    i: Usize,
 }
 
 import libxy.stdio;

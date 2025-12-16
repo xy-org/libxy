@@ -32,7 +32,7 @@ pathSeparator := `/`;
 }
 
 struct PathStr {
-    fstr: Fstring;
+    fstr: Fstring,
 }
 
 func path~[StrCtor{prefix="path", interpolation=true, to=String}](addr: Ptr, len: Usize) -> PathStr{

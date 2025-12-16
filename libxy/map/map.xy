@@ -17,7 +17,7 @@ import libxy.(stdio, string);
     ;; Hash function to use
     hash: Any = LocalHash{},
 ] {
-    untyped: MapUntyped;
+    untyped: MapUntyped,
 }
 
 *func len(m: Map) = m.untyped'len;

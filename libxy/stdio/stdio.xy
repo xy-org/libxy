@@ -4,9 +4,9 @@ import libxy.error;
 import libxy.fs;
 
 struct StdIo {
-    stdin  := File{fd=0};
-    stdout := File{fd=1};
-    stderr := File{fd=2};
+    stdin  := File{fd=0},
+    stdout := File{fd=1},
+    stderr := File{fd=2},
 }
 
 ;; Prints `msg` to standard output

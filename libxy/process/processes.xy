@@ -2,7 +2,7 @@ import posix~[Clib{headers=@{"unistd.h", "sys/wait.h"}}] in c;
 import libxy.(string, list, error);
 
 struct Process {
-    pid: Int;
+    pid: Int,
 }
 
 *func run(

@@ -3,30 +3,30 @@ import xy.sys;
 import libxy.(string, stdio, list, slice, memory);
 
 *struct CliSchema {
-    name: String;
-    desc: String;
-    epilog: String;
-    short: String;
+    name: String,
+    desc: String,
+    epilog: String,
+    short: String,
 
-    named: List~CliParam;
-    positional: List~CliParam;
+    named: List~CliParam,
+    positional: List~CliParam,
 
-    prefixLong: String;
-    prefixShort: String;
+    prefixLong: String,
+    prefixShort: String,
 
-    noShortGrouping: Bool;
-    manualHelp: Bool;
+    noShortGrouping: Bool,
+    manualHelp: Bool,
 }
 
 *struct CliParam {
-    name: String;
-    desc: String;
-    arg: String;
-    short: Char;
-    nargs: RangeInt;
-    positional: Bool;
-    greedy: Bool;
-    command: Bool;
+    name: String,
+    desc: String,
+    arg: String,
+    short: Char,
+    nargs: RangeInt,
+    positional: Bool,
+    greedy: Bool,
+    command: Bool,
 }
 
 *func config(
@@ -162,7 +162,7 @@ func command(
 }
 
 struct ParsingError {
-    msg: String;
+    msg: String,
 }
 
 *func to(pe: ParsingError, :Bool) pe.msg'isEmpty'not;
@@ -303,9 +303,9 @@ struct ParsingError {
 }
 
 *struct CliArg {
-    name: String;
-    value: String~Shared;
-    # dataIdx: Size;
+    name: String,
+    value: String~Shared,
+    # dataIdx: Size,
 }
 
 -func findParam(schema: CliSchema, name: Str) -> Int {

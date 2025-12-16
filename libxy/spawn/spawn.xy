@@ -26,11 +26,11 @@ import libxy.(fs, binary, error, list);
 ;; may eventually get recycled so take care not to keep stale sids around.
 *struct Sid {
     ;; Used to identify the spawn in the local spawn system
-    slotId: Uint;
+    slotId: Uint,
 
     ;; Used to establish connection to external spawns
     ;; And guard against stale Sids
-    secret: Uint;
+    secret: Uint,
 }
 
 *func cmpEq(s1: Sid, s2: Sid) s1.slotId == s2.slotId && s1.secret == s2.secret;
@@ -38,36 +38,36 @@ import libxy.(fs, binary, error, list);
 
 ;; Don't use directly
 struct SpawnSystem {
-    spawns: List~Descriptor;
+    spawns: List~Descriptor,
 
-    q: List~Envelope;
-    select: Select;
-    qIdx: Uint;
+    q: List~Envelope,
+    select: Select,
+    qIdx: Uint,
 
-    mySecret: Uint;
-    parentSecret: Uint;
+    mySecret: Uint,
+    parentSecret: Uint,
 }
 
 struct Descriptor {
-    channel: File;
-    secret: Uint;
-    tid := c.pthread_t{0};
+    channel: File,
+    secret: Uint,
+    tid := c.pthread_t{0},
 }
 
 ;; A structure representing a general message
 ;; The interpretation of the fields is left to the application
 *struct Msg {
-    id: Int;
-    flags: Bits16;
-    header: Blob;
-    payload: Blob;
+    id: Int,
+    flags: Bits16,
+    header: Blob,
+    payload: Blob,
 }
 
 ;; A message together with sender/receiver and other bookkeeping info
 *struct Envelope {
-    msg: Msg;
-    from: Sid;
-    comm: Bool;; A normal (in-band) message sent from a spawn
+    msg: Msg,
+    from: Sid,
+    comm: Bool, ;; A normal (in-band) message sent from a spawn
 }
 
 *func spawn(fun: ()->void) = [Global~SpawnSystem]'ispawn(fun);

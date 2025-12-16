@@ -14,30 +14,30 @@ import libxy.flag;
 *struct Esc {
     ;; Control Sequence Introducer section
 
-    cursor: CursorControl;
-    clear: ClearMode;
-    screenBuffer: ScreenBufferControl;
+    cursor: CursorControl,
+    clear: ClearMode,
+    screenBuffer: ScreenBufferControl,
 
     ;; If turned on, text pasted into the terminal will be surrounded by
     ;; \033[200~ and \033[201~
-    bracketedPaste : bracketedPasteMode;
+    bracketedPaste : bracketedPasteMode,
 
     ;; Select Graphic Rendition section
 
-    sgrFlags: Uint;
+    sgrFlags: Uint,
 
-    bold: pseudo          = Flag{1};
-    faint: pseudo         = Flag{2};
-    italic: pseudo        = Flag{4};
-    underline: pseudo     = Flag{8};
-    blinking: pseudo      = Flag{16};
-    inverse: pseudo       = Flag{32};
-    hidden: pseudo        = Flag{64};
-    strikethrough: pseudo = Flag{128};
-    reset: pseudo         = Flag{256};; Reset any previous color/graphics modes
+    bold: pseudo          = Flag{1},
+    faint: pseudo         = Flag{2},
+    italic: pseudo        = Flag{4},
+    underline: pseudo     = Flag{8},
+    blinking: pseudo      = Flag{16},
+    inverse: pseudo       = Flag{32},
+    hidden: pseudo        = Flag{64},
+    strikethrough: pseudo = Flag{128},
+    reset: pseudo         = Flag{256}, ;; Reset any previous color/graphics modes
 
-    bg: Color;
-    fg: Color;
+    bg: Color,
+    fg: Color,
 }
 
 *func get(esc: Esc, flag: Flag) esc.sgrFlags[flag];
@@ -45,68 +45,68 @@ import libxy.flag;
 *func set(esc: mut Esc, flag: Flag, on: Bool) esc.sgrFlags[flag] = on;
 
 struct CursorControl {
-    up := 0;; move cursor up or down {up} lines
-    left := 0;; move cursor left or right {left} columns
+    up := 0, ;; move cursor up or down {up} lines
+    left := 0, ;; move cursor left or right {left} columns
 
-    x := 0;; set cursor position to {x} column (1-based)
-    y := 0;; set cursor position to {y} line (1-based)
+    x := 0, ;; set cursor position to {x} column (1-based)
+    y := 0, ;; set cursor position to {y} line (1-based)
 
-    save := false;; save current cursor position
-    restore := false;; restore last saved cursor position
+    save := false, ;; save current cursor position
+    restore := false, ;; restore last saved cursor position
 }
 
 struct ScreenBufferControl {
-    alternative := false;; enable alternative screen buffer
-    normal := false;; restore normal screen buffer
+    alternative := false, ;; enable alternative screen buffer
+    normal := false, ;; restore normal screen buffer
 }
 
 struct ClearMode {
     ;; Clear in Screen
-    toEndOfScreen := false;
-    toBeginningOfScreen := false;
-    screen := false;
-    screenAndScrollback := false;
+    toEndOfScreen := false,
+    toBeginningOfScreen := false,
+    screen := false,
+    screenAndScrollback := false,
 
     ;; Clear in Line
-    toEndOfLine := false;
-    toBeginningOfLine := false;
-    line := false;
+    toEndOfLine := false,
+    toBeginningOfLine := false,
+    line := false,
 }
 
 struct bracketedPasteMode {
-    on: Bool;
-    off: Bool;
+    on: Bool,
+    off: Bool,
 }
 
 ;; Info about a color on the terminals
 *struct Color {
-    r: Ubyte;
-    g: Ubyte;
-    b: Ubyte;
+    r: Ubyte,
+    g: Ubyte,
+    b: Ubyte,
 
-    mode : ColorMode;
+    mode : ColorMode,
 
-    black:    pseudo = Enum{30};
-    red:      pseudo = Enum{31};
-    green:    pseudo = Enum{32};
-    yellow:   pseudo = Enum{33};
-    blue:     pseudo = Enum{34};
-    magenta:  pseudo = Enum{35};
-    cyan:     pseudo = Enum{36};
-    white:    pseudo = Enum{37};
-    default:  pseudo = Enum{39};
+    black:    pseudo = Enum{30},
+    red:      pseudo = Enum{31},
+    green:    pseudo = Enum{32},
+    yellow:   pseudo = Enum{33},
+    blue:     pseudo = Enum{34},
+    magenta:  pseudo = Enum{35},
+    cyan:     pseudo = Enum{36},
+    white:    pseudo = Enum{37},
+    default:  pseudo = Enum{39},
 
-    gray:          pseudo = Enum{90};
-    brightBlack:   pseudo = Enum{90};; Synonym for gray
-    brigthRed:     pseudo = Enum{91};
-    brigthGreen:   pseudo = Enum{92};
-    brigthYellow:  pseudo = Enum{93};
-    brigthBlue:    pseudo = Enum{94};
-    brigthMagenta: pseudo = Enum{95};
-    brigthCyan:    pseudo = Enum{96};
-    brigthWhite:   pseudo = Enum{97};
+    gray:          pseudo = Enum{90},
+    brightBlack:   pseudo = Enum{90}, ;; Synonym for gray
+    brigthRed:     pseudo = Enum{91},
+    brigthGreen:   pseudo = Enum{92},
+    brigthYellow:  pseudo = Enum{93},
+    brigthBlue:    pseudo = Enum{94},
+    brigthMagenta: pseudo = Enum{95},
+    brigthCyan:    pseudo = Enum{96},
+    brigthWhite:   pseudo = Enum{97},
 
-    index: pseudo = IndexColor8Bit{};
+    index: pseudo = IndexColor8Bit{},
 }
 
 ;; Used just for a nice syntax around Color.index
@@ -130,12 +130,12 @@ struct IndexColor8Bit {}
 }
 
 *struct ColorMode {
-    value: Ubyte;
+    value: Ubyte,
 
-    none: pseudo = Enum{0};
-    depth4: pseudo = Enum{1};
-    depth8: pseudo = Enum{2};
-    depth24: pseudo = Enum{3};
+    none: pseudo = Enum{0},
+    depth4: pseudo = Enum{1},
+    depth8: pseudo = Enum{2},
+    depth24: pseudo = Enum{3},
 }
 
 *func get(cm: ColorMode, enm: Enum) cm.value[enm];

@@ -4,8 +4,8 @@ import libc~[Clib{}] in c;
 
 ;; A dynamic array. Can grow and shrink as you append and pop elements.
 *struct List~[elemType: struct] {
-    mem: Memory;
-    len: Usize~Count;
+    mem: Memory,
+    len: Usize~Count,
 }
 
 *func dtor(arr: mut List) = -> void {
@@ -54,7 +54,7 @@ func ensureCapacity(
 }
 
 struct ListIter {
-    idx: Usize;
+    idx: Usize,
 }
 
 *func iter(arr: List) -> arr[ ListIter ] {

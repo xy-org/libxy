@@ -1,6 +1,6 @@
 ;; Enum is like {Flag} but only one value is allowed a.k.a. enumeration
 *struct Enum {
-    value: Int;
+    value: Int,
 }
 
 ;; Set {value} to {enm} if {on}

@@ -3,9 +3,9 @@
 }
 
 -struct Event {
-    canRead: Bool;
-    canWrite: Bool;
-    slotId: Uint;
+    canRead: Bool,
+    canWrite: Bool,
+    slotId: Uint,
 }
 
 -func select(sel: mut Select) -> Uint {

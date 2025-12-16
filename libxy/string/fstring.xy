@@ -1,6 +1,6 @@
 *struct Fstring {
-    mem: Memory;
-    fill: Usize;
+    mem: Memory,
+    fill: Usize,
 }
 
 *func dtor(builder: mut Fstring) {

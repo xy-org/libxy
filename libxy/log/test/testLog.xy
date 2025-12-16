@@ -31,7 +31,7 @@ import libxy.(string, log, fs);
 }
 
 struct Marker {
-    touched : Bool;
+    touched : Bool,
 }
 
 func append(fstr: mut Fstring, m: mut Marker) {

@@ -8,16 +8,16 @@ import libxy.map;
 ;; Entities are just placeholders for the data. They don't carry additional
 ;; Information
 *struct Ecs {
-    stores: Map~[Uint, DataStore];
-    nextEntity: Uint;
+    stores: Map~[Uint, DataStore],
+    nextEntity: Uint,
 }
 
 *struct Ent {
-    id: Usize;
+    id: Usize,
 }
 
 struct DataStore {
-    data: MapUntyped;
+    data: MapUntyped,
 }
 
 ;; Create new entity

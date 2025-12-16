@@ -3,13 +3,13 @@ import libxy.string;
 import ..;
 
 struct Data1 {
-    x: Int;
-    y: Int;
+    x: Int,
+    y: Int,
 }
 
 struct Data2 {
-    weight: Float;
-    age: Int;
+    weight: Float,
+    age: Int,
 }
 
 *func creatingAndAttaching~Test() {

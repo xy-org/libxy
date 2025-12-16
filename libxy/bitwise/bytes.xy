@@ -2,10 +2,10 @@
 struct Bytes{}
 
 ;; Struct representing a fixed number of bytes
-struct Bytes1 { bits: Bits8; }
-struct Bytes2 { bits: Bits16; }
-struct Bytes4 { bits: Bits32; }
-struct Bytes8 { bits: Bits64; }
+struct Bytes1 { bits: Bits8 }
+struct Bytes2 { bits: Bits16 }
+struct Bytes4 { bits: Bits32 }
+struct Bytes8 { bits: Bits64 }
 
 # Byte length
 func len(b: Bytes1) 1;

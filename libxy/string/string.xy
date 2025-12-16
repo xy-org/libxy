@@ -11,8 +11,8 @@ func cstring~[StrCtor{prefix="c", interpolation=false}] (
 ;; Generally speaking {String} is what you are looking for unless you want
 ;; to do your own memory management
 *struct Str {
-    addr: Ptr~Byte;
-    size: Usize;
+    addr: Ptr~Byte,
+    size: Usize,
 }
 
 ;; Get a slice of {str}. The result shares memory with the original string.
@@ -52,14 +52,14 @@ func cstring~[StrCtor{prefix="c", interpolation=false}] (
 ;; terminating null character.
 *struct String {
 -:
-    addr: Ptr~Byte;
-    size: pseudo = SizeField{};
+    addr: Ptr~Byte,
+    size: pseudo = SizeField{},
 
-    isMananaged: pseudo = OwnField{};
+    isMananaged: pseudo = OwnField{},
 
     ;; The byte-length of the string as encoding in UTF-8
     ;; + a flag if the memory is owned or not
-    packedSize: %Usize'toBits;
+    packedSize: %Usize'toBits,
 }
 
 ;; Tag strings that share memory with other strings.
@@ -139,7 +139,7 @@ func set(str: String, :SizeField, new: Usize) =
 }
 
 struct CharIter {
-    i: Usize;; byte-offset of the code point after {char} in string
+    i: Usize, ;; byte-offset of the code point after {char} in string
     char: Char;; character at that offset
 }
 

@@ -1,8 +1,8 @@
 import xy.ctti;
 ;; Buf - a binary f-string i.e. a binary string that can be modified
 *struct Buf {
-    mem: Memory;
-    fill: Usize;
+    mem: Memory,
+    fill: Usize,
 }
 
 *func bfstr~[StrCtor{prefix="bf", .interpolation, to=Blob}](
@@ -67,14 +67,14 @@ func ensureCap(buf: mut Buf, required: Usize) -> void | SystemError {
 }
 
 *struct Endian {
-    val: Byte;
+    val: Byte,
 
-    big:    pseudo = Enum{ 0 };
-    little: pseudo = Enum{ 1 };
-    host:   pseudo = Enum{ -1 };
+    big:    pseudo = Enum{ 0 },
+    little: pseudo = Enum{ 1 },
+    host:   pseudo = Enum{ -1 },
 
-    native: pseudo = Enum{ -1 };; Synonym for {host}
-    network: pseudo = Enum{ 0 };; Synonym for {big}
+    native: pseudo = Enum{ -1 }, ;; Synonym for {host}
+    network: pseudo = Enum{ 0 }, ;; Synonym for {big}
 }
 
 *func get(endian: Endian, test: Enum) endian.val == test.value'to(Byte);

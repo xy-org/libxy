@@ -5,27 +5,27 @@ import libxy.(string, binary, flag, error);
 
 ;; Flags governing how a file is to be opened
 *struct OpenFlags {
-    value: Int;
+    value: Int,
 
-    append : pseudo = Flag{c.O_APPEND};
+    append : pseudo = Flag{c.O_APPEND},
 
-    create : pseudo = Flag{c.O_CREAT};
+    create : pseudo = Flag{c.O_CREAT},
 
-    directory : pseudo = Flag{c.O_DIRECTORY};
+    directory : pseudo = Flag{c.O_DIRECTORY},
 
-    readOnly : pseudo = Flag{c.O_RDONLY};
+    readOnly : pseudo = Flag{c.O_RDONLY},
     #r : pseudo = readOnly;
 
-    writeOnly : pseudo = Flag{c.O_WRONLY};
-    #w : pseudo = writeOnly;
+    writeOnly : pseudo = Flag{c.O_WRONLY},
+    #w : pseudo = writeOnly,
 
-    readWrite : pseudo = Flag{c.O_RDWR};
-    #rw : pseudo = readWrite;
+    readWrite : pseudo = Flag{c.O_RDWR},
+    #rw : pseudo = readWrite,
 
-    truncate : pseudo = Flag{c.O_TRUNC};
+    truncate : pseudo = Flag{c.O_TRUNC},
     #trunc : pseudo = truncate;; Shorthand for truncate
 
-    exclusive : pseudo = Flag{c.O_EXCL};
+    exclusive : pseudo = Flag{c.O_EXCL},
     #excl : pseudo = exclusive;; Shorthand for exclusive
 }
 
@@ -35,11 +35,11 @@ import libxy.(string, binary, flag, error);
 
 ;; Struct representing a file handle.
 *struct File {
-    fd: Int = -1;
+    fd: Int = -1,
 
     ;; Whether or not the file descriptor is blocking
     ;; Note - getting/setting this field require a syscall
-    blocking : pseudo = BlockingField{};
+    blocking : pseudo = BlockingField{},
 }
 
 ;; Open a file

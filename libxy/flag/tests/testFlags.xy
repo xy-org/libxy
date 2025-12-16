@@ -26,11 +26,11 @@ import ..;
 }
 
 struct FuncFlags {
-    flags: Ubyte;
+    flags: Ubyte,
 
-    flag1: pseudo = Flag{0x1};
-    flag2: pseudo = Flag{0x20};
-    flag3: pseudo = Flag{0x10};
+    flag1: pseudo = Flag{0x1},
+    flag2: pseudo = Flag{0x20},
+    flag3: pseudo = Flag{0x10},
 }
 
 func get(s: FuncFlags, f: Flag) = s.flags[f];

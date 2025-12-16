@@ -10,7 +10,7 @@ import libc~[Clib{headers=@{"errno.h", "time.h"}}] in c;
 ;; least a couple more centuries). I suggest someone in the 25-th century
 ;; change the `Ulong` to a larger type.
 struct Timestamp {
-    nsec: Ulong~ns;
+    nsec: Ulong~ns,
 }
 
 # NOTE! no sub/cmp as a timestamp is intended to be used as is. Doing math with

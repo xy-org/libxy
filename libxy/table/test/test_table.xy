@@ -4,10 +4,10 @@ import libxy.string;
 import ..;
 
 struct Data {
-    i: Int;
-    u: Ulong;
-    c: Char;
-    f: Float;
+    i: Int,
+    u: Ulong,
+    c: Char,
+    f: Float,
 }
 
 *func normalUsage~Test() {

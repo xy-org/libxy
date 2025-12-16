@@ -14,43 +14,43 @@ import libxy.memory;
 ) ls(path, LsFlags{=hidden, =type, =size, =atime, =mtime, =ctime});
 
 *struct LsFlags {
-    hidden: Bool;
-    type: Bool;
-    size: Bool;
-    atime: Bool;
-    mtime: Bool;
-    ctime: Bool;
+    hidden: Bool,
+    type: Bool,
+    size: Bool,
+    atime: Bool,
+    mtime: Bool,
+    ctime: Bool,
 }
 
 ;; Info about a node on a filesystem
 *struct Node {
-    name: String;
-    type: NodeType;
-    size: Size;
-    atime: Timestamp;
-    mtime: Timestamp;
-    ctime: Timestamp;
+    name: String,
+    type: NodeType,
+    size: Size,
+    atime: Timestamp,
+    mtime: Timestamp,
+    ctime: Timestamp,
 }
 
 *struct NodeType {
-    file: Bool;; Regular file
-    dir: Bool;; Directory
-    block: Bool;; Block device
-    char: Bool;; Char device
-    fifo: Bool;; Named pipe
-    link: Bool;; Symbolic link
-    socket: Bool;; Domain socket
+    file: Bool, ;; Regular file
+    dir: Bool, ;; Directory
+    block: Bool, ;; Block device
+    char: Bool, ;; Char device
+    fifo: Bool, ;; Named pipe
+    link: Bool, ;; Symbolic link
+    socket: Bool, ;; Domain socket
 }
 
 ;; Book keeping info for a directory that's being listed
 struct Listing {
-    wants: LsFlags;
+    wants: LsFlags,
 
-    dirfd: Int;
-    pDir : Ptr~[c.DIR];
-    currNode: Node;
-    eol: Bool;; end of listing
-    callStat: Bool;; should we call stat
+    dirfd: Int,
+    pDir : Ptr~[c.DIR],
+    currNode: Node,
+    eol: Bool, ;; end of listing
+    callStat: Bool, ;; should we call stat
 }
 
 *func dtor(ls: Listing) {

@@ -5,7 +5,7 @@ import libxy.bitwise;
 ;; Flag is a bitmask that is applied to an integer variable
 ;; Multiple flags can be set on the same value
 *struct Flag {
-    value: Int;
+    value: Int,
 }
 
 ;; Check if the bitmask stored in {flag} is applied to {value}

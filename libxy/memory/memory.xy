@@ -8,8 +8,8 @@ import libxy.error;
 ;; disposed, an so on is left open. There is no dtor as we don't know how the
 ;; memory has been allocated.
 *struct Memory {
-    addr: Ptr~Byte;
-    size: Usize;
+    addr: Ptr~Byte,
+    size: Usize,
 }
 
 ;; Tag for a managed region block that needs to be deallocated using {free()}

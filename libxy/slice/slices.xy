@@ -6,71 +6,71 @@
 
 ;; Range is an half-open interval [begin, end}. A step of 1 is implied
 *struct RangeByte {
-    begin: Byte;
-    end: Byte;
+    begin: Byte,
+    end: Byte,
 }
 
 ;; ...
 *struct RangeUbyte {
-    begin: Ubyte;
-    end: Ubyte;
+    begin: Ubyte,
+    end: Ubyte,
 }
 
 ;; ...
 *struct RangeShort {
-    begin: Short;
-    end: Short;
+    begin: Short,
+    end: Short,
 }
 
 ;; ...
 *struct RangeUshort {
-    begin: Ushort;
-    end: Ushort;
+    begin: Ushort,
+    end: Ushort,
 }
 
 ;; ...
 *struct RangeInt {
-    begin: Int;
-    end: Int;
+    begin: Int,
+    end: Int,
 }
 
 ;; ...
 *struct RangeUint {
-    begin: Uint;
-    end: Uint;
+    begin: Uint,
+    end: Uint,
 }
 
 ;; ...
 *struct RangeLong {
-    begin: Long;
-    end: Long;
+    begin: Long,
+    end: Long,
 }
 
 ;; ...
 *struct RangeUlong {
-    begin: Ulong;
-    end: Ulong;
+    begin: Ulong,
+    end: Ulong,
 }
 
 *RangeSize := RangeUlong;
 
 ;; Range is an half-open interval [start, end}.
 *struct RangeFloat {
-    begin: Float;
-    end: Float;
+    begin: Float,
+    end: Float,
 }
 
 ;; ...
 *struct RangeDouble {
-    begin: Double;
-    end: Double;
+    begin: Double,
+    end: Double,
 }
 
 ;; A slice represent the list of values in [{start}, {end}) separated by {step}
 *struct SliceInt {
-    begin: Int;
-    end: Int;
-    step: Int;
+    begin: Int,
+    end: Int,
+    step: Int,
 }
 
 # I don't see the point of floating-point slices
