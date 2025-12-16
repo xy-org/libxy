@@ -196,12 +196,12 @@ struct ParsingError {
 
     for (i in 1:rawArgs.argc) {
         tmp : Ptr = rawArgs.argv[i];
-        arg := string(tmp, Usize{c.strlen(rawArgs.argv[i])}, false);
+        arg := Str{ tmp, Usize{c.strlen(rawArgs.argv[i])} };
 
-        if (!greedyPosParam && arg'startswith("--")) {
+        if (!greedyPosParam && arg'startswith("--"'str)) {
             ;; long form
 
-            if (!schema.manualHelp && arg=="--help") {
+            if (!schema.manualHelp && arg=="--help"'str) {
                 error ParsingError{ f"{schema}" };
             }
 
@@ -225,7 +225,7 @@ struct ParsingError {
             } else {
                 namedParamIdx = paramIdx;
             }
-        } elif (!greedyPosParam && arg'startswith("-")) {
+        } elif (!greedyPosParam && arg'startswith("-"'str)) {
             ;; short form
             for (short in arg[1:]'chars) {
                 if (namedParamIdx >= 0) {
@@ -308,9 +308,9 @@ struct ParsingError {
     # dataIdx: Size;
 }
 
--func findParam(schema: CliSchema, name: String) -> Int {
+-func findParam(schema: CliSchema, name: Str) -> Int {
     for (idx in :, param in schema.named) {
-        if (param.name == name) {
+        if (param.name'str == name) {
             return idx'to(Int);
         }
     }

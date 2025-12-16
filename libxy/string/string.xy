@@ -143,24 +143,25 @@ struct CharIter {
     char: Char;; character at that offset
 }
 
-*func get(str: String, charIter: CharIter) = charIter.char;
+*func get(str: (String, Str), charIter: CharIter) = charIter.char;
 
 ;; Iterate of the unicode characters (code points) in {str}
 ;; Illegal byte sequences are replaced by U+FFFD
-*func chars~IterCtor(str: String) -> str[ CharIter ] {
+*func chars~IterCtor(str: (String, Str)) -> str[ CharIter ] {
     iter : CharIter;
     next(str, iter);
     return iter;
 }
 
-*func valid(str: String, iter: CharIter) iter.char'to(Int) >= 0;
+*func valid(str: (String, Str), iter: CharIter) iter.char'to(Int) >= 0;
 
-*func next(str: String, iter: mut CharIter) {
-    cp := decode(str, iter.i);
-    iter.char = cp;
+*func next(str: (String, Str), iter: mut CharIter) {
+    iter.char = decode(str, iter.i);
 }
 
-func decode(s: String, i: mut Usize) -> Char {
+func decode(s: String, i: mut Usize) = decode(s'str, i);
+
+func decode(s: Str, i: mut Usize) -> Char {
     if (i >= s.size) {
         return (-1)'to(Char);
     }
