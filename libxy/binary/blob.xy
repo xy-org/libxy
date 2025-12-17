@@ -18,7 +18,7 @@
 *func bunstrBe~[UnstrCtor{prefix="be"}](:Blob~void) = UnstrIter{};
 
 *func bunstrLe~[UnstrCtor{prefix="le"}](:Blob~void) =
-    UnstrIter{endian=Endian{.little}};
+    UnstrIter{endian=Endian{+little}};
 
 *func dtor(blob: mut Blob~void) = dtor(blob, blob..memory);
 
@@ -64,7 +64,7 @@ struct UnstrIter {
 {
     c.memcpy(bits'addrof, blob.addr + iter.offset, bits'sizeof);
     iter.offset += bits'sizeof;
-    bits = bits'to(Endian{.big});
+    bits = bits'to(Endian{+big});
 }
 
 ;; I hate this func. There should be a better more expressive way to do that.

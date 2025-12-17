@@ -10,7 +10,7 @@ import libxy.bitwise;
     blobBe := bf"num={0x12345678}";
     (equal) blobBe, b"num=\x12\x34\x56\x78";
 
-    blobLe := bf"num={0x12345678, Endian{.little}}";
+    blobLe := bf"num={0x12345678, Endian{+little}}";
     (equal) blobLe, b"num=\x78\x56\x34\x12";
 }
 
@@ -27,7 +27,7 @@ import libxy.bitwise;
 *func writingStr~Test() {
     str := "abc\xFF";
     (equal) bf"{str}", b"abc\xFF";
-    (equal) bf"{str, .nullTerminate}", b"abc\xFF\x00";
+    (equal) bf"{str, +nullTerminate}", b"abc\xFF\x00";
 }
 
 *func writingAnotherBlob~Test() {

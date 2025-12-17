@@ -5,7 +5,7 @@ import xy.ctti;
     fill: Usize,
 }
 
-*func bfstr~[StrCtor{prefix="bf", .interpolation, to=Blob}](
+*func bfstr~[StrCtor{prefix="bf", +interpolation, to=Blob}](
     addr: pseudo Ptr~Byte, size: Usize
 ) -> Buf {
     res: Buf;

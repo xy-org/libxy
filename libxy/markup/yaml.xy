@@ -56,13 +56,13 @@ func parseUnknownToken(
     };
 
     if (isNumber) {
-        .nodeIdx.type.isInteger;
+        +nodeIdx.type.isInteger;
 
         value: LongNode;
         value.value = number;
         ecs @= (nodeIdx.ent.id'to(Uint), value);
     } else {
-        .nodeIdx.type.isStr;
+        +nodeIdx.type.isStr;
 
         value: StrNode;
         value.value =< token;
@@ -76,7 +76,7 @@ func parseArray(src: String, iter: mut YamlIter, ecs: mut Ecs) -> (res: NodeEnt)
     (debug) f"Parsing Array {src, iter}";
 
     res.ent = Ent{ ecs'entity'to(Usize) };
-    .res.type.isArray;
+    +res.type.isArray;
 
     node : ArrayNode;
     while (src[iter] == `-`) {

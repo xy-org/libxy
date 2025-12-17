@@ -10,6 +10,6 @@ import libxy.(binary, string);
 *func stringifyBlob~Test() {
     blob := b"num=\xF0\x9F\x98\x8A";
     (equal) f"{blob}", "\\x6e\\x75\\x6d\\x3d\\xf0\\x9f\\x98\\x8a";
-    (equal) f"{blob, .ascii}", "num=....";
+    (equal) f"{blob, +ascii}", "num=....";
     (equal) f"{blob, prefix="", sep=" "}", "6e 75 6d 3d f0 9f 98 8a";
 }

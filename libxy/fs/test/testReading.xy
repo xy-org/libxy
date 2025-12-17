@@ -2,7 +2,7 @@ import xy.ctti;
 import libxy.memory;
 
 *func reading~Test() {
-    file := open('fileof, .readOnly);
+    file := open('fileof, +readOnly);
     content := f"{file}";
     checkContent(content);
 }
@@ -13,14 +13,14 @@ func checkContent(content: String) {
 }
 
 #func mmapFile~Test() {
-#    file := open('fileof, .read);
+#    file := open('fileof, +read);
 #    mem := file'mmap;
 #    content := String~External{mem, mem.size};
 #    # ...
 #}
 #
 #func readByChunks~Test() {
-#    file := open('fileof, .read);
+#    file := open('fileof, +read);
 #
 #    buffer: Memory;
 #    buffer'realloc(64);; intentionally allocate a small buffer

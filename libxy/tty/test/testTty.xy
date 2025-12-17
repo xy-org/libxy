@@ -4,14 +4,14 @@ import ..;
 
 *func settingGraphics~Test() {
     (assert) f"{Esc{}}" == "";
-    (assert) f"{Esc{.reset}}" == "\033[0m";
-    (assert) f"{Esc{.bold}}" == "\033[1m";
-    (assert) f"{Esc{.bold, .fg.green}}" == "\033[1;32m";
-    (assert) f"{Esc{.bold, fg=Color{.green}}}" == "\033[1;32m";
+    (assert) f"{Esc{+reset}}" == "\033[0m";
+    (assert) f"{Esc{+bold}}" == "\033[1m";
+    (assert) f"{Esc{+bold, +fg.green}}" == "\033[1;32m";
+    (assert) f"{Esc{+bold, fg=Color{+green}}}" == "\033[1;32m";
 }
 
 *func alternativeBuffer~Test() {
-    (assert) f"{Esc{.screenBuffer.alternative}}" == "\033[?1049h";
+    (assert) f"{Esc{+screenBuffer.alternative}}" == "\033[?1049h";
 }
 
 # TODO;

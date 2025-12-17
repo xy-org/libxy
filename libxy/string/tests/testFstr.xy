@@ -15,9 +15,9 @@ import ..;
 
     # Case folding in unicode is a mess. For now I am going to
     # not bother implementing it.
-    # (assert) f"My name is {str, .upper}" == "My name is JOHN";
-    # (assert) f"My name is {str, .lower}" == "My name is john";
-    # (assert) f"{str, fill=`*`, width=10, .center}" == "***John***";
+    # (assert) f"My name is {str, +upper}" == "My name is JOHN";
+    # (assert) f"My name is {str, +lower}" == "My name is john";
+    # (assert) f"{str, fill=`*`, width=10, +center}" == "***John***";
 }
 
 *func strInterpolationUnicode~Test() {
@@ -26,9 +26,9 @@ import ..;
 
     # Case folding in unicode is a mess. For now I am going to
     # not bother implementing it.
-    # (equal) "My name is {str, .upper}", "My name is ЙОАН";
-    # (equal) "My name is {str, .lower}", "My name is йоан";
-    # (equal) "{str, fill=`⁈`, width=6, .center}", "⁈Йоан⁈";
+    # (equal) "My name is {str, +upper}", "My name is ЙОАН";
+    # (equal) "My name is {str, +lower}", "My name is йоан";
+    # (equal) "{str, fill=`⁈`, width=6, +center}", "⁈Йоан⁈";
 }
 
 *func interpolatingInt~Test() {
@@ -76,18 +76,18 @@ import ..;
 
 *func scientificNotation~Test() {
     num := 3.14;
-    (assert) f"{num, .scientific}" == "3.140000e+00";
-    (assert) f"{num, .scientific, precision=2}" == "3.14e+00";
+    (assert) f"{num, +scientific}" == "3.140000e+00";
+    (assert) f"{num, +scientific, precision=2}" == "3.14e+00";
 }
 
 *func minWidth~Test() {
     str := "String";
     (equal) f"{str, minWidth=10, fill=`*`}", "****String";
-    (assert) f"{str, minWidth=10, fill=`*`, .left}" == "String****";
-    (assert) f"{str, minWidth=10, fill=`*`, .center}" == "**String**";
-    (assert) f"{str, minWidth=11, fill=`*`, .center}" == "**String***";
+    (assert) f"{str, minWidth=10, fill=`*`, +left}" == "String****";
+    (assert) f"{str, minWidth=10, fill=`*`, +center}" == "**String**";
+    (assert) f"{str, minWidth=11, fill=`*`, +center}" == "**String***";
 
-    (assert) f"{"128", minWidth=7, fill=`ə`, .center}" == "əə128əə";
+    (assert) f"{"128", minWidth=7, fill=`ə`, +center}" == "əə128əə";
     (assert) f"{"!", minWidth=3, fill=`😊`}" == "😊😊!";
 }
 

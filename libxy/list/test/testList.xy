@@ -71,7 +71,7 @@ func dtor(s: WithDtor) {
         (equal) arr[i], i;
     }
 
-    arr'sort(.decreasing);
+    arr'sort(+decreasing);
     for (i in :n) {
         (equal) arr[i], n - i - 1;
     }
@@ -92,7 +92,7 @@ func cmp(p1: Pair, p2: Pair) = cmp(p1.key, p2.key);
         arr @= Pair{key=i \rem max, value=i};
     }
 
-    arr'sort(.stable);
+    arr'sort(+stable);
 
     for (i in 1z:arr'len) {
         (assert) arr[i-1].key <= arr[i].key;

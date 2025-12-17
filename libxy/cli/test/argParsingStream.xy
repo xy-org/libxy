@@ -10,7 +10,7 @@ import ..;
         desc="What the program does",
         epilog="Text at the bottom of help"
     );
-    schema'param("filename", .positional);
+    schema'param("filename", +positional);
     schema'param("count", short=`c`, arg="num");
     schema'param("verbose", short=`v`, arg="");
 
@@ -34,7 +34,7 @@ import ..;
 *func helpMsg2~Test() {
     schema := CliSchema {
         'prog("xytest", desc="Discover and Run Tests"),
-        'param("dir", .positional),
+        'param("dir", +positional),
     };
 
     (equal) f"{schema}", """
@@ -52,7 +52,7 @@ import ..;
 
 *func autoHelp~Test() {
     schema := CliSchema {
-        'param("filename", .positional),
+        'param("filename", +positional),
     };
 
     cliArgs := @{c"./a.out", c"--help"};
@@ -66,7 +66,7 @@ import ..;
 *func parsingOnePosArg~Test() {
     schema := CliSchema {
         'prog("ProgramName"),
-        'param("filename", .positional),
+        'param("filename", +positional),
     };
 
     cliArgs := @{c"./a.out", c"myfile.txt"};
@@ -80,8 +80,8 @@ import ..;
 *func parsingTwoPositional~Test() {
     schema := CliSchema {
         'prog("ProgramName"),
-        'param("fileA", .positional),
-        'param("fileB", .positional),
+        'param("fileA", +positional),
+        'param("fileB", +positional),
     };
 
     cliArgs := @{c"./a.out", c"file1.txt", c"file2.txt"};
@@ -99,7 +99,7 @@ func lsSchema() = CliSchema {
     'param("long", `l`, arg=""),
     'param("all", `a`, arg=""),
     'param("reverse", `r`, arg=""),
-    'param("files", .positional, nargs=0:, .greedy),
+    'param("files", +positional, nargs=0:, +greedy),
 };
 
 *func parsingLs1~Test() {
@@ -174,7 +174,7 @@ func lsSchema() = CliSchema {
     ;; -W<warnings> or -L<dir> cannot be represented
 
     'config(prefixLong="-", prefixShort="-"),
-    'param("filename", .positional, nargs=1:2),
+    'param("filename", +positional, nargs=1:2),
     'param("compile-only", short=`c`, arg=""),
     'param("output", short=`o`, arg="file"),
     'param("warning", short=`W`, arg="warning"),
@@ -199,10 +199,10 @@ func lsSchema() = CliSchema {
 #-func gitSchema() -> CliSchema {
 #    schema : CliSchema;
 #    schema'param("version", arg="");
-#    schema'param("command", .command);
+#    schema'param("command", +command);
 #    schema'command("push");
-#    schema'param("repository", .positional, nargs=0:2);
-#    schema'param("refspec", .positional, nargs=0:2);
+#    schema'param("repository", +positional, nargs=0:2);
+#    schema'param("refspec", +positional, nargs=0:2);
 #    schema'command("stash");
 #    return schema;
 #}
@@ -225,7 +225,7 @@ func lsSchema() = CliSchema {
 -func ffmpegSchema() = CliSchema {
     'config(prefixLong="-", prefixShort="-"),
     'param("input", `i`, nargs=1:),
-    'param("output", .positional),
+    'param("output", +positional),
     'param("map", nargs=0:),
     'param("-c:a"),
 };
@@ -277,7 +277,7 @@ func parsingFfmpeg~Test() {
 *func parsingOnePosArgErr~Test() {
     schema := CliSchema {
         'prog("ProgramName"),
-        'param("filename", .positional),
+        'param("filename", +positional),
     };
 
     cliArgs := @{c"./a.out"};

@@ -7,7 +7,7 @@ import libxy.memory;
     (equal) int, 0x22334455;
     (equal) rest, b"\x66";
 
-    le := Endian{.little};
+    le := Endian{+little};
     "{i16: Short, le}{i32: Int, le}" = b"\x11\x22\x33\x44\x55\x66";
     (equal) i16, 0x2211s;
     (equal) i32, 0x66554433;

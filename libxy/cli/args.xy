@@ -277,7 +277,7 @@ struct ParsingError {
             if (nargsPositional[posParamIdx] + 1 >= schema.positional[posParamIdx].nargs.end) {
                 ;; current positional param satisfied. Move to next one.
                 posParamIdx++;
-                !.greedyPosParam;
+                -!greedyPosParam;
             }
         }
     }

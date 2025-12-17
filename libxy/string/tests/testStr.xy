@@ -69,25 +69,25 @@ import libxy.list;; For split/join tests
 
     (equal) "1,2,3"'split(","), @{"1", "2", "3"};
     (equal) "1,2,,3"'split(","), @{"1", "2", "", "3"};
-    (equal) "1,2,,3"'split(",", .ignoreEmpty), @{"1", "2", "3"};
+    (equal) "1,2,,3"'split(",", +ignoreEmpty), @{"1", "2", "3"};
     (equal) "1,2,,"'split(","), @{"1", "2", "", ""};
     (equal) ",1,2,"'split(","), @{"", "1", "2", ""};
-    (equal) ",1,2,"'split(",", .ignoreEmpty), @{"1", "2"};
+    (equal) ",1,2,"'split(",", +ignoreEmpty), @{"1", "2"};
 
     (equal) ""'split'len, 1z;
-    (equal) ""'split(.ignoreEmpty)'len, 0z;
+    (equal) ""'split(+ignoreEmpty)'len, 0z;
 
     (equal) ",,,"'split(",")'len, 4z;
-    (equal) ",,,"'split(",", .ignoreEmpty)'len, 0z;
+    (equal) ",,,"'split(",", +ignoreEmpty)'len, 0z;
 
     (equal) "\{ }?"'split'len, 2z;
-    (equal) "\{ }?"'split(.ignoreEmpty)'len, 2z;
+    (equal) "\{ }?"'split(+ignoreEmpty)'len, 2z;
 
     (equal) "1,2,3"'split(""), @{"", "1", ",", "2", ",", "3", ""};
-    (equal) "1,2,3"'split("", .ignoreEmpty), @{"1", ",", "2", ",", "3"};
+    (equal) "1,2,3"'split("", +ignoreEmpty), @{"1", ",", "2", ",", "3"};
 
     (equal) ""'split(""), @{""};
-    (equal) ""'split("", .ignoreEmpty)'len, 0;
+    (equal) ""'split("", +ignoreEmpty)'len, 0;
 
     (equal) "🍏♡🍏♡🍏"'split("♡"), @{"🍏", "🍏", "🍏"};
 }
